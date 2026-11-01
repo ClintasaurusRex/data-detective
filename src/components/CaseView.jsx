@@ -29,6 +29,19 @@ export function CaseView({ caseDef, caseState, updateCase, exerciseStates, updat
     wasSolved.current = !!mainState.solved;
   }, [mainState.solved]);
 
+  // Content for the "Copy to IDE" file, from the active exercise.
+  const requestFrom = `${caseDef.colleague.name}, ${caseDef.colleague.role}`;
+  const challengeFor = (exercise, request) => ({
+    caseNumber: caseDef.number,
+    caseTitle: caseDef.title,
+    exerciseTitle: exercise.title,
+    request,
+    requestFrom,
+    goal: exercise.goal,
+    rules: exercise.rules ?? caseDef.rules,
+    rows: exercise.rows,
+  });
+
   function beforeRun() {
     if (prediction) return true;
     setPredictionPrompt(true);
@@ -127,6 +140,7 @@ export function CaseView({ caseDef, caseState, updateCase, exerciseStates, updat
           runner={runner}
           beforeRun={beforeRun}
           describeRun={describeRun}
+          challenge={challengeFor(main, caseDef.request)}
         />
       </section>
 
@@ -162,6 +176,7 @@ export function CaseView({ caseDef, caseState, updateCase, exerciseStates, updat
             state={variationState}
             update={(fn) => updateExercise(variation.id, fn)}
             runner={runner}
+            challenge={challengeFor(variation, variation.brief)}
           />
         </section>
       )}

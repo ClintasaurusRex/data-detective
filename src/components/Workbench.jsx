@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 import { describeResultType, describeRunProblem, runChecks } from "../checking/evaluate.js";
 import { DEFAULT_TIMEOUT_MS } from "../runner/sandboxRunner.js";
 import { CodeBlock, RecordTable, RichText } from "./common.jsx";
+import { CopyToIde } from "./CopyToIde.jsx";
 import { HintsPanel } from "./HintsPanel.jsx";
 
 const TIMEOUT_SECONDS = DEFAULT_TIMEOUT_MS / 1000;
@@ -11,10 +12,15 @@ function countText(n) {
 }
 
 // The editor, Run and Check actions, output, console and check results for
-// one exercise. Shared by the main case and its variation.
-export function Workbench({ exercise, state, update, runner, beforeRun, describeRun }) {
+// one exercise. Shared by the main case and its variation. `challenge`
+// describes the exercise for the "Copy to IDE" file.
+export function Workbench({ exercise, state, update, runner, beforeRun, describeRun, challenge }) {
   const editorId = useId();
   const helpId = useId();
+  const wrapId = useId();
+  // Display-only preferences: they never change the code or saved progress.
+  const [expanded, setExpanded] = useState(false);
+  const [wrapLines, setWrapLines] = useState(false);
   const draft = state.draft ?? exercise.starterCode;
   const [busy, setBusy] = useState(null); // { kind: "run" } | { kind: "check", done, total }
   const [run, setRun] = useState(null); // { code, result }
@@ -117,7 +123,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
 
   return (
     <div className="workbench" data-testid={`workbench-${exercise.id}`} data-runs={completed.runs} data-checks={completed.checks}>
-      <div className="workbench-grid">
+      <div className={`workbench-grid${expanded ? " expanded" : ""}`} data-testid={`workbench-grid-${exercise.id}`} data-expanded={expanded}>
         <div className="editor-column">
           <label className="editor-label" htmlFor={editorId}>
             Your <code>transform</code> function
@@ -126,9 +132,20 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
             <code>transform</code> receives <code>rows</code>, an array (list) of job records, and returns a new array.
             Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd> on a Mac) to run.
           </p>
+          <div className="editor-toolbar">
+            <button type="button" className="small-button" onClick={() => setExpanded((e) => !e)} aria-controls={editorId}>
+              {expanded ? "Restore editor size" : "Expand editor"}
+            </button>
+            <label className="toggle" htmlFor={wrapId}>
+              <input id={wrapId} type="checkbox" checked={wrapLines} onChange={(e) => setWrapLines(e.target.checked)} />
+              Wrap long lines
+            </label>
+            {challenge && <CopyToIde challenge={challenge} code={draft} />}
+          </div>
           <textarea
             id={editorId}
-            className="code-editor"
+            className={`code-editor${wrapLines ? " wrap" : ""}`}
+            wrap={wrapLines ? "soft" : "off"}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onEditorKeyDown}
@@ -137,7 +154,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
             autoCapitalize="off"
             autoCorrect="off"
             autoComplete="off"
-            rows={Math.min(Math.max(draft.split("\n").length + 1, 7), 20)}
+            rows={expanded ? Math.max(draft.split("\n").length + 4, 24) : Math.min(Math.max(draft.split("\n").length + 1, 7), 20)}
             data-testid={`editor-${exercise.id}`}
           />
           <div className="actions">

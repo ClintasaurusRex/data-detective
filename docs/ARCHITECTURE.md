@@ -8,7 +8,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | Runner | `src/runner/` | Runs learner code in isolation and returns a plain result |
 | Checking | `src/checking/evaluate.js` | Compares results with expectations and writes feedback |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
-| Export | `src/export/nodeScript.js` | Builds the Node script and sample JSON |
+| Export | `src/export/nodeScript.js`, `src/export/challengeFile.js` | Builds the Node script and sample JSON, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
 
 ## Running learner code
@@ -71,3 +71,11 @@ The learner's code sits inside its own function (`loadYourCode`), as it does in 
 
 - **Its names are isolated.** Helpers named `fs`, `runScript`, `fail` or anything else can't clash with the wrapper's declarations.
 - **Standard output stays valid JSON.** The function receives a `console` that writes to standard error, so logging at the top level or inside `transform` still shows in the terminal but never mixes with the printed result. The wrapper's own messages ("Wrote 3 record(s)…", errors) also go to standard error. Unit tests run generated scripts in a real Node process, including scripts with all those characters, with clashing helper names, and with logging. Browser tests check that such solutions pass the checker, then download `solve.mjs` and `sample.json` and checks that Node's output equals the browser's output.
+
+## Copy to IDE
+
+`buildChallengeFile` builds `challenge.js` from the active exercise. `CaseView` passes each workbench its own request, goal and rules. It contains the exercise text as comments and the displayed rows as `JSON.stringify` output, so strings, whitespace and IDs are exact. The draft sits between `YOUR SOLUTION` start and stop markers, followed by a preview call that prints `transform(caseSampleRows)`. The file is plain text: building and copying it runs no code and doesn't touch saved state. It never includes reference solutions, hints or checker datasets. Copying uses `navigator.clipboard.writeText`. If that's unavailable or refused, the text is shown in a focused, pre-selected read-only text box.
+
+## Editor display
+
+"Expand editor" and "Wrap long lines" are local display state in `Workbench`, and aren't saved. Expanding switches the workbench grid to one column and sets a larger `min-height` on the textarea. Results stay mounted, so they're kept. Wrapping toggles the textarea's `wrap` attribute and CSS `white-space`. It never changes the value.

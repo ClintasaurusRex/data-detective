@@ -789,3 +789,57 @@ button.link-button {
 .export-help li {
   margin-bottom: 0.35rem;
 }
+
+/* Editor toolbar: expand, wrap and copy */
+
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+button.small-button {
+  min-height: 2.25rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.9rem;
+}
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.toggle input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+}
+.copy-feedback {
+  flex-basis: 100%;
+}
+.copy-feedback:empty {
+  display: none;
+}
+.copy-feedback .feedback {
+  margin: 0.25rem 0 0;
+}
+.fallback-text {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+.code-editor.wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+}
+
+/* Expanded editor: full width, results underneath. */
+.workbench-grid.expanded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.workbench-grid.expanded .code-editor {
+  min-height: max(28rem, 60vh);
+}

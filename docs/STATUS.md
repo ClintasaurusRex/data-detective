@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 1 November 2026 (export fixes added after the first Milestone 1 commit).
+Last updated: 1 November 2026 (export fixes, expandable editor and Copy to IDE added after the first Milestone 1 commit).
 
 ## Milestones
 
@@ -12,7 +12,18 @@ Last updated: 1 November 2026 (export fixes added after the first Milestone 1 co
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
-## Recent fixes
+## Recent changes
+
+- **Expand editor.** Each workbench (main case and variation) has an "Expand editor" button. It gives the editor the full workbench width and a taller area (at least 28rem or 60% of the screen), with results underneath. "Restore editor size" switches back. The draft, saved progress and current results are untouched, and Run, Check solution and Stop stay available. The editor stays vertically resizable. A "Wrap long lines" checkbox changes only the display (`wrap="soft"`); the code is never changed. Tests: `tests/e2e/editor.spec.js`.
+- **Copy to IDE.** Available before solving, in both workbenches. It copies a standalone `challenge.js`, built by `src/export/challengeFile.js`, containing:
+  - the case and exercise title
+  - the request, goal and rules as comments (the variation uses its own open-jobs content)
+  - the exact sample rows
+  - the current draft, or the starter code, inside a clearly marked YOUR SOLUTION section with room for helpers
+  - a preview call
+  - instructions to save it as `challenge.js`, run `node challenge.js`, and paste the solution section back without the sample data or preview
+
+  It never includes the reference solution, hints or the extra check datasets. Copying runs no code and doesn't change the draft or progress. If the clipboard is blocked, the file appears in a selected, read-only text box with instructions. Tests: `tests/unit/challengeFile.test.js` and `tests/e2e/editor.spec.js`.
 
 - Export: learner code is now isolated from the wrapper's declarations, and its console messages go to standard error so the printed result is always valid JSON. Regression tests: `tests/unit/exportScript.test.js` and `tests/e2e/export.spec.js`.
 
@@ -37,9 +48,9 @@ Run in the cloud session on 1 November 2026 with Node.js v24.22.1 and npm 11.19.
 | Check | Result |
 | --- | --- |
 | `npm run lint` (ESLint 10) | Pass, no warnings |
-| `npm test` (Vitest 5) | 5 files, 58 tests passed |
+| `npm test` (Vitest 5) | 6 files, 66 tests passed |
 | `npm run build` (Vite 8) | Pass |
-| `npm run test:e2e` (Playwright 1.63, headless Chromium build 1243, production build via `vite preview`) | 16 tests passed |
+| `npm run test:e2e` (Playwright 1.63, headless Chromium build 1243, production build via `vite preview`) | 22 tests passed |
 
 What the tests cover:
 
@@ -50,6 +61,7 @@ What the tests cover:
 - **Acceptance 5:** fixtures unchanged after mutating code; a stopped slow run never overwrites the next result (plus unit tests for run-ID correlation and stale, foreign-origin and foreign-window replies). Learner code can't reach `document`, `window`, `parent`, `top`, `localStorage` or IndexedDB, can't navigate, and has no `window.open`. A local test server received **zero** requests from fetch, sync XHR, WebSocket, EventSource, `importScripts` or URL workers. The sandbox frame itself can't reach the parent DOM, storage or cookies, open windows or navigate the top page. The app page blocks inline scripts and string eval.
 - **Acceptance 6:** reload restores draft, prediction, hints and solve. An edited draft is flagged as needing a new check, even after reload. Malformed JSON and wrong field types don't break startup. Unit tests cover storage that throws or is unavailable.
 - **Acceptance 7:** generated scripts run in Node 24.22.1 (unit and browser tests). They give the same output as the transformation on all 7 datasets, save to a file, accept a byte-order mark, keep learner code with quotes, backticks and `</script>` intact, and give clear errors for a missing argument, missing file, invalid JSON, a non-array and a thrown error. Learner code is isolated in its own function: helpers named `fs`, `runScript` or `fail` work, and `console` output (top level or inside `transform`) goes to standard error, so standard output and saved files stay valid JSON. Both cases are covered by unit tests (which fail on the earlier wrapper) and by browser tests: the solutions pass all 7 checks, and their downloaded scripts print the same records as the browser. Also run once by hand with Node 22.23.4: correct output and the missing-file message.
+- **Editor and Copy to IDE:** expanding keeps the draft, results and saved progress, puts results under the editor and keeps Run, Check and Stop working. Wrap doesn't change the code. The keyboard works (Space for the checkbox, Enter for buttons, focus stays on the toggle). At 375 px the controls fit with no sideways scroll. The copied file runs in Node, preserves the draft and the exact rows, and leaves runs, checks and saved data unchanged. The variation copies open-jobs content without the solution. When the clipboard is blocked, the fallback text is focused and fully selected.
 - **Acceptance 8:** keyboard-only flow (Tab to fields, Enter to submit, Ctrl+Enter to run, Tab and Enter to check) with a 3 px solid focus outline. At 375 px wide: no horizontal scroll, Run, Check and the download buttons fit on screen, and the reduced-motion stamp has no animation. Desktop (1280 px) and phone screenshots are in [screenshots/](screenshots/).
 - The development server (`npm run dev`) was also checked once: the runner works there, with no page errors.
 

@@ -83,3 +83,7 @@ node solve.mjs sample.json result.json
 ```
 
 The learner's code runs inside its own function, so helper names can't clash with the wrapper's, and its `console` messages go to standard error: standard output (and `result.json`) is always valid JSON. The wrapper reads the file, skips a byte-order mark if present, and gives clear errors for a missing argument, a missing file, a folder, invalid JSON and a non-array. The app explains that the browser exercise can't open files, which is why the Node wrapper exists.
+
+## Working in an IDE
+
+Both the main exercise and the variation have **Copy to IDE**. It copies `challenge.js`, which contains that exercise's request, goal and rules, the four case-file rows, the current draft, and a preview call. Learners save it, run `node challenge.js`, and paste the YOUR SOLUTION section back into the app to check it. The variation's copy asks for open jobs. Neither copy includes solutions, hints or the extra check datasets.

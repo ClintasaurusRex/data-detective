@@ -68,6 +68,12 @@ const openJobs = {
 }
 `,
   matchWord: "open",
+  rules: [
+    "Each row is a job record with a unique string `id` and a string `status`.",
+    "A job is open when its status is `open` after removing surrounding whitespace, ignoring capital letters.",
+    "Return the matching original records, in their original order.",
+    "Don't change the input rows.",
+  ],
   checks: [
     check("caseFile", ["J-103"]),
     check("newIds", ["J-2052", "J-2054"]),
