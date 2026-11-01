@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 1 November 2026 (export fixes, expandable editor and Copy to IDE added after the first Milestone 1 commit).
+Last updated: 1 November 2026 (export fixes, expandable editor, Copy to IDE and full-viewport layout added after the first Milestone 1 commit).
 
 ## Milestones
 
@@ -13,6 +13,8 @@ Last updated: 1 November 2026 (export fixes, expandable editor and Copy to IDE a
 | 5 | Your First Reporting Tool | Planned |
 
 ## Recent changes
+
+- **Full-viewport layout.** The app shell now uses the whole browser width, with modest outer padding (`clamp(0.75rem, 2vw, 2rem)`), and at least the viewport's height. On desktop (900 px and up), the case list is a compact 220 px left sidebar and the workspace fills the rest. At 1400 px and up, the request and the evidence sit side by side. Running text is capped at about 80 characters per line, so it stays readable without narrowing the workspace. Editor, results and tables use the full width. Phones keep the single-column layout. Tests: `tests/e2e/layout.spec.js`.
 
 - **Expand editor.** Each workbench (main case and variation) has an "Expand editor" button. It gives the editor the full workbench width and a taller area (at least 28rem or 60% of the screen), with results underneath. "Restore editor size" switches back. The draft, saved progress and current results are untouched, and Run, Check solution and Stop stay available. The editor stays vertically resizable. A "Wrap long lines" checkbox changes only the display (`wrap="soft"`); the code is never changed. Tests: `tests/e2e/editor.spec.js`.
 - **Copy to IDE.** Available before solving, in both workbenches. It copies a standalone `challenge.js`, built by `src/export/challengeFile.js`, containing:
@@ -50,7 +52,7 @@ Run in the cloud session on 1 November 2026 with Node.js v24.22.1 and npm 11.19.
 | `npm run lint` (ESLint 10) | Pass, no warnings |
 | `npm test` (Vitest 5) | 6 files, 66 tests passed |
 | `npm run build` (Vite 8) | Pass |
-| `npm run test:e2e` (Playwright 1.63, headless Chromium build 1243, production build via `vite preview`) | 22 tests passed |
+| `npm run test:e2e` (Playwright 1.63, headless Chromium build 1243, production build via `vite preview`) | 25 tests passed |
 
 What the tests cover:
 
@@ -62,6 +64,15 @@ What the tests cover:
 - **Acceptance 6:** reload restores draft, prediction, hints and solve. An edited draft is flagged as needing a new check, even after reload. Malformed JSON and wrong field types don't break startup. Unit tests cover storage that throws or is unavailable.
 - **Acceptance 7:** generated scripts run in Node 24.22.1 (unit and browser tests). They give the same output as the transformation on all 7 datasets, save to a file, accept a byte-order mark, keep learner code with quotes, backticks and `</script>` intact, and give clear errors for a missing argument, missing file, invalid JSON, a non-array and a thrown error. Learner code is isolated in its own function: helpers named `fs`, `runScript` or `fail` work, and `console` output (top level or inside `transform`) goes to standard error, so standard output and saved files stay valid JSON. Both cases are covered by unit tests (which fail on the earlier wrapper) and by browser tests: the solutions pass all 7 checks, and their downloaded scripts print the same records as the browser. Also run once by hand with Node 22.23.4: correct output and the missing-file message.
 - **Editor and Copy to IDE:** expanding keeps the draft, results and saved progress, puts results under the editor and keeps Run, Check and Stop working. Wrap doesn't change the code. The keyboard works (Space for the checkbox, Enter for buttons, focus stays on the toggle). At 375 px the controls fit with no sideways scroll. The copied file runs in Node, preserves the draft and the exact rows, and leaves runs, checks and saved data unchanged. The variation copies open-jobs content without the solution. When the clipboard is blocked, the fallback text is focused and fully selected.
+- **Layout:** checked at 1920×1080, 1366×768 and 375×740. In each case:
+  - the app spans the viewport width and at least its height
+  - the sidebar is narrow on desktop and stacks on the phone
+  - there is no page-level horizontal overflow before or after expanding the editor, wrapping lines or copying
+  - Expand, Wrap, Copy to IDE, Run, Check and the download buttons fit inside the viewport
+  - the expanded editor fills the workbench, with results underneath
+  - vertical scrolling works, and the draft and progress survive a reload
+
+  Screenshots: `docs/screenshots/1920-wide.png` and `1366-wide.png`.
 - **Acceptance 8:** keyboard-only flow (Tab to fields, Enter to submit, Ctrl+Enter to run, Tab and Enter to check) with a 3 px solid focus outline. At 375 px wide: no horizontal scroll, Run, Check and the download buttons fit on screen, and the reduced-motion stamp has no animation. Desktop (1280 px) and phone screenshots are in [screenshots/](screenshots/).
 - The development server (`npm run dev`) was also checked once: the runner works there, with no page errors.
 

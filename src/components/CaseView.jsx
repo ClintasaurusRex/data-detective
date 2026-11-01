@@ -68,6 +68,7 @@ export function CaseView({ caseDef, caseState, updateCase, exerciseStates, updat
         </p>
       </header>
 
+      <div className="case-brief">
       <section className="panel request" aria-labelledby="request-title">
         <h3 id="request-title">The request</h3>
         <blockquote>
@@ -115,6 +116,7 @@ export function CaseView({ caseDef, caseState, updateCase, exerciseStates, updat
         </p>
         <RecordTable rows={main.rows} caption="Job export: input rows" />
       </section>
+      </div>
 
       <Prediction
         caseDef={caseDef}

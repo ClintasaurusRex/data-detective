@@ -4,11 +4,11 @@ A friendly learning app for writing useful workplace data scripts in JavaScript.
 
 You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and finish with a Node script you can keep.
 
-The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back.
+The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back.
 
 Milestone 1 (Case 1, **The Missing Jobs**) is complete. Cases 2–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
-![Case 1 after it has been solved](docs/screenshots/desktop-solved.png)
+![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
 ## Run it locally
 
