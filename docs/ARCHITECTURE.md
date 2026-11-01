@@ -54,7 +54,7 @@ App page (strict CSP, no eval)
 - **CSP is set with `<meta>` tags**, so `frame-ancestors` and reporting can't be set. A host that supports response headers could add them. The development server (`npm run dev`) omits the app page CSP because Vite's hot reload needs inline scripts; the sandbox CSP applies in development too.
 - **The iframe posts results to the app with target origin `"*"`**, because an opaque origin can't name its parent's origin. Messages only contain run results. The app checks the sender's window and origin.
 - **This is a local learning tool, not anti-cheat.** Learners can only affect their own checks, for example by writing code that recognises the datasets. It is not meant for running untrusted code from other people.
-- **Small differences from the exported module.** The browser compiles code as a strict-mode function body, while the export is an ES module. Top-level `return` or `await` would behave differently. The exported wrapper declares `fs`, `runScript` and `fail` at the top level, so learner code that declares the same top-level names would clash in the exported file.
+- **Small differences from the exported module.** Both the browser and the export run learner code as a strict-mode function body, but the export is an ES module, so `import` statements in learner code wouldn't work there. They don't work in the browser either, so such code can't pass the checks.
 - **Syntax-error positions are approximate** when the problem is at the very end of the code (for example, a missing `}`). The app then says "near the end of your code".
 
 ## Saved progress
@@ -65,4 +65,9 @@ A solve stores the exact code that passed. When the draft differs from it, the a
 
 ## Export
 
-`buildNodeScript` places the checked code in the `.mjs` file **as code**, between two comment lines. It is never inside a string, template literal or HTML page, so quotes, backticks, `${`, `*/` and `</script>` are harmless. Files are offered as `Blob` downloads. A unit test runs generated scripts in a real Node process, including one with all those characters. A browser test downloads `solve.mjs` and `sample.json` and checks that Node's output equals the browser's output.
+`buildNodeScript` places the checked code in the `.mjs` file **as code**, between two comment lines. It is never inside a string, template literal or HTML page, so quotes, backticks, `${`, `*/` and `</script>` are harmless. Files are offered as `Blob` downloads.
+
+The learner's code sits inside its own function (`loadYourCode`), as it does in the browser runner:
+
+- **Its names are isolated.** Helpers named `fs`, `runScript`, `fail` or anything else can't clash with the wrapper's declarations.
+- **Standard output stays valid JSON.** The function receives a `console` that writes to standard error, so logging at the top level or inside `transform` still shows in the terminal but never mixes with the printed result. The wrapper's own messages ("Wrote 3 record(s)…", errors) also go to standard error. Unit tests run generated scripts in a real Node process, including scripts with all those characters, with clashing helper names, and with logging. Browser tests check that such solutions pass the checker, then download `solve.mjs` and `sample.json` and checks that Node's output equals the browser's output.

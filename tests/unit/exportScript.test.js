@@ -65,7 +65,8 @@ describe("exported Node script", () => {
 
   it("saves to a file when given an output path", async () => {
     const result = await node(["solve.mjs", "sample.json", "result.json"]);
-    expect(result.stdout).toMatch(/Wrote 3 record\(s\) to result.json/);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toMatch(/Wrote 3 record\(s\) to result.json/);
     expect(JSON.parse(await readFile(join(dir, "result.json"), "utf8"))).toHaveLength(3);
   });
 
@@ -116,6 +117,54 @@ function transform(rows) {
     const result = await node(["tricky.mjs", "sample.json"]);
     expect(result.code).toBe(0);
     expect(JSON.parse(result.stdout).map((r) => r.id)).toEqual(["J-101", "J-102", "J-104"]);
+  });
+
+  it("isolates learner helpers named like the wrapper's own declarations", async () => {
+    const clashing = `const fs = "not the file system";
+function fail(row) {
+  return row.status.trim().toLowerCase() !== "complete";
+}
+function runScript(rows) {
+  return rows.filter(row => !fail(row));
+}
+function transform(rows) {
+  return runScript(rows);
+}`;
+    await writeFile(join(dir, "clash.mjs"), script(clashing));
+    const result = await node(["clash.mjs", "sample.json"]);
+    expect(result.stderr).toBe("");
+    expect(result.code).toBe(0);
+    expect(JSON.parse(result.stdout).map((r) => r.id)).toEqual(["J-101", "J-102", "J-104"]);
+
+    // Errors from the wrapper still work when learner code defines fail().
+    const missing = await node(["clash.mjs", "nope.json"]);
+    expect(missing.code).toBe(1);
+    expect(missing.stderr).toMatch(/Couldn't find "nope.json"/);
+  });
+
+  it("keeps standard output valid JSON when transform logs", async () => {
+    const logging = `console.log("loading my script");
+console.info("top-level info");
+function transform(rows) {
+  console.log("rows received:", rows.length);
+  const kept = rows.filter(row => {
+    console.warn("checking", row.id);
+    return row.status.trim().toLowerCase() === "complete";
+  });
+  console.error("kept", kept.length);
+  return kept;
+}`;
+    await writeFile(join(dir, "logging.mjs"), script(logging));
+    const result = await node(["logging.mjs", "sample.json"]);
+    expect(result.code).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual(new Function(`${logging}; return transform;`).call(null)(structuredClone(completed.rows)));
+    for (const text of ["loading my script", "top-level info", "rows received: 4", "checking J-103", "kept 3"]) {
+      expect(result.stderr).toContain(text);
+    }
+
+    const saved = await node(["logging.mjs", "sample.json", "logged.json"]);
+    expect(saved.stdout).toBe("");
+    expect(JSON.parse(await readFile(join(dir, "logged.json"), "utf8"))).toHaveLength(3);
   });
 
   it("reports an error thrown by transform", async () => {

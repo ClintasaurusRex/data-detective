@@ -4,6 +4,11 @@
 // lines. It is never put inside a string, template literal or HTML page, so
 // quotes, backticks and "</script>" in it need no escaping. Only code that
 // passed the checks is exported, so it is valid JavaScript.
+//
+// The code sits inside its own function, matching the browser runner: its
+// declarations can't clash with the wrapper's (fs, runScript, fail...), and
+// it receives a `console` that writes to standard error, so standard output
+// stays valid JSON.
 
 function commentSafe(text) {
   return String(text).replace(/[\r\n\u2028\u2029]+/g, " ");
@@ -25,10 +30,17 @@ export function buildNodeScript({ code, caseNumber, caseTitle, exerciseTitle, fi
 
   return `${header}
 
+import { Console } from "node:console";
 import * as fs from "node:fs/promises";
 
+// Your code runs inside its own function, so its names can't clash with the
+// rest of this file. Its console messages go to standard error: they still
+// appear in the terminal, but never mix with the JSON result.
+const transform = (function loadYourCode(console) {
 // ---- Your transform function, as checked in Data Detective ----
 ${learnerCode}// ---- End of your function ----
+  return transform;
+})(new Console({ stdout: process.stderr, stderr: process.stderr }));
 
 // Reads a JSON file, runs transform on it, and prints or saves the result.
 async function runScript() {
@@ -65,7 +77,7 @@ async function runScript() {
   if (outputPath) {
     await fs.writeFile(outputPath, json, "utf8");
     const count = Array.isArray(result) ? \`\${result.length} record(s)\` : "the result";
-    console.log(\`Wrote \${count} to \${outputPath}\`);
+    console.error(\`Wrote \${count} to \${outputPath}\`);
   } else {
     process.stdout.write(json);
   }

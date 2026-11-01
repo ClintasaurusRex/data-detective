@@ -56,6 +56,10 @@ export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
             To save the result instead, run <code>node {fileName} sample.json result.json</code>.
           </li>
           <li>Try it on your own JSON file, as long as it&rsquo;s an array of records with the same fields.</li>
+          <li>
+            Anything your code logs with <code>console.log</code> still shows in the terminal, but it&rsquo;s kept out of
+            the JSON result, so a saved <code>result.json</code> stays valid.
+          </li>
         </ol>
         <p>
           <strong>Why a separate script?</strong> In the browser, your function only receives the data the app hands

@@ -82,4 +82,4 @@ node solve.mjs sample.json
 node solve.mjs sample.json result.json
 ```
 
-The wrapper reads the file, skips a byte-order mark if present, and gives clear errors for a missing argument, a missing file, a folder, invalid JSON and a non-array. The app explains that the browser exercise can't open files, which is why the Node wrapper exists.
+The learner's code runs inside its own function, so helper names can't clash with the wrapper's, and its `console` messages go to standard error: standard output (and `result.json`) is always valid JSON. The wrapper reads the file, skips a byte-order mark if present, and gives clear errors for a missing argument, a missing file, a folder, invalid JSON and a non-array. The app explains that the browser exercise can't open files, which is why the Node wrapper exists.
