@@ -6,7 +6,7 @@ You play a data detective at a fictional water utility, Riverbend Water Services
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete. Cases 2–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete. Milestone 2 (**The Messy Export**) is in progress: its data contract, CSV parser and test datasets are done, and it isn't playable yet. Cases 3–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -41,7 +41,7 @@ The app is static. After `npm run build`, the `dist/` folder can be served from 
 | Command | What it does |
 | --- | --- |
 | `npm run lint` | ESLint |
-| `npm test` | Unit tests (Vitest): checking logic, saved progress, the exported Node script (run in a real Node process), the sandbox CSP and runner messaging |
+| `npm test` | Unit tests (Vitest): checking logic, saved progress, the exported Node script (run in a real Node process), the sandbox CSP and runner messaging, the CSV parser and the Case 2 data contract |
 | `npm run build` | Production build into `dist/` |
 | `npm run test:e2e` | Browser tests (Playwright, Chromium) against the production build: the learner journey, keyboard use, a phone-sized screen, runner errors and recovery, and the isolation boundaries |
 | `npm run check` | All of the above, in that order |
@@ -53,6 +53,7 @@ The browser tests expect Playwright's Chromium. In this repository `@playwright/
 ```
 src/
   missions/       case content: requests, rules, datasets, hints, solutions
+  csv/            CSV parsing (Papa Parse wrapper), shared by browser and Node
   checking/       turns run results into plain-language feedback
   runner/         the sandboxed code runner (app side + sandbox page scripts)
   storage/        saved progress in localStorage, with validation
@@ -73,7 +74,7 @@ Each layer is separate, so later cases add a mission file and datasets without t
 3. Document its datasets in `docs/cases/`.
 4. Add unit tests that the expected results follow the case rules, and extend the browser journey.
 
-Case 2 introduces CSV, which will need a parser and probably a different checker for rejected rows. See the backlog in [docs/PRODUCT.md](docs/PRODUCT.md).
+Case 2 introduces CSV. Its contract, parser and datasets are in place (Milestone 2, Slice 1); the playable exercise and a checker for `{ accepted, rejected }` results come next. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ## Privacy
 

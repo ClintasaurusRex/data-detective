@@ -1,18 +1,70 @@
 # Status
 
-Last updated: 1 November 2026 (export fixes, expandable editor, Copy to IDE and full-viewport layout added after the first Milestone 1 commit).
+Last updated: 6 November 2026 (Milestone 2, Slice 1: the Case 2 contract, CSV parser, datasets and tests).
 
 ## Milestones
 
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Complete** (on branch `claude/sharp-goldberg-u42b65`, not merged) |
-| 2 | The Messy Export | Planned: backlog in [PRODUCT.md](PRODUCT.md) |
+| 2 | The Messy Export | **In progress.** Slice 1 is done on branch `claude/milestone-2-messy-export` (branched from the Milestone 1 tip, not merged). Not playable yet. |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
-## Recent changes
+## Milestone 2, Slice 1: The Messy Export foundation (6 November 2026)
+
+Branch `claude/milestone-2-messy-export`, created from `claude/sharp-goldberg-u42b65` at `4789663`. PR #1 is unchanged.
+
+### Done
+
+- **The learning challenge and data contract**: [cases/02-messy-export.md](cases/02-messy-export.md). It covers:
+  - the scenario (Priya Natarajan, Billing Coordinator, and the weekly field-work export)
+  - the input format, and the `{ line, id, status, hours, notes }` rows that `transform` receives (all strings except `line`)
+  - the validation rules, and the reason codes (`missing-id`, `missing-status`, `invalid-status`, `missing-hours`, `invalid-hours`), with all reasons listed in column order
+  - the `{ accepted, rejected }` output contract
+  - the difference between CSV errors and rejected records
+  - two open questions for review
+- **CSV parser**: `src/csv/parseCsv.js`, a small wrapper around **Papa Parse 5.7.0** (exact pin, MIT, no dependencies). It does syntax only and has no case rules. It:
+  - uses a comma as the only delimiter
+  - normalises line endings and removes a byte-order mark
+  - keeps values as untouched strings
+  - checks field counts and the header (blank, duplicate and required columns)
+  - reports file line numbers
+  - skips and reports blank lines
+  - fails the whole file, with `records: null`, on any syntax error
+
+  It isn't imported by the UI yet, so the app bundle is unchanged.
+- **Contract module**: `src/missions/messyExport.contract.js`. It holds the columns, statuses, hours pattern and reason codes, plus `rowsFromCsv`, which turns a parsed export into `transform` input. It deliberately has **no validator**, because that's the learner's job.
+- **Fixtures**: `src/missions/messyExport.fixtures.js`. There are 13 valid datasets, with hand-written accepted and rejected results, and 9 malformed files with their expected CSV errors. All are deep-frozen and fictional.
+- **Tests** (106 new unit tests):
+  - `tests/unit/csv.test.js` (25) covers the parser.
+  - `tests/unit/messyExport.test.js` (81) checks every expected answer against an independent reference implementation, which exists only in the test file. It also checks invariants: each record appears exactly once, file order, text IDs, and blank hours never becoming 0.
+  - It confirms that eight wrong approaches each fail at least one dataset: typed-in answers, `Number()` with and without a blank check, `parseFloat`, not trimming or not lower-casing, numeric IDs, first reason only, and dropping rejected records.
+  - It confirms that malformed files stop at the CSV stage, with codes that never overlap with rejection reasons.
+
+### Not done (later slices)
+
+- The Case 2 mission (request, prediction, starter code, hints, explained solution), marked playable.
+- A checker for `{ accepted, rejected }` results. The current `evaluate.js` compares a list of records by ID, and it needs a sibling that compares by `line` and checks reasons, record identity and order.
+- UI: showing the raw CSV and the parsed rows (with visible whitespace and line numbers), CSV error display, and reason-code wording in feedback.
+- Copy to IDE and the Node CSV export (a script that reads a `.csv` file). How the exported script gets Papa Parse is still to decide: download a small folder with a `package.json` (the learner runs `npm install` once), or inline the parser into the `.mjs` file.
+- Browser (Playwright) tests for Case 2.
+
+### Validation evidence (Slice 1)
+
+Run locally on 6 November 2026 with Node.js v24.18.0 and npm 11.16.0 (`.nvmrc` says 24.22.1; this machine has 24.18.0). `npm run check` passed:
+
+| Check | Result |
+| --- | --- |
+| `npm run lint` | Pass, no warnings |
+| `npm test` | 8 files, 172 tests passed (66 existing + 106 new) |
+| `npm run build` | Pass. The app bundle is byte-for-byte the same as before (`index-CnmnYcOR.js`, 273.97 kB) |
+| `npm run test:e2e` (Playwright 1.63, Chromium) | 25 tests passed (all Milestone 1 browser tests, unchanged) |
+
+`npm audit --omit=dev` finds 0 vulnerabilities. Papa Parse adds no advisories. `npm audit` still reports moderate advisories in development-only ESLint dependencies (now 4).
+
+## Milestone 1 changes
 
 - **Full-viewport layout.** The app shell now uses the whole browser width, with modest outer padding (`clamp(0.75rem, 2vw, 2rem)`), and at least the viewport's height. On desktop (900 px and up), the case list is a compact 220 px left sidebar and the workspace fills the rest. At 1400 px and up, the request and the evidence sit side by side. Running text is capped at about 80 characters per line, so it stays readable without narrowing the workspace. Editor, results and tables use the full width. Phones keep the single-column layout. Tests: `tests/e2e/layout.spec.js`.
 
@@ -86,9 +138,4 @@ What the tests cover:
 
 ## Next task
 
-**Start Milestone 2, The Messy Export.** Do it in this order:
-
-1. Choose and add a maintained CSV parser (for example PapaParse). Write parser checks for quoted commas, newlines inside quoted fields and a byte-order mark.
-2. Write the case contract: fields, which blanks are rejected, numeric conversion without blank becoming `0`, and IDs kept as strings. Write the datasets with expected accepted and rejected rows, each with a reason, in `docs/cases/02-messy-export.md`.
-3. Extend the checker to compare `{ accepted, rejected }` results, reusing the runner unchanged.
-4. Add the Node CSV runner export.
+**Milestone 2, Slice 2.** Wait for the owner to review Slice 1 and settle the open questions at the end of [cases/02-messy-export.md](cases/02-messy-export.md) (strict hours, and whole-file CSV failure). Then build the checker for `{ accepted, rejected }` results and the playable browser exercise, reusing the runner unchanged. After that, Slice 3 adds Copy to IDE and the Node CSV export.

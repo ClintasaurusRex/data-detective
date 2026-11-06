@@ -37,7 +37,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Done** (see [STATUS.md](STATUS.md)) |
-| 2 | The Messy Export | Planned |
+| 2 | The Messy Export | In progress (Slice 1 done: contract, CSV parser, datasets and tests) |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
@@ -46,7 +46,9 @@ The fun comes from investigation, immediate visible results, collecting useful t
 
 Filtering with `filter`, `trim` and `toLowerCase`, with a prediction step, three hints, an explained solution, checks against seven datasets, a Node script export, and an "open jobs" variation. Details: [cases/01-missing-jobs.md](cases/01-missing-jobs.md).
 
-### Milestone 2: The Messy Export (backlog)
+### Milestone 2: The Messy Export (in progress)
+
+The contract and datasets are in [cases/02-messy-export.md](cases/02-messy-export.md).
 
 Teach CSV parsing and data validation through an export with spaces, blank fields and inconsistent values.
 
