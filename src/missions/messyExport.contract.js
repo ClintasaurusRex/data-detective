@@ -17,6 +17,7 @@ export const STATUSES = Object.freeze(["open", "complete", "on hold"]);
 
 // Valid hours: digits, optionally followed by one decimal point and more
 // digits, after trimming surrounding whitespace. "0" is valid. Blank is not.
+// This pattern checks syntax only; Number(hours) must also be finite.
 export const HOURS_PATTERN = /^\d+(\.\d+)?$/;
 
 // Rejection reasons, in the order they must be listed for a record

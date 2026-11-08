@@ -7,7 +7,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | Missions | `src/missions/` | Case text, rules, datasets with expected IDs, hints, solutions |
 | Runner | `src/runner/` | Runs learner code in isolation and returns a plain result |
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
-| Checking | `src/checking/evaluate.js` | Compares results with expectations and writes feedback |
+| Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records by file line against explicit fixture expectations |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
 | Export | `src/export/nodeScript.js`, `src/export/challengeFile.js` | Builds the Node script and sample JSON, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
@@ -63,6 +63,8 @@ App page (strict CSP, no eval)
 `parseCsv` wraps Papa Parse 5.7.0 (pinned exactly, MIT, no dependencies). It runs in the app or in Node, never in the sandbox: the learner's `transform` receives already-parsed rows, so the runner and its CSP are unchanged. It is not yet used by the UI, so it isn't in the app bundle.
 
 It separates **CSV errors** (broken file structure: the whole file stops, `records` is `null`) from **business rules**, which belong to each mission. It fixes the delimiter to a comma, normalises line endings first (Papa Parse would merge rows in a file mixing `\r\n` and `\n`), removes a byte-order mark, keeps every value as an untouched string, checks field counts against the header, reports file line numbers, and lists skipped blank lines. The full contract is in [cases/02-messy-export.md](cases/02-messy-export.md#csv-parsing).
+
+Case 2’s checker is implemented but not connected to the UI. It accepts already-parsed datasets and runner results, reuses execution-error feedback, and verifies exact fields, types, finite hours, classification, reasons, content preservation, order and exactly-once coverage by file line. It contains no reference transformation. See [the checker contract](cases/02-messy-export.md#validation-checker-slice-2).
 
 ## Saved progress
 

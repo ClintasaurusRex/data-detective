@@ -19,7 +19,7 @@ function isDigits(text) {
 
 function validHours(text) {
   const parts = text.split(".");
-  return parts.length <= 2 && parts.every(isDigits);
+  return parts.length <= 2 && parts.every(isDigits) && Number.isFinite(Number(text));
 }
 
 function referenceTransform(rows) {
@@ -80,6 +80,12 @@ describe("Case 2 contract", () => {
       expect(HOURS_PATTERN.test(bad), bad).toBe(false);
       expect(validHours(bad), bad).toBe(false);
     }
+  });
+
+  it("rejects hours whose digits convert to a non-finite number", () => {
+    const row = { line: 2, id: "01", status: "open", hours: "9".repeat(400), notes: "" };
+    expect(HOURS_PATTERN.test(row.hours)).toBe(true); // syntax alone is insufficient
+    expect(referenceTransform([row])).toEqual({ accepted: [], rejected: [{ record: row, reasons: ["invalid-hours"] }] });
   });
 
   it("turns a parsed export into rows of raw strings with their file line", () => {

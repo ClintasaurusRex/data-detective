@@ -1,6 +1,6 @@
 # Case 2: The Messy Export
 
-Status: **Milestone 2, Slice 1.** The contract, CSV parser, datasets and tests are done. The playable exercise, checker, hints, solution and Node CSV export are not built yet (see [STATUS.md](../STATUS.md)).
+Status: **Milestone 2, Slice 2.** The contract, CSV parser, datasets and validation checker are done. The playable exercise, hints, solution and Node CSV export are not built yet (see [STATUS.md](../STATUS.md)).
 
 Source: [src/missions/messyExport.contract.js](../../src/missions/messyExport.contract.js), [messyExport.fixtures.js](../../src/missions/messyExport.fixtures.js) and the parser in [src/csv/parseCsv.js](../../src/csv/parseCsv.js).
 
@@ -73,7 +73,7 @@ Apply these to each row. "Trimmed" means surrounding whitespace removed with `St
 | --- | --- | --- | --- |
 | `id` | Not blank after trimming. Any other text is a valid ID. | The trimmed text, still a **string**: `" 000500 "` → `"000500"`. Leading zeros and capitals are kept. Never converted to a number. | `missing-id` |
 | `status` | After trimming and lower-casing, exactly `open`, `complete` or `on hold` (one space). | That lower-case word: `" On Hold "` → `"on hold"` | `missing-status` if blank after trimming; otherwise `invalid-status` (for example `Closed`, `Completed`, `Incomplete`, `on  hold` with two spaces) |
-| `hours` | After trimming, one or more digits, optionally followed by `.` and one or more digits. **Zero is valid** (`0`, `0.0`). There's no upper limit. | A JavaScript **number**: `"07.50"` → `7.5`, `"0"` → `0` | `missing-hours` if blank after trimming (blank means unknown, **never zero**); otherwise `invalid-hours` |
+| `hours` | After trimming, one or more digits, optionally followed by `.` and one or more digits. **Zero is valid** (`0`, `0.0`). The converted number must be finite; there is no additional workplace maximum. | A JavaScript **number**: `"07.50"` → `7.5`, `"0"` → `0` | `missing-hours` if blank after trimming (blank means unknown, **never zero**); otherwise `invalid-hours` |
 | `notes` | Always valid, including blank. | Unchanged: not trimmed, commas, quote marks and line breaks kept | none |
 
 Invalid hours include `two`, `2h`, `-1`, `+1`, `1,5` (decimal comma), `1 000`, `.5`, `5.`, `1e3`, `0x10`, `Infinity` and `NaN`. Several of these are accepted by `Number()` or `parseFloat()`, which is part of the lesson. `Number("")` and `Number("   ")` are both `0`, which is exactly how blank hours became zero in Priya's workbook.
@@ -206,7 +206,17 @@ All fictional. Each is CSV text with hand-written expected results. The tests co
 | Listing only the first reason | Several problems, Missing job IDs |
 | Dropping rejected records instead of reporting them | Most datasets |
 
-## Open questions for review
+## Approved decisions (8 November 2026)
 
-- **Strict hours.** `.5`, `5.` and `1e3` are rejected even though `Number()` reads them. This keeps the rule simple to state ("digits, optionally a point and more digits") and teaches that `Number()` is too generous. But a learner who uses `Number()` with a blank check fails only the "Blank and invalid hours" dataset, so a hint will need to cover it. The alternative is to drop those three values from the datasets and allow any finite, non-negative `Number()` result.
-- **Whole-file failure for CSV errors.** One unquoted comma stops the whole file. This is the safest choice and keeps the two kinds of problem separate, but Slice 2 could instead show the learner the CSV error as its own teaching step.
+- **Hours:** zero and ordinary non-negative decimals are valid after trimming. Blank hours use `missing-hours`; negative, incorrectly formatted or non-finite hours use `invalid-hours`. Keep the strict digits-and-optional-decimal format, including rejecting `.5`, `5.` and `1e3`. Check for blank before conversion; format validation alone is insufficient if a very long digit string converts to `Infinity`.
+- **Malformed CSV:** stop the whole file, with line-specific CSV errors and no partial records. Structurally valid files are processed record by record. Quoted commas and multiline notes are valid CSV, not errors.
+
+## Validation checker (Slice 2)
+
+`src/checking/evaluateMessyExport.js` exports `evaluateMessyExportCheck(check, run, options)` and `runMessyExportChecks(runCode, exercise, code, options)`. A check has `{ id, name, rows, expected }`, where `rows` comes from successful `rowsFromCsv` parsing and `expected` is the fixture's hand-written `{ accepted, rejected: [{ line, reasons }] }` answer. The caller supplies an exercise with a non-empty `checks` array; malformed CSV never becomes a validation check.
+
+The checker matches returned records by their original numeric file `line`, not job ID. It checks exactly-once coverage across both lists, classification, exact fields and primitive values/types, finite accepted hours, unchanged rejected content, complete ordered reasons, and original order in each list. Object key order is irrelevant. Rejected records are compared by content, not JavaScript reference identity, because worker results travel as JSON. Input mutation fails the check.
+
+It compares actual output against expectations without a production reference transformation. The supplied runner executes learner code once per dataset using the existing sandbox. Shared Case 1 run-error feedback is reused; cancellation stops checking, fatal errors stop early, and dataset-specific errors allow remaining checks to run. `onProgress(done, total)` and the returned outcome follow the Case 1 conventions. File-line feedback refers to CSV input; shared syntax/runtime feedback refers to learner code lines.
+
+Tests in `tests/unit/evaluateMessyExport.test.js` cover all 13 valid fixtures, loop and reduce implementations, deliberately wrong answers, wrong shapes, file order, mutation, finite conversion (including JSON's conversion of Infinity to null), and runner lifecycle. Existing parser tests retain malformed-file coverage. No playable UI is connected yet.

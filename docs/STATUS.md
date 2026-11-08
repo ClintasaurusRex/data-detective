@@ -1,16 +1,38 @@
 # Status
 
-Last updated: 6 November 2026 (Milestone 2, Slice 1: the Case 2 contract, CSV parser, datasets and tests).
+Last updated: 8 November 2026 (Milestone 2, Slice 2: validation checker; local work awaiting review).
 
 ## Milestones
 
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Complete** (on branch `claude/sharp-goldberg-u42b65`, not merged) |
-| 2 | The Messy Export | **In progress.** Slice 1 is done on branch `claude/milestone-2-messy-export` (branched from the Milestone 1 tip, not merged). Not playable yet. |
+| 2 | The Messy Export | **In progress.** Slice 1 is committed and pushed; Slice 2 checker is complete locally on branch `claude/milestone-2-messy-export` (branched from the Milestone 1 tip, not merged). Not playable yet. |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
+
+## Milestone 2, Slice 2: Validation checker (8 November 2026)
+
+- Added `src/checking/evaluateMessyExport.js`: compares actual `{ accepted, rejected }` output with fixture expectations, keyed by input file line. Checks structure, exact fields/types, cleaned values, finite hours, classification, reasons, record preservation, order, coverage and mutation. No production reference solution.
+- Reuses Case 1 execution-error feedback. The new orchestration function accepts the existing runner callback and supports progress, cancellation and fatal-error stopping. It refuses datasets without parsed rows before invoking learner code.
+- Added checker tests using all 13 valid CSV fixtures, two actual correct implementations and deliberately incorrect results/implementations. Malformed CSV remains parser-level coverage.
+- Approved the existing strict hours syntax and whole-file CSV failure. Clarified that numeric conversion must be finite; a syntax-only check can accept a digit string that overflows. Existing fixtures are unchanged; supplemental tests cover overflow.
+- UI, navigation, exports, sandbox and Milestone 1 checker are unchanged. No commits or pushes for Slice 2.
+
+### Validation evidence (Slice 2)
+
+Executed on 8 November 2026 with Node.js v24.18.0 and npm 11.16.0. Final `npm run check` passed:
+
+| Check | Result |
+| --- | --- |
+| ESLint | Pass |
+| Vitest | 9 files, 248 tests passed (172 existing + 76 added) |
+| Production build | Pass; app bundle remains `index-CnmnYcOR.js`, 273.97 kB |
+| Playwright, Chromium | All 25 existing browser tests passed |
+| `git diff --check` | Pass |
+
+The initial restricted unit run hit the known child-Node-process restriction: 14 existing export/Copy to IDE tests failed with empty output. The full suite passed when run with approved permissions outside that restriction. No dependencies were installed. The new checker is tested through simulated runner results and actual test-only learner code in Node; the existing browser suite covers the unchanged sandbox and Milestone 1, not a Case 2 UI. Firefox/Safari and hosted checks were not run.
 
 ## Milestone 2, Slice 1: The Messy Export foundation (6 November 2026)
 
@@ -43,7 +65,7 @@ Branch `claude/milestone-2-messy-export`, created from `claude/sharp-goldberg-u4
   - It confirms that eight wrong approaches each fail at least one dataset: typed-in answers, `Number()` with and without a blank check, `parseFloat`, not trimming or not lower-casing, numeric IDs, first reason only, and dropping rejected records.
   - It confirms that malformed files stop at the CSV stage, with codes that never overlap with rejection reasons.
 
-### Not done (later slices)
+### Not done at Slice 1 (historical; checker completed in Slice 2)
 
 - The Case 2 mission (request, prediction, starter code, hints, explained solution), marked playable.
 - A checker for `{ accepted, rejected }` results. The current `evaluate.js` compares a list of records by ID, and it needs a sibling that compares by `line` and checks reasons, record identity and order.
@@ -138,4 +160,4 @@ What the tests cover:
 
 ## Next task
 
-**Milestone 2, Slice 2.** Wait for the owner to review Slice 1 and settle the open questions at the end of [cases/02-messy-export.md](cases/02-messy-export.md) (strict hours, and whole-file CSV failure). Then build the checker for `{ accepted, rejected }` results and the playable browser exercise, reusing the runner unchanged. After that, Slice 3 adds Copy to IDE and the Node CSV export.
+**Milestone 2, Slice 3 (not started).** Build the playable browser exercise: mission content, case-specific navigation, raw CSV/parsed rows, CSV errors, accepted/rejected output and checker feedback. Integrate progress while preserving Case 1 saves. Copy to IDE and the practical Node CSV workflow remain future work; parser packaging for downloads still needs a decision. Await owner authorization before further development.

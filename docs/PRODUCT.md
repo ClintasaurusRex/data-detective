@@ -37,7 +37,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Done** (see [STATUS.md](STATUS.md)) |
-| 2 | The Messy Export | In progress (Slice 1 done: contract, CSV parser, datasets and tests) |
+| 2 | The Messy Export | In progress (Slice 2 checker done locally; browser exercise not playable) |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
