@@ -9,7 +9,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
 | Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records by file line against explicit fixture expectations |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
-| Export | `src/export/nodeScript.js`, `src/export/challengeFile.js` | Builds the Node script and sample JSON, and the "Copy to IDE" `challenge.js` |
+| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, the standalone Case 2 CSV workflow, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
 
 ## Running learner code
@@ -72,7 +72,7 @@ One `localStorage` key, `data-detective:v1`, holds `{ version, cases, exercises 
 
 Case 1’s identifiers and save shape are preserved. Case 2 adds `cases["messy-export"].prediction` as `{ accepted, rejected }` or `{ skipped: true }`, and an exercise with the same stable ID. Its optional `checked: { code, passed }` retains the last completed check across refreshes. Draft, previous draft, hints, reference reveal and the exact passing code reuse the existing exercise fields. Detailed run output/check feedback is visit-local; after refresh a saved check summary invites checking again for full feedback.
 
-A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again, and the Toolbox keeps exporting the last version that passed for Case 1. Case 2 keeps its passing code on the mission page and offers no Toolbox download until the full CSV-file tool is implemented.
+A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Both cases' Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Case 2 uses the same saved fields and storage version; no migration is needed.
 
 ## Export
 
@@ -82,6 +82,18 @@ The learner's code sits inside its own function (`loadYourCode`), as it does in 
 
 - **Its names are isolated.** Helpers named `fs`, `runScript`, `fail` or anything else can't clash with the wrapper's declarations.
 - **Standard output stays valid JSON.** The function receives a `console` that writes to standard error, so logging at the top level or inside `transform` still shows in the terminal but never mixes with the printed result. The wrapper's own messages ("Wrote 3 record(s)…", errors) also go to standard error. Unit tests run generated scripts in a real Node process, including scripts with all those characters, with clashing helper names, and with logging. Browser tests check that such solutions pass the checker, then download `solve.mjs` and `sample.json` and checks that Node's output equals the browser's output.
+
+### Case 2 CSV workflow (Slice 4)
+
+`buildCsvWorkflow(exercise, solved)` returns six `{ name, type, text }` artifacts: `report.mjs`, `parseCsv.mjs`, `contract.mjs`, `package.json`, `jobs-export.csv`, and `README.md`. `CsvToolboxEntry` offers individual Blob downloads on both the solved mission and Toolbox. No archive library, new dependency or backend is involved. Case 1's generator remains unchanged.
+
+Vite/Vitest `?raw` imports package the actual maintained parser and contract sources as text. The contract's parser import is rewritten to `./parseCsv.mjs`; its mapping and all parsing rules stay identical. The manifest pins Papa Parse 5.7.0, matching the application dependency. Learners run `npm install` once in the download folder; subsequent runs need only those files and the locally installed dependency. The sample is exactly `exercise.csv`. No hidden fixtures or automatic reference solution are exported.
+
+`report.mjs` accepts one CSV input path and an optional JSON output path. It opens the input with `node:fs/promises`, reads UTF-8, and calls the shared `rowsFromCsv`. Any structural error stops before loading learner code or opening an output file, with file lines/codes, empty stdout and exit code 1. Invalid record values instead reach the learner's unchanged validation function. Blank-line diagnostics go to stderr. The checked code is embedded as code in its own strict function body, matching the browser's declaration scope and protecting runner names from learner helpers. The global console and supplied console both write to stderr, including code-loading logs. The returned accepted/rejected object is serialized before any output is opened; basic shape and serialization errors fail clearly. No second business validator or reference transformation is added.
+
+The runner prints JSON alone on stdout, or writes it to the second path and confirms on stderr. Resolved identical paths are refused. Output is opened without truncating, then its file identity (`dev`, `ino`) is compared with the input before clearing/writing; this also protects input reached through symlinks and hard links. Missing files/folders, directory arguments, permission errors and output failures have path-specific diagnostics and exit code 1. Existing output reports may be replaced; a malformed input never touches them. Write errors can leave an incomplete output file, so instructions require a successful exit/save confirmation before trusting a report. This is a trusted local script, with no browser sandbox, timeout or memory cap; it reads whole files rather than streaming.
+
+Tests write the actual generated artifacts into isolated temporary directories outside the source repository, copying only the installed Papa Parse package as an offline equivalent of `npm install`. Unit tests execute real Node processes on all 13 valid datasets with two correct solutions and all nine malformed fixtures, plus real permission failures, output errors, file aliases, console separation and helper names. Playwright downloads all six real browser artifacts, observes the production checker's actual sandbox-worker results on all 13 datasets, and compares every result to execution of the downloaded Node script. Tests also retain stale passing code through failed checks/refresh, verify keyboard downloads and contained layouts, and cover both Case 1 main and variation JSON exports. These checks do not install from the network or rely on globally installed packages.
 
 ## Copy to IDE
 
@@ -100,4 +112,4 @@ Hash URLs `#/case/missing-jobs`, `#/case/messy-export` and `#/toolbox` work on s
 
 `MessyExportOutput` displays actual learner output in labelled accepted/rejected sections. It translates only known returned reason codes, preserves returned values and exposes the raw JSON. Invalid shapes stay inspectable and receive checker feedback; no expected results replace learner output. Tables and CSV/code blocks scroll inside their containers. The editor keeps expansion, vertical resizing and display-only wrapping. Confirmation, prediction and navigation have explicit focus management.
 
-The Case 2 Copy to IDE file states that its sample JSON contains already-parsed records, and is runnable with Node. It includes no CSV file-reading code, hidden checking datasets or automatic reference answer. The full Node CSV export, parser packaging and file-workflow teaching remain a separate future slice.
+The Case 2 Copy to IDE file states that its sample JSON contains already-parsed records, and is runnable with Node. It includes no CSV file-reading code, hidden checking datasets or automatic reference answer. The separate checked Toolbox export adds CSV file reading and Node workflow teaching; Copy to IDE still uses the current draft.

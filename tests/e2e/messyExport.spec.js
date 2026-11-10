@@ -82,7 +82,7 @@ test("investigate, predict, compare real output, check all datasets and persist 
   await page.getByText("Inspect this dataset").first().click();
   await expect(page.getByTestId("check-panel")).toContainText("Expected result: 4 accepted and 4 rejected");
   await expect(page.getByTestId("solved-panel")).toContainText("Solved without hints");
-  await expect(page.getByRole("button", { name: /Download/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Download/ })).toHaveCount(6);
   await page.reload();
   await expect(page.getByTestId(`editor-${ID}`)).toHaveValue(solution);
   await expect(page.getByTestId("case-status")).toHaveText("Solved");

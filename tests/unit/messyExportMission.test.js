@@ -32,7 +32,7 @@ describe("playable Messy Export integration", () => {
   it("keeps the exploratory starter incomplete", async () => {
     const result = await runMessyExportChecks(execute, exercise, exercise.starterCode.replace('console.log(row.line, row.id, row.hours);', ''));
     expect(result.passed).toBe(false);
-    expect(exercise.exportFileName).toBeUndefined();
+    expect(exercise.exportFileName).toBe("report.mjs");
   });
 
   it("copies exact parsed rows, runnable starter and honest exercise scope", () => {

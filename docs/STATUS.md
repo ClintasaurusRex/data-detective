@@ -1,18 +1,53 @@
 # Status
 
-Last updated: 9 November 2026 (Milestone 2, Slice 3: playable browser mission; local work for review).
+Last updated: 9 November 2026 (Milestone 2, Slice 4: complete Node CSV workflow; ready for owner QA).
 
 ## Milestones
 
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Complete** (on branch `claude/sharp-goldberg-u42b65`, not merged) |
-| 2 | The Messy Export | **Browser mission fully playable.** Slices 1 and 2 are committed. Slice 3 is implemented locally on `claude/milestone-2-messy-export`, uncommitted for review. Full Node CSV-file export remains pending. |
+| 2 | The Messy Export | **Feature-complete; ready for owner QA.** Slices 1 and 2 are committed. Slices 3 and 4 are local and uncommitted on `claude/milestone-2-messy-export`. Owner approval remains pending. |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
-## Milestone 2, Slice 3: Playable browser mission (9 November 2026)
+## Milestone 2, Slice 4: Complete Node CSV workflow (9 November 2026)
+
+- Initial inspection verified branch `claude/milestone-2-messy-export`, HEAD `30fffa06ff9e6d96356f0e13c4601f7bda2e850e`, and 19 staged files containing Slice 3. That work was preserved; no index changes, commit, push, PR, merge or deployment was performed. Slice 3's existence is confirmed; its final owner approval is not assumed.
+- Added a Case 2 Toolbox entry on the mission and Toolbox pages using the last passing `solved.code`, including after failed checks, changed drafts and refresh. No storage changes. Case 1's JSON generator and both exercises remain functional; Copy to IDE remains the standalone parsed-record exercise.
+- Six individual downloads: `report.mjs`, `parseCsv.mjs`, `contract.mjs`, `package.json`, `jobs-export.csv`, `README.md`. No ZIP library or new project dependencies. The parser and contract are packaged directly from maintained source with only the contract import path adjusted. The manifest pins Papa Parse 5.7.0; the learner runs `npm install` once, independently of this repository or any global packages.
+- The runner reads UTF-8 CSV from its first argument, parses the entire file before executing the exact checked code, then prints accepted/rejected JSON or saves to the optional second argument. Structural errors stop with line-specific diagnostics and exit code 1, no stdout report, and no changes to an existing report. Invalid values remain the learner's rejected records. Blank-line notices, code-loading logs, function logs, global console calls and operational messages go to stderr.
+- Added readable argument, missing-file, directory, permission, transform/serialization and output-failure errors. Identical resolved paths, symlinks and hard links cannot overwrite the input CSV. Existing output reports may be replaced; write failures must not be treated as successful reports.
+- Instructions teach Node versus browser execution, file handles/readFile, parsing versus validation, local npm dependencies, path arguments, stdout/stderr, errors/exit codes and report verification. They explain normal filesystem permissions and trusted code, whole-file memory usage, no sandbox timeout, and offline use after installation.
+- No changes to CSV rules, fixtures, parser, contract, checker, sandbox security or progress format. Case 2 has one exercise and no separate variation; no new variation or Milestone 3 work was added.
+
+### Slice 4 validation
+
+Full `npm run check` passed using Node.js v24.18.0 and npm 11.16.0 (the installed Node differs from `.nvmrc`'s 24.22.1):
+
+| Check | Actual result |
+| --- | --- |
+| ESLint | Pass, no warnings |
+| Vitest | 11 files, 289 tests passed (258 prior + 30 CSV workflow + 1 Case 1 variation export) |
+| Production build | Pass; JavaScript 358.13 kB / 112.52 kB gzip |
+| Playwright, Chromium | 53 tests passed in 46.3 s (48 prior + 5 CSV workflow) |
+| Generated Node artifacts | Real processes passed; both print and save paths verified |
+| `git diff --check` and staged diff check | Pass; original 19-file staged Slice 3 diff preserved |
+
+Parity: the actual browser download was run against all 13 valid datasets, comparing every complete report to actual production sandbox-worker replies observed during Check solution. All agree, including original rejected values/lines, blank versus zero, string identifiers, BOM, quoted commas, escaped quotes, multiline fields and line endings. Unit tests additionally run two correct solutions through every dataset and compare fixture expectations and unchanged rejection content. Every one of the nine malformed fixtures fails before learner code runs, with no partial stdout report and an existing output report preserved. Filesystem tests exercise real read/write permission failures and input aliases. Both Case 1 main and open-jobs variation exports run as Node processes.
+
+Browser coverage includes six filenames/contents, locked passing code after failed checks/draft edits/reload, readable instructions, keyboard activation of all downloads and the help disclosure, navigation, and no page-level horizontal overflow at 1920×1080, 1366×768 and 375×740. Existing browser journey, Copy to IDE and sandbox isolation tests pass.
+
+Local production screenshots of expanded Toolbox instructions at 1366 and 375 px were captured and visually inspected. No page errors or page-level overflow were observed. Screenshots are temporary `/tmp` artifacts, not repository changes.
+
+Slice 4 files: `src/export/csvWorkflow.js`, `src/components/CsvToolboxEntry.jsx`, `src/components/ToolboxEntry.jsx`, `src/components/MessyExportView.jsx`, `src/App.jsx`, `src/missions/messyExport.js`; `tests/unit/csvWorkflow.test.js`, `tests/unit/exportScript.test.js`, `tests/unit/messyExportMission.test.js`, `tests/e2e/csvWorkflow.spec.js`, `tests/e2e/messyExport.spec.js`, `tests/support/csvWorkflow.js`; `README.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/STATUS.md`, `docs/cases/02-messy-export.md`.
+
+Environment: the initial restricted focused run suppressed child-process stdout/stderr (29 failures), matching the known environment limitation. The same generated-script suite passed all 30 tests with normal process access; the full check then passed with normal process/local-server access. Tests copy only the already-installed Papa Parse package into temporary export folders; no network install is required by tests. A fresh network `npm install` of the downloaded manifest was not performed.
+
+Firefox, Safari, screen-reader/contrast auditing and owner-led manual QA remain unperformed. Node exports read whole files and use normal filesystem permissions without sandbox timeouts. These limits are explained to learners; no claim of final owner approval is made.
+
+## Milestone 2, Slice 3: Playable browser mission (9 November 2026; historical record)
 
 - Inspection found a clean working tree on the requested branch. Slice 2 was already committed as `30fffa0` (`Add milstone 2 csv validation checker`), following Slice 1 `df0e58d`. Its implementation and tests were preserved.
 - Added Case 2 mission content with Priya’s request, numbered CSV/visible whitespace, parsed records, strict reporting rules, beginner JavaScript field guide, dual-count prediction or skip, four hints, explained reference solution and honest reveal attribution.
@@ -189,8 +224,8 @@ What the tests cover:
 - There was no automated screen-reader or contrast audit (for example, axe). Labels, roles, live regions and focus order were reviewed by hand and through role-based test selectors.
 - `npm audit` reports 6 moderate advisories in ESLint's `minimatch` dependency (development only, not shipped, no fix available yet).
 
-## Remaining before Milestone 2 is complete
+## Owner review checkpoint
 
-The browser mission is playable. Owner review of Slice 3 is next. A separately authorized future slice still needs the complete Node CSV-file workflow: choose parser packaging, read real CSV files, fail the whole file for structural errors, print/save accepted and rejected records, provide truthful Toolbox downloads/sample CSV/instructions, and verify browser-to-Node parity and errors with real Node executions. Review whether an independent practice variation is wanted as part of that follow-up. Milestone 3 remains planned and has not started.
+Milestone 2 is feature-complete through Slice 4 and ready for owner-led manual QA of the browser mission and downloaded CSV workflow. Slices 3 and 4 remain uncommitted and have not received final owner approval. No automated test result substitutes for that review. Milestone 3 remains planned and has not started.
 
-Stop after Slice 3. No further implementation is authorized by this completion report.
+Stop after Slice 4. The owner and ChatGPT will review this work before authorizing another milestone.

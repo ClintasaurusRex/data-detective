@@ -2,11 +2,11 @@
 
 A friendly learning app for writing useful workplace data scripts in JavaScript.
 
-You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Case 1 also provides a standalone Node script; Case 2’s CSV-file tool comes later.
+You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Case 1 provides a standalone Node JSON script; Case 2 provides a complete Node CSV reporting tool.
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete. Case 2, **The Messy Export**, is now fully playable in the browser: inspect CSV, predict, write JavaScript validation, and check accepted/rejected records. Milestone 2's full Node CSV-file workflow remains a future slice. Cases 3–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete. Milestone 2, **The Messy Export**, is feature-complete and ready for owner QA: inspect CSV, predict, write JavaScript validation, check accepted/rejected records, then download the working CSV-file tool. Owner approval is still pending for Slices 3 and 4. Cases 3–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -74,7 +74,22 @@ Each layer is separate, so later cases add mission content, datasets and the app
 3. Document its datasets in `docs/cases/`.
 4. Add unit tests that the expected results follow the case rules, and extend the browser journey.
 
-Case 2 introduces CSV. The contract, parser and datasets (Slice 1), `{ accepted, rejected }` checker (Slice 2), and playable browser investigation (Slice 3) are complete. Use the sidebar to switch cases; hash URLs preserve location through Back, Forward and refresh. Each mission saves its own progress without resetting Case 1. Broken CSV examples stop the whole file before validation. The Node CSV export has not been implemented. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
+Case 2 introduces CSV. The contract, parser and datasets (Slice 1), `{ accepted, rejected }` checker (Slice 2), playable browser investigation (Slice 3), and standalone Node CSV workflow (Slice 4) are implemented. Use the sidebar to switch cases; hash URLs preserve location through Back, Forward and refresh. Each mission saves its own progress without resetting Case 1. Broken CSV examples stop the whole file before validation. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
+
+## Use your Case 2 CSV tool
+
+After all checks pass, download all six Toolbox files into one folder: `report.mjs`, `parseCsv.mjs`, `contract.mjs`, `package.json`, `jobs-export.csv`, and `README.md`. Open a terminal there:
+
+```bash
+npm install
+node report.mjs jobs-export.csv
+node report.mjs jobs-export.csv report.json
+node report.mjs another-export.csv another-report.json
+```
+
+`npm install` installs Papa Parse 5.7.0 locally and needs internet access once. Later runs use those installed files offline; the Data Detective source repository and global packages are not required. Without an output argument, stdout contains JSON. With one, the report is saved to that path. Console logs, diagnostics and errors go to stderr. Malformed CSV produces no partial report and exits unsuccessfully. The input CSV cannot be overwritten, including through file links.
+
+The script contains the last passing solution, even after the browser draft changes. Only run code you trust: Node has normal filesystem permissions. The downloaded README explains filesystem access, dependencies, arguments, parsing versus validation, errors and report verification. Copy to IDE stays a separate parsed-record exercise.
 
 ## Privacy
 

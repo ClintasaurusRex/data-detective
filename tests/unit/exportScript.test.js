@@ -54,6 +54,21 @@ describe("exported Node script", () => {
     ]);
   });
 
+  it("still runs the Case 1 open-jobs variation on every dataset", async () => {
+    const variation = missingJobsCase.exercises[1];
+    await writeFile(join(dir, variation.exportFileName), buildNodeScript({
+      code: variation.solution.code, caseNumber: missingJobsCase.number,
+      caseTitle: missingJobsCase.title, exerciseTitle: variation.title,
+      fileName: variation.exportFileName,
+    }));
+    for (const check of variation.checks) {
+      await writeFile(join(dir, "variation.json"), buildSampleJson(check.rows));
+      const result = await node([variation.exportFileName, "variation.json"]);
+      expect(result.code, result.stderr).toBe(0);
+      expect(JSON.parse(result.stdout).map(row => row.id), check.name).toEqual(check.expectedIds);
+    }
+  });
+
   it("gives the same answer as the transformation on every dataset", async () => {
     const transform = new Function(`${completed.solution.code}; return transform;`)();
     for (const check of completed.checks) {

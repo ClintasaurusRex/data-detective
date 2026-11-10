@@ -1,9 +1,11 @@
 import { buildNodeScript, buildSampleJson, downloadText } from "../export/nodeScript.js";
 import { CodeBlock } from "./common.jsx";
 import { formatDate, solvedLabel } from "./format.js";
+import { CsvToolboxEntry } from "./CsvToolboxEntry.jsx";
 
 // One checked script in the Toolbox, with downloads and instructions.
 export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
+  if (exercise.outputKind === "accepted-rejected") return <CsvToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
   const Heading = `h${headingLevel}`;
   const fileName = exercise.exportFileName;
 

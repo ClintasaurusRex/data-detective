@@ -4,6 +4,7 @@ import { malformedDatasets } from "../missions/messyExport.fixtures.js";
 import { CodeBlock, RecordTable, RichText } from "./common.jsx";
 import { solvedLabel } from "./format.js";
 import { Workbench } from "./Workbench.jsx";
+import { ToolboxEntry } from "./ToolboxEntry.jsx";
 
 export function MessyExportView({ caseDef, caseState, updateCase, exerciseStates, updateExercise, runner }) {
   const exercise = caseDef.exercises[0];
@@ -92,7 +93,7 @@ export function MessyExportView({ caseDef, caseState, updateCase, exerciseStates
       <section className="panel" aria-labelledby="investigate-title">
         <h3 id="investigate-title">Build the report</h3>
         <p>Start with one record and experiment. Use <code>console.log</code> to inspect your decisions. Run shows your actual output; only Check solution can solve the case by passing all {exercise.checks.length} datasets.</p>
-        <p className="small">Copy to IDE gives you a runnable parsed-record challenge. It includes these records, not a CSV-file reader. The full Node CSV workflow comes in a later slice.</p>
+        <p className="small">Copy to IDE gives you a runnable parsed-record challenge. After your solution passes the checks, the Toolbox offers a separate Node tool that reads real CSV files.</p>
         <Workbench exercise={exercise} state={state} update={(fn) => updateExercise(exercise.id, fn)} runner={runner}
           beforeRun={beforeRun} describeRun={describeRun}
           challenge={{ caseNumber: caseDef.number, caseTitle: caseDef.title, exerciseTitle: exercise.title,
@@ -105,7 +106,7 @@ export function MessyExportView({ caseDef, caseState, updateCase, exerciseStates
         <p>{solvedLabel({ ...state.solved, solutionRevealed: state.solutionRevealed })}. Your checked code passed all {exercise.checks.length} datasets: cleaned records, traceable originals, all reasons and no missing jobs.</p>
         <p>{stale ? "The current draft needs checking again. Your earlier passing code is kept below." : "Priya can now distinguish safe records from those needing follow-up. Explain why blank hours differ from zero before moving on."}</p>
         <details><summary>Inspect the code that passed</summary><CodeBlock code={state.solved.code} label="Last passing Case 2 code" /></details>
-        <p className="small">The complete CSV-file tool is still to come. This browser mission works on parsed records; no CSV Toolbox download is offered yet.</p>
+        <ToolboxEntry exercise={exercise} solved={state.solved} headingLevel={4} />
       </section>}
       <CsvErrors />
     </article>

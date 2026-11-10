@@ -70,6 +70,7 @@ export const messyExportCase = {
     id: "messy-export",
     title: "Clean and validate the field-work export",
     outputKind: "accepted-rejected",
+    exportFileName: "report.mjs",
     goal: "Return { accepted, rejected }: cleaned valid records and unchanged invalid originals with reason codes, in file order.",
     rules,
     rows: checks[0].rows,

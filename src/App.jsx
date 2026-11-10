@@ -189,10 +189,10 @@ function Toolbox({ solvedExercises, state }) {
   return (
     <section aria-labelledby="toolbox-title">
       <h2 id="toolbox-title">Your Toolbox</h2>
-      <p>Downloadable scripts you&rsquo;ve checked. Each one runs on its own with Node, on any JSON file with the same shape.</p>
+      <p>Downloadable scripts you&rsquo;ve checked. Case 1 reads JSON files; Case 2 reads CSV files after installing its parser dependency. Each tool includes instructions for running it independently with Node.</p>
       {solvedExercises.length === 0 ? (
         <p className="panel muted">
-          Nothing downloadable yet. Case 1 adds a checked JSON script here. Case 2 keeps its checked code in its mission; the full CSV-file tool comes in a later slice.
+          Nothing downloadable yet. Pass a case&rsquo;s checks to keep its working script here: a JSON tool for Case 1 or a CSV reporting tool for Case 2.
         </p>
       ) : (
         solvedExercises.map((exercise) => (

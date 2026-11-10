@@ -1,6 +1,6 @@
 # Case 2: The Messy Export
 
-Status: **Milestone 2, Slice 3. Browser mission fully playable.** The contract, CSV parser, datasets, checker, investigation, prediction, editor, hints, explained solution and progress persistence are integrated. The full Node CSV export is a future slice (see [STATUS.md](../STATUS.md)).
+Status: **Milestone 2, Slice 4. Feature-complete and ready for owner QA; approval pending.** The browser mission and standalone Node CSV workflow are implemented. Slice 3 has not received final owner approval. See [STATUS.md](../STATUS.md).
 
 Source: [src/missions/messyExport.contract.js](../../src/missions/messyExport.contract.js), [messyExport.fixtures.js](../../src/missions/messyExport.fixtures.js) and the parser in [src/csv/parseCsv.js](../../src/csv/parseCsv.js).
 
@@ -47,7 +47,7 @@ Expected: 4 accepted (004101, 004104, 004106, 004108) and 4 rejected (lines 3, 4
 | What happens | The whole file stops. No records are accepted or rejected, because we can't be sure which value belongs to which column. | That one record goes to `rejected` with its reasons. Every other record is still processed. |
 | How it's reported | `{ kind: "csv", code, line, message }` | `{ record, reasons: ["missing-hours"] }` |
 
-The learner writes validation, not CSV parsing. The app (and later the Node script) parses the file with a maintained library and hands `transform` an array of rows.
+The learner writes validation, not CSV parsing. The app and the exported Node script parse the file with the same maintained library and hand `transform` an array of rows.
 
 ## Input format
 
@@ -232,6 +232,38 @@ Output shows accepted values and rejected originals with returned reason codes t
 
 Four hints progress from tracing individual records to numeric checks and output construction. The optional reference solution is behind confirmation and explains string methods, blank versus zero, strict numeric syntax, conversion/finite checks, text identifiers and unchanged originals. Viewing it is recorded honestly. Draft restoration and reference insertion retain the earlier draft.
 
-Case 2 saves its draft, prediction/skip, hints, reference reveal, completed check summary and solve with exact passing code independently of Case 1. Editing a passing solution changes the badge to “Needs checking again” and retains the earlier passing code. The Copy to IDE exercise runs the displayed parsed records with Node; it explicitly does not read CSV files. Case 2 adds no Toolbox download in this slice.
+Case 2 saves its draft, prediction/skip, hints, reference reveal, completed check summary and solve with exact passing code independently of Case 1. Editing a passing solution changes the badge to “Needs checking again” and retains the earlier passing code. The Copy to IDE exercise runs the displayed parsed records with Node; it explicitly does not read CSV files. Slice 4 adds a separate CSV-file Toolbox download.
 
 The final panel lets learners select bundled malformed-file examples and inspect actual parser errors, with file lines. The whole malformed file stops; it never becomes accepted/rejected business records or a partial report. There is no CSV editor or upload workflow.
+
+## Standalone CSV tool (Slice 4)
+
+After all 13 checks pass, the mission's solved panel and Toolbox offer six files. Download each into one folder with its exact name:
+
+| File | Purpose |
+| --- | --- |
+| `report.mjs` | Your last passing code and the Node file runner |
+| `parseCsv.mjs` | The maintained CSV parser wrapper |
+| `contract.mjs` | Shared required columns, reason definitions and parsed-row mapping |
+| `package.json` | Pins Papa Parse 5.7.0 for local installation |
+| `jobs-export.csv` | The mission's original fictional CSV sample |
+| `README.md` | Setup, commands, new concepts, errors and verification |
+
+With Node.js 24 LTS or newer installed, open a terminal in that folder:
+
+```bash
+npm install
+node report.mjs jobs-export.csv
+node report.mjs jobs-export.csv report.json
+node report.mjs another-export.csv another-report.json
+```
+
+Installation needs internet once, then the downloaded tool runs offline with its local dependency. It does not need Data Detective's repository. The first file argument is input; the optional second is output. Quote paths containing spaces. Without the second argument, stdout contains valid JSON. With it, open the report in the terminal's current folder (or the path specified). Logs, diagnostics and save confirmations go to stderr. Existing reports may be replaced; choose another filename to retain them. The runner refuses to overwrite the input CSV, including file links.
+
+Node runs JavaScript outside the browser and provides filesystem access. The runner uses a file handle's `readFile("utf8")`, parses structure with the shared wrapper and mapping, then calls the exact checked `transform(rows)`. Original rejected values, file line numbers, string IDs and ordered reason codes are preserved. A later draft or failed check does not replace that passing code. No hidden fixtures or reference answer are bundled.
+
+Malformed structure fails the entire file before learner code executes, with no stdout JSON or changes to an existing report. Invalid record values instead appear in the rejected list. Missing input, permissions, invalid arguments, transform/serialization errors and output failures exit with code 1 and understandable diagnostics. Successful runs exit with code 0. Verify the sample's four accepted/four rejected records and trace originals by file line; matching counts alone are insufficient.
+
+Only run code you trust: the exported script has normal filesystem permissions, no sandbox timeout, and reads the whole CSV into memory. Start with small exports. The README explains npm dependencies, input/output arguments, stdout/stderr and how to check exit codes. Copy to IDE remains a separate exercise using already-parsed records.
+
+Automated tests execute the genuine generated artifacts as Node processes, cover all 13 valid and nine malformed datasets, and compare actual browser-worker outputs with downloaded Node outputs on all 13 datasets. Blank versus zero, leading zeros, multiline/quoted fields, original rejection values/lines, console separation and helper-name collisions agree. Case 2 has one exercise and no separate variation; Case 1's existing main/variation JSON exports remain tested. Owner-led manual QA is still pending.
