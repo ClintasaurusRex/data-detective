@@ -7,7 +7,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | Missions | `src/missions/` | Case text, rules, datasets with expected IDs, hints, solutions |
 | Runner | `src/runner/` | Runs learner code in isolation and returns a plain result |
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
-| Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records by file line against explicit fixture expectations |
+| Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js`, `src/checking/evaluateDoubledTotals.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records; Case 3 checks occurrence classification, duplicate links, complete conflicts, order and totals against explicit fixture expectations |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
 | Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, the standalone Case 2 CSV workflow, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
@@ -106,10 +106,49 @@ Tests write the actual generated artifacts into isolated temporary directories o
 
 ## Mission navigation and UI (Slice 3)
 
-Hash URLs `#/case/missing-jobs`, `#/case/messy-export` and `#/toolbox` work on static hosts without rewrite rules or a routing dependency. The old `#/case` and empty hash still open Case 1. Unknown/planned case URLs fall back to Case 1; planned sidebar entries remain text. A location change focuses `main`; the skip link focuses content without changing the mission hash.
+Hash URLs `#/case/missing-jobs`, `#/case/messy-export`, `#/case/doubled-totals` and `#/toolbox` work on static hosts without rewrite rules or a routing dependency. The old `#/case` and empty hash still open Case 1. Unknown/planned case URLs fall back to Case 1; planned sidebar entries remain text. A location change focuses `main`; the skip link focuses content without changing the mission hash.
 
 `MessyExportView` handles CSV investigation, dual-count prediction, the reporting contract and malformed-file examples. `CaseView` keeps the Case 1 investigation and variation. Both use the same `Workbench` for editing, Run, Check, Stop, hints, reference solution and Copy to IDE. Mission views are keyed by stable ID; leaving one cancels active work and invalidates pending completions so late results cannot save a solve. Each valid check runs in a fresh worker using the unchanged sandbox.
 
 `MessyExportOutput` displays actual learner output in labelled accepted/rejected sections. It translates only known returned reason codes, preserves returned values and exposes the raw JSON. Invalid shapes stay inspectable and receive checker feedback; no expected results replace learner output. Tables and CSV/code blocks scroll inside their containers. The editor keeps expansion, vertical resizing and display-only wrapping. Confirmation, prediction and navigation have explicit focus management.
 
 The Case 2 Copy to IDE file states that its sample JSON contains already-parsed records, and is runnable with Node. It includes no CSV file-reading code, hidden checking datasets or automatic reference answer. The separate checked Toolbox export adds CSV file reading and Node workflow teaching; Copy to IDE still uses the current draft.
+
+## Case 3: cleaned-record reconciliation
+
+`doubledTotals.fixtures.js` defines 17 recursively frozen datasets. Each expected
+answer is handwritten as retained file lines, duplicate `{ line, keptLine }`
+links, conflict `{ id, lines }` groups and numeric `totalHours`. There is no
+production reference algorithm in `evaluateDoubledTotals.js`: it resolves original
+records by line and compares returned roles/content with those expectations.
+It validates exact output fields, group IDs, first occurrences, links, record and
+group order, exactly-once accounting, original field types/values, mutation and a
+finite exact quarter-hour total. Feedback names job IDs and input file lines;
+shared runner-error feedback still refers to learner code lines. Orchestration
+keeps the existing per-dataset worker, cancellation, fatal-error and progress
+callback conventions.
+
+`DoubledTotalsView` supplies the independently playable investigation, raw import
+total, quarter-hour prediction (or skip), rules and field guide. `Workbench`
+dispatches the `deduplication` output kind to the new checker and
+`DoubledTotalsOutput`. Run displays actual returned values, never expected
+answers; invalid shapes remain inspectable through JSON and checker feedback.
+The output view shows kept originals, duplicate provenance links and every
+version of conflicts, capped at 200 displayed items per list/group, with full
+returned JSON available. The raw imported total is labelled separately from the
+learner's reported reliable subtotal. Prediction feedback does not reveal the
+answer or claim matching totals prove correctness.
+
+Stable case/exercise ID `doubled-totals` adds progress under storage version 1.
+Only its prediction validation differs: `{ value }` accepts finite nonnegative
+quarter-hour numbers up to 1000, or `{ skipped: true }`. Previous mission IDs,
+prediction shapes and exercise fields stay unchanged. Drafts, previous draft,
+hints, reveal attribution, last check summary and exact passing code use existing
+fields. A stale draft cannot replace the passing code. No new runner or sandbox
+permissions, CSV rules or dependencies were introduced.
+
+Case 3 intentionally has no `exportFileName`, so it cannot create a misleading
+Toolbox file tool. Its solved panel retains the checked code; the existing Copy
+to IDE generator copies its displayed records, contract and current draft as a
+runnable sample-data challenge. It adds no hidden fixture, reference answer or
+file reader. The full Case 3 Node-file workflow is deferred.

@@ -3,6 +3,7 @@ import { allExercises, cases, playableCases } from "./missions/index.js";
 import { createSandboxRunner } from "./runner/sandboxRunner.js";
 import { loadState, saveState } from "./storage/progress.js";
 import { MessyExportView } from "./components/MessyExportView.jsx";
+import { DoubledTotalsView } from "./components/DoubledTotalsView.jsx";
 import { CaseView } from "./components/CaseView.jsx";
 import { ToolboxEntry } from "./components/ToolboxEntry.jsx";
 
@@ -80,7 +81,7 @@ export default function App() {
   const mainRef = useRef(null);
   const solvedExercises = allExercises.filter((e) => e.exportFileName && state.exercises[e.id]?.solved);
   const currentCase = playableCases.find((c) => c.id === view) ?? playableCases[0];
-  const MissionView = currentCase.id === "messy-export" ? MessyExportView : CaseView;
+  const MissionView = currentCase.id === "doubled-totals" ? DoubledTotalsView : currentCase.id === "messy-export" ? MessyExportView : CaseView;
 
   // Move focus to the content when the view changes (not on first load).
   const firstView = useRef(true);
@@ -190,9 +191,10 @@ function Toolbox({ solvedExercises, state }) {
     <section aria-labelledby="toolbox-title">
       <h2 id="toolbox-title">Your Toolbox</h2>
       <p>Downloadable scripts you&rsquo;ve checked. Case 1 reads JSON files; Case 2 reads CSV files after installing its parser dependency. Each tool includes instructions for running it independently with Node.</p>
+      <p>Case 3 keeps its checked code on the mission page. Its full file-processing tool is not available yet; Copy to IDE provides the sample-data exercise.</p>
       {solvedExercises.length === 0 ? (
         <p className="panel muted">
-          Nothing downloadable yet. Pass a case&rsquo;s checks to keep its working script here: a JSON tool for Case 1 or a CSV reporting tool for Case 2.
+          Nothing downloadable yet. Pass Case 1 or Case 2&rsquo;s checks to keep its working script here: a JSON tool for Case 1 or a CSV reporting tool for Case 2.
         </p>
       ) : (
         solvedExercises.map((exercise) => (

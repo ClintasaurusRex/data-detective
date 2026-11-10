@@ -65,6 +65,9 @@ function cleanCase(value, caseDef) {
   const p = value.prediction;
   if (p && typeof p === "object") {
     if (p.skipped === true) clean.prediction = { skipped: true };
+    else if (caseDef.id === "doubled-totals") {
+      if (Number.isFinite(p.value) && p.value >= 0 && p.value <= 1000 && Number.isInteger(p.value * 4)) clean.prediction = { value: p.value };
+    }
     else if (caseDef.id === "messy-export" && [p.accepted, p.rejected].every((n) => Number.isInteger(n) && n >= 0 && n <= 1000)) {
       clean.prediction = { accepted: p.accepted, rejected: p.rejected };
     }

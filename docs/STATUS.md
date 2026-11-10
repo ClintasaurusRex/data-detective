@@ -1,18 +1,117 @@
 # Status
 
-Last updated: 9 November 2026 (Milestone 2, Slice 4: complete Node CSV workflow; ready for owner QA).
+Last updated: 9 November 2026 (Milestone 3 browser mission; Milestone 2 owner QA deferred).
 
 ## Milestones
 
 | # | Case | Status |
 | --- | --- | --- |
-| 1 | The Missing Jobs | **Complete** (on branch `claude/sharp-goldberg-u42b65`, not merged) |
-| 2 | The Messy Export | **Feature-complete; ready for owner QA.** Slices 1 and 2 are committed. Slices 3 and 4 are local and uncommitted on `claude/milestone-2-messy-export`. Owner approval remains pending. |
-| 3 | The Doubled Totals | Planned |
+| 1 | The Missing Jobs | **Complete and owner-approved** |
+| 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
+| 3 | The Doubled Totals | **Contract, checker and browser mission implemented.** Full Node-file export deferred; owner QA pending. |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
-## Milestone 2, Slice 4: Complete Node CSV workflow (9 November 2026)
+## Milestone 3: The Doubled Totals (9 November 2026)
+
+- Initial inspection: expected branch `feature/milestone-3-doubled-totals`, clean
+  working tree, HEAD `e2ed1d791d47023a01afc619d12be8e328b764c7`. Recent checkpoints
+  `e2ed1d7` (Node CSV workflow pending QA) and `5c3896b` (playable Messy Export)
+  contain Milestone 2's work. No checkpoint commits or branch changes were made
+  by this implementation. Baseline `npm run check` passed: 289 unit tests and
+  53 Chromium tests (46.5 s), lint and production build.
+- Added [the explicit contract](cases/03-doubled-totals.md), 17 immutable datasets
+  with handwritten answers, a dedicated behavioural checker, and Sam Okafor's
+  independently playable investigation at `#/case/doubled-totals`.
+- Exact string ID groups; equality compares all business fields, excluding
+  provenance line. Retain the first occurrence only if all versions agree and
+  link later copies. Any disagreement sends every occurrence to one conflict
+  group. No arbitrary winner. Every input appears exactly once; only kept jobs
+  contribute to reliable hours. Quarter-hour values need no rounding/tolerance.
+- Browser mission includes evidence, raw-versus-reliable totals, optional
+  prediction without answer reveal, real Run output, all-dataset checks, Stop,
+  error recovery, input-mutation feedback, four hints, confirmed explained
+  solution and attribution, Copy to IDE, existing editor controls and navigation.
+- Reuses version-1 progress fields and stable IDs; Case 3 adds fractional-hour
+  prediction validation only. Earlier missions' saves and Toolbox remain intact.
+  Case 3 retains checked code on its solved panel and intentionally offers no
+  file-processing download. Its Copy to IDE challenge is sample-data only.
+- No dependency, CSV rule, sandbox-security, backend, Milestone 4 or Milestone 5
+  changes. No commit, push, PR creation, merge or deployment.
+
+### Milestone 3 verification
+
+Final `npm run check` passed on Node.js v24.18.0 and npm 11.16.0 (the installed
+Node differs from `.nvmrc`'s 24.22.1), with normal subprocess/local-server access:
+
+| Check | Actual final result |
+| --- | --- |
+| ESLint | Pass, no warnings |
+| Vitest | 12 files, **376 tests passed** (289 prior + 87 Case 3) |
+| Production build | Pass; JavaScript 387.77 kB / 120.70 kB gzip |
+| Playwright, Chromium | **77 tests passed**, reported duration 1.1 m (53 prior + 24 Case 3) |
+| `git diff --check` | Pass |
+
+Unit tests independently verify all 17 handwritten dataset answers, recursively
+frozen evidence, exact provenance/content, ordering, classification, coverage and
+quarter-hour sums. Both the lesson Map solution and an independent per-occurrence
+solution pass. Deliberately wrong first/last-wins, repeated counting, status keys,
+numeric IDs, conflict-as-copy, missing originals, wrong totals, line-based
+equality, ignored/trimmed notes and hardcoded answers fail. Additional malformed
+output tests cover duplicate accounting, links, split/unknown conflict groups,
+extra/missing/changed fields, finite numeric totals and input mutation. Lifecycle
+tests cover progress, cancellation, fatal and per-dataset errors.
+
+Browser tests use the unchanged production sandbox: independent play, prediction
+and skip, all 17 checks with both correct algorithms, wrong algorithms, actual
+incorrect output, syntax/runtime/shape recovery, Stop on Run and Check, leaving
+an active check, hints/reference confirmation and attribution, saved and stale
+code, navigation/Back/Forward/refresh across all three cases, unchanged earlier
+saves/Toolbox, and real Node execution of the copied sample-data challenge.
+Keyboard, reduced-motion and editor-control checks passed at 1920×1080,
+1366×768 and 375×740, with no page-level overflow or unintended console errors.
+Local production evidence/output screenshots at 1366 and 375 px were visually
+inspected; no page errors or overflow were observed. Screenshots are temporary
+`/tmp` review artifacts, not repository changes.
+
+Initial development failures were test issues: the unit execution adapter needed
+to report thrown learner errors as runner results, the JSON disclosure selector
+needed an exact match, and cancelled-check assertions needed the existing region
+and wording. The first full integrated run passed 376 unit tests and 76/77
+browser tests; the remaining old Case 1 assertion expected two playable links.
+Updated it to three and reran the entire check successfully. No unresolved test
+failures remain. No dependencies were installed or audited in this task.
+
+Limits: Chromium only; Firefox/Safari, native mobile browsers, screen-reader and
+contrast audits, and owner-led QA remain unperformed. Existing sandbox memory
+and CSP-delivery limits are unchanged. The full Case 3 Node-file tool is deferred
+by scope, not advertised as implemented.
+
+Changed files: `src/missions/doubledTotals.js`,
+`src/missions/doubledTotals.fixtures.js`, `src/missions/index.js`,
+`src/checking/evaluateDoubledTotals.js`, `src/components/DoubledTotalsView.jsx`,
+`src/components/DoubledTotalsOutput.jsx`, `src/components/Workbench.jsx`,
+`src/App.jsx`, `src/storage/progress.js`; `tests/unit/doubledTotals.test.js`,
+`tests/support/doubledTotals.js`, `tests/e2e/doubledTotals.spec.js`,
+`tests/e2e/helpers.js`, `tests/e2e/journey.spec.js`, `tests/e2e/messyExport.spec.js`;
+`README.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/STATUS.md`, and
+`docs/cases/03-doubled-totals.md`.
+
+## Owner QA backlog — Milestone 2, November 14–15, 2026
+
+**Deferred; not owner-approved.** The owner postponed this review until the
+weekend of November 14–15. Automated results do not substitute for manual review.
+
+- [ ] Review Case 2's learning sequence, prediction, terminology, hints and explained solution.
+- [ ] Inspect accepted/rejected feedback, unchanged originals, all reasons and file lines.
+- [ ] Navigate among cases, refresh and verify saved drafts, predictions and passing code.
+- [ ] Review responsive layouts and keyboard-only usability on owner devices.
+- [ ] Copy to IDE, edit/run the challenge and paste the solution back for checking.
+- [ ] Download all six Node CSV files into a fresh separate directory and run `npm install`.
+- [ ] Run sample and another CSV, print/save JSON, inspect records/line numbers/totals, and exercise error paths.
+- [ ] Perform final regression checks of Case 1, Case 2 and their Toolbox downloads before approval.
+
+## Milestone 2, Slice 4: Complete Node CSV workflow (9 November 2026; historical record)
 
 - Initial inspection verified branch `claude/milestone-2-messy-export`, HEAD `30fffa06ff9e6d96356f0e13c4601f7bda2e850e`, and 19 staged files containing Slice 3. That work was preserved; no index changes, commit, push, PR, merge or deployment was performed. Slice 3's existence is confirmed; its final owner approval is not assumed.
 - Added a Case 2 Toolbox entry on the mission and Toolbox pages using the last passing `solved.code`, including after failed checks, changed drafts and refresh. No storage changes. Case 1's JSON generator and both exercises remain functional; Copy to IDE remains the standalone parsed-record exercise.
@@ -226,6 +325,10 @@ What the tests cover:
 
 ## Owner review checkpoint
 
-Milestone 2 is feature-complete through Slice 4 and ready for owner-led manual QA of the browser mission and downloaded CSV workflow. Slices 3 and 4 remain uncommitted and have not received final owner approval. No automated test result substitutes for that review. Milestone 3 remains planned and has not started.
+Milestone 3's contract, checker and browser mission are ready for owner review
+after the verification above. Its full Node-file workflow remains outside this
+task. Milestone 2 is checkpointed and feature-complete; its final owner QA remains
+pending for November 14–15, 2026. No automated result substitutes for owner approval.
 
-Stop after Slice 4. The owner and ChatGPT will review this work before authorizing another milestone.
+Stop after this Milestone 3 browser task. Do not begin another milestone or the
+Case 3 Node-file workflow without separate authorization.

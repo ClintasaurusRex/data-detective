@@ -49,7 +49,7 @@ test("mission links, Back, Forward, refresh and legacy progress remain independe
   await expect(page.getByTestId(`toolbox-${MAIN}`)).toBeVisible();
   await page.goBack();
   await expect(page.getByTestId(`editor-${ID}`)).toBeVisible();
-  await expect(page.getByRole("complementary").getByText("Planned")).toHaveCount(3);
+  await expect(page.getByRole("complementary").getByText("Planned")).toHaveCount(2);
 });
 
 test("investigate, predict, compare real output, check all datasets and persist exact passing code", async ({ page }) => {

@@ -29,11 +29,11 @@ test("a new learner can predict, run, use hints, check, export and come back lat
   // The request and the planned cases are visible; planned cases aren't links.
   await expect(page.getByText("The weekly report says only one job is complete.")).toBeVisible();
   const caseList = page.getByRole("complementary", { name: "Cases" });
-  await expect(caseList.getByRole("link")).toHaveCount(2);
+  await expect(caseList.getByRole("link")).toHaveCount(3);
   for (const title of ["The Messy Export", "The Doubled Totals", "The Two Exports", "Your First Reporting Tool"]) {
     await expect(caseList.getByText(title)).toBeVisible();
   }
-  await expect(caseList.getByText("Planned")).toHaveCount(3);
+  await expect(caseList.getByText("Planned")).toHaveCount(2);
 
   // Running before predicting asks for a prediction instead.
   const prediction = page.getByLabel("How many job records should the weekly report include?");

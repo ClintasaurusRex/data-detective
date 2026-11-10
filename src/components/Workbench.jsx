@@ -2,6 +2,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { describeResultType, describeRunProblem, runChecks } from "../checking/evaluate.js";
 import { runMessyExportChecks } from "../checking/evaluateMessyExport.js";
 import { MessyExportOutput } from "./MessyExportOutput.jsx";
+import { DoubledTotalsOutput } from "./DoubledTotalsOutput.jsx";
+import { runDoubledTotalsChecks } from "../checking/evaluateDoubledTotals.js";
 import { DEFAULT_TIMEOUT_MS } from "../runner/sandboxRunner.js";
 import { CodeBlock, RecordTable, RichText } from "./common.jsx";
 import { CopyToIde } from "./CopyToIde.jsx";
@@ -18,6 +20,8 @@ function countText(n) {
 // describes the exercise for the "Copy to IDE" file.
 export function Workbench({ exercise, state, update, runner, beforeRun, describeRun, challenge }) {
   const isMessy = exercise.outputKind === "accepted-rejected";
+  const isDoubled = exercise.outputKind === "deduplication";
+  const isStructured = isMessy || isDoubled;
   const editorId = useId();
   const helpId = useId();
   const wrapId = useId();
@@ -51,17 +55,18 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
     const problem = describeRunProblem(result, { timeoutSeconds: TIMEOUT_SECONDS });
     if (problem) setAnnouncement(`Run finished with a problem. ${problem.message}`);
     else if (isMessy) setAnnouncement("Run finished. Inspect accepted and rejected records below.");
+    else if (isDoubled) setAnnouncement("Run finished. Inspect kept records, duplicates, conflicts and the total below.");
     else if (result.resultType === "array") setAnnouncement(`Run finished. Output: ${countText(result.output.length)}.`);
     else setAnnouncement("Run finished, but the result isn't an array.");
   }
 
   async function handleCheck() {
-    if (isMessy && beforeRun && !beforeRun()) return;
+    if (isStructured && beforeRun && !beforeRun()) return;
     const op = ++opRef.current;
     const code = draft;
     setBusy({ kind: "check", done: 0, total: exercise.checks.length });
     setAnnouncement("Checking your code against every dataset…");
-    const checkCode = isMessy ? runMessyExportChecks : runChecks;
+    const checkCode = isDoubled ? runDoubledTotalsChecks : isMessy ? runMessyExportChecks : runChecks;
     const outcome = await checkCode((c, rows) => runner.run(c, rows), exercise, code, {
       timeoutSeconds: TIMEOUT_SECONDS,
       onProgress: (done, total) => {
@@ -76,7 +81,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
       setAnnouncement("Check stopped.");
       return;
     }
-    if (isMessy) update((s) => ({ ...s, checked: { code, passed: outcome.passed } }));
+    if (isStructured) update((s) => ({ ...s, checked: { code, passed: outcome.passed } }));
     const passedCount = outcome.results.filter((r) => r.passed).length;
     if (outcome.passed) {
       update((s) => ({
@@ -138,7 +143,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
             Your <code>transform</code> function
           </label>
           <p id={helpId} className="help">
-            <code>transform</code> receives <code>rows</code>, an array (list) of job records, and returns {isMessy ? <code>{"{ accepted, rejected }"}</code> : "a new array"}.
+            <code>transform</code> receives <code>rows</code>, an array (list) of job records, and returns {isDoubled ? <code>{"{ kept, duplicates, conflicts, totalHours }"}</code> : isMessy ? <code>{"{ accepted, rejected }"}</code> : "a new array"}.
             Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd> on a Mac) to run.
           </p>
           <div className="editor-toolbar">
@@ -194,7 +199,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
           {restoreNote && <p className="note">{restoreNote}</p>}
           {solvedIsStale && (
             <p className="notice warning" role="status">
-              You&rsquo;ve changed the code since it passed the checks. {isMessy ? "Check it again to verify this draft. Your last passing code is kept below." : "Check it again to update your Toolbox. Until then, the Toolbox keeps the last version that passed."}
+              You&rsquo;ve changed the code since it passed the checks. {isStructured ? "Check it again to verify this draft. Your last passing code is kept below." : "Check it again to update your Toolbox. Until then, the Toolbox keeps the last version that passed."}
             </p>
           )}
         </div>
@@ -205,7 +210,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
             {busy?.kind === "check" && `Checking… ${busy.done} of ${busy.total} datasets done`}
             {!busy && announcement}
           </p>
-          <OutputPanel run={run} stale={runIsStale} describeRun={describeRun} isMessy={isMessy} />
+          <OutputPanel run={run} stale={runIsStale} describeRun={describeRun} isMessy={isMessy} isDoubled={isDoubled} rawTotal={isDoubled ? exercise.rows.reduce((sum, row) => sum + row.hours, 0) : undefined} />
           {!check && state.checked && <p className="note" role="status">Last saved check: {state.checked.passed ? "all datasets passed" : "some datasets failed"}.{state.checked.code !== draft && " The draft has changed; check again."} Run Check solution for full feedback.</p>}
           {check && <CheckPanel check={check} stale={checkIsStale} checks={exercise.checks} />}
         </div>
@@ -216,7 +221,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
   );
 }
 
-function OutputPanel({ run, stale, describeRun, isMessy }) {
+function OutputPanel({ run, stale, describeRun, isMessy, isDoubled, rawTotal }) {
   if (!run) {
     return (
       <section className="panel output-panel" aria-label="Output">
@@ -227,8 +232,8 @@ function OutputPanel({ run, stale, describeRun, isMessy }) {
   }
   const { result } = run;
   const problem = describeRunProblem(result, { timeoutSeconds: TIMEOUT_SECONDS });
-  const typeProblem = !problem && !isMessy ? describeResultType(result.resultType) : null;
-  const isRecords = !isMessy && !problem && !typeProblem && Array.isArray(result.output);
+  const typeProblem = !problem && !isMessy && !isDoubled ? describeResultType(result.resultType) : null;
+  const isRecords = !isMessy && !isDoubled && !problem && !typeProblem && Array.isArray(result.output);
   const extra = isRecords && describeRun ? describeRun(result) : null;
 
   return (
@@ -248,6 +253,7 @@ function OutputPanel({ run, stale, describeRun, isMessy }) {
         </p>
       )}
       {isMessy && !problem && <MessyExportOutput result={result} describeRun={describeRun} />}
+      {isDoubled && !problem && <DoubledTotalsOutput result={result} describeRun={describeRun} rawTotal={rawTotal} />}
       {isRecords && extra && <p className="feedback info">{extra}</p>}
       {isRecords && result.mutated && (
         <p className="feedback warning">
@@ -362,7 +368,9 @@ function DatasetDetails({ check }) {
       <p className="small">{check.description}</p>
       <RecordTable rows={check.rows} caption={`Input: ${check.name}`} highlightIds={check.expectedIds} />
       <p className="small">
-        Expected result: {check.expected
+        Expected result: {check.expected?.kept
+          ? `${check.expected.kept.length} kept, ${check.expected.duplicates.length} duplicates, ${check.expected.conflicts.length} conflict groups; ${check.expected.totalHours} reliable hours`
+          : check.expected
           ? `${check.expected.accepted.length} accepted and ${check.expected.rejected.length} rejected`
           : check.expectedIds.length ? check.expectedIds.join(", ") : "an empty array"}
         {check.expectedIds?.length > 0 && " (highlighted)"}.

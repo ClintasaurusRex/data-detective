@@ -6,7 +6,7 @@ You play a data detective at a fictional water utility, Riverbend Water Services
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete. Milestone 2, **The Messy Export**, is feature-complete and ready for owner QA: inspect CSV, predict, write JavaScript validation, check accepted/rejected records, then download the working CSV-file tool. Owner approval is still pending for Slices 3 and 4. Cases 3–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Case 3, **The Doubled Totals**, now has a playable browser mission: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its full Node-file export is deferred. Cases 4–5 remain planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -75,6 +75,8 @@ Each layer is separate, so later cases add mission content, datasets and the app
 4. Add unit tests that the expected results follow the case rules, and extend the browser journey.
 
 Case 2 introduces CSV. The contract, parser and datasets (Slice 1), `{ accepted, rejected }` checker (Slice 2), playable browser investigation (Slice 3), and standalone Node CSV workflow (Slice 4) are implemented. Use the sidebar to switch cases; hash URLs preserve location through Back, Forward and refresh. Each mission saves its own progress without resetting Case 1. Broken CSV examples stop the whole file before validation. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
+
+Case 3 is independently playable at `#/case/doubled-totals`; no Case 2 completion is needed. Use the exact string job ID as a key, compare business fields, and separate safe originals, linked exact duplicates and whole conflict groups. Only safely retained records contribute to the reliable subtotal. The lesson teaches Map, Set, grouping, equality, provenance and verification through 17 checking datasets. Prediction, hints, explained solution, editor controls and saved progress follow the earlier cases. Copy to IDE provides the sample-data challenge; Case 3 does not add a file-processing Toolbox download. See [the Case 3 contract](docs/cases/03-doubled-totals.md).
 
 ## Use your Case 2 CSV tool
 

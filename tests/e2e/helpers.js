@@ -57,6 +57,6 @@ export function outputHeading(page, id = MAIN) {
 
 export async function outputJson(page, id = MAIN) {
   const panel = output(page, id);
-  await panel.getByText("Show as JSON").click();
+  await panel.getByText("Show as JSON", { exact: true }).click();
   return JSON.parse(await panel.getByLabel("Output as JSON").textContent());
 }

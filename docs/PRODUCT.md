@@ -36,9 +36,9 @@ The fun comes from investigation, immediate visible results, collecting useful t
 
 | # | Case | Status |
 | --- | --- | --- |
-| 1 | The Missing Jobs | **Done** (see [STATUS.md](STATUS.md)) |
-| 2 | The Messy Export | Feature-complete through Slice 4; ready for owner QA, approval pending |
-| 3 | The Doubled Totals | Planned |
+| 1 | The Missing Jobs | **Done; owner-approved** (see [STATUS.md](STATUS.md)) |
+| 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
+| 3 | The Doubled Totals | Browser mission, contract and checker implemented; ready for owner QA; full Node-file export deferred |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
@@ -59,13 +59,27 @@ The browser mission teaches CSV parsing and data validation through an export wi
 - Report rejected rows with reasons.
 - Add a Node CSV runner alongside the browser's parsed-record exercise.
 
-### Milestone 3: The Doubled Totals (backlog)
+### Milestone 3: The Doubled Totals (browser mission implemented)
 
-Teach duplicate detection using a declared unique key.
+Sam Okafor's combined weekly export appears to count too many hours. Learners
+group cleaned records by exact string ID, compare status/hours/notes, and return
+`{ kept, duplicates, conflicts, totalHours }`. They retain the first occurrence
+only when all versions agree, link later exact copies, and preserve every version
+of conflicting jobs for human review. Only safely kept records contribute to the
+reliable subtotal. Leading zeros, capitalization and notes remain exact evidence;
+line identifies an occurrence rather than business equality.
 
-- Distinguish exact duplicates from conflicting records that share an ID.
-- Make the treatment of conflicts explicit; never silently keep an arbitrary row.
-- Keep an inspectable record of removed or flagged rows.
+- Independently playable with already-cleaned records; Case 2 is not a prerequisite.
+- 17 immutable datasets and a dedicated behavioural checker with handwritten expectations.
+- Map, Set, grouping, strict equality, first occurrences, ordering and reduce explained in context.
+- Raw versus reliable totals, prediction without answer reveal, inspectable audit lists,
+  hints and confirmed explained solution, Copy to IDE and independently saved progress.
+- Quarter-hour values require no rounding lesson. Every original is accounted for once;
+  conflicting versions never have an arbitrary winner.
+- No full Node-file export yet; checked code stays on the mission page and Copy to IDE
+  runs the sample-data exercise. No Milestone 4 or 5 work.
+
+See [cases/03-doubled-totals.md](cases/03-doubled-totals.md) for the precise contract.
 
 ### Milestone 4: The Two Exports (backlog)
 
