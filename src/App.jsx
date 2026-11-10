@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { allExercises, cases, playableCases } from "./missions/index.js";
 import { createSandboxRunner } from "./runner/sandboxRunner.js";
 import { loadState, saveState } from "./storage/progress.js";
+import { MessyExportView } from "./components/MessyExportView.jsx";
 import { CaseView } from "./components/CaseView.jsx";
 import { ToolboxEntry } from "./components/ToolboxEntry.jsx";
 
@@ -58,7 +59,11 @@ function useRunner() {
 }
 
 function useHashView() {
-  const read = () => (window.location.hash === "#/toolbox" ? "toolbox" : "case");
+  const read = () => {
+    const hash = window.location.hash;
+    if (hash === "#/toolbox") return "toolbox";
+    return playableCases.find((c) => hash === `#/case/${c.id}`)?.id ?? playableCases[0].id;
+  };
   const [view, setView] = useState(read);
   useEffect(() => {
     const onChange = () => setView(read());
@@ -73,8 +78,9 @@ export default function App() {
   const runner = useRunner();
   const view = useHashView();
   const mainRef = useRef(null);
-  const solvedExercises = allExercises.filter((e) => state.exercises[e.id]?.solved);
-  const currentCase = playableCases[0];
+  const solvedExercises = allExercises.filter((e) => e.exportFileName && state.exercises[e.id]?.solved);
+  const currentCase = playableCases.find((c) => c.id === view) ?? playableCases[0];
+  const MissionView = currentCase.id === "messy-export" ? MessyExportView : CaseView;
 
   // Move focus to the content when the view changes (not on first load).
   const firstView = useRef(true);
@@ -88,7 +94,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <a className="skip-link" href="#main">
+      <a className="skip-link" href="#main" onClick={(event) => { event.preventDefault(); mainRef.current?.focus(); }}>
         Skip to content
       </a>
       <header className="site-header">
@@ -104,7 +110,7 @@ export default function App() {
         <nav aria-label="Main">
           <ul className="nav-links">
             <li>
-              <a href="#/case" aria-current={view === "case" ? "page" : undefined}>
+              <a href="#/case" aria-current={view !== "toolbox" ? "page" : undefined}>
                 Case files
               </a>
             </li>
@@ -135,7 +141,7 @@ export default function App() {
               return (
                 <li key={c.id} className={c.playable ? "playable" : "planned"}>
                   {c.playable ? (
-                    <a href="#/case" aria-current={view === "case" ? "true" : undefined}>
+                    <a href={`#/case/${c.id}`} aria-current={view === c.id ? "page" : undefined}>
                       <span className="case-number">{c.number}</span>
                       <span className="case-name">{c.title}</span>
                       <span className="case-state">{solved ? "Solved" : "Open"}</span>
@@ -157,7 +163,8 @@ export default function App() {
           {view === "toolbox" ? (
             <Toolbox solvedExercises={solvedExercises} state={state} />
           ) : (
-            <CaseView
+            <MissionView
+              key={currentCase.id}
               caseDef={currentCase}
               caseState={state.cases[currentCase.id]}
               updateCase={(fn) => updateCase(currentCase.id, fn)}
@@ -182,10 +189,10 @@ function Toolbox({ solvedExercises, state }) {
   return (
     <section aria-labelledby="toolbox-title">
       <h2 id="toolbox-title">Your Toolbox</h2>
-      <p>Scripts you&rsquo;ve checked. Each one runs on its own with Node, on any JSON file with the same shape.</p>
+      <p>Downloadable scripts you&rsquo;ve checked. Each one runs on its own with Node, on any JSON file with the same shape.</p>
       {solvedExercises.length === 0 ? (
         <p className="panel muted">
-          Nothing here yet. Solve a case and your checked script will appear here, ready to download.
+          Nothing downloadable yet. Case 1 adds a checked JSON script here. Case 2 keeps its checked code in its mission; the full CSV-file tool comes in a later slice.
         </p>
       ) : (
         solvedExercises.map((exercise) => (

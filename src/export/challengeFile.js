@@ -64,6 +64,11 @@ export function buildChallengeFile(challenge, code) {
     comment(wrap(`"${request}"`), "  "),
     requestFrom ? comment([`  ${plain(requestFrom)}`]) : null,
     "//",
+    ...(challenge.parsedRecords ? [comment([
+      "PARSED-RECORD EXERCISE",
+      "This file uses the displayed, already-parsed records below.",
+      "It does not read a CSV file or implement the complete CSV workflow.",
+    ]), "//"] : []),
     comment(["GOAL"]),
     comment(wrap(goal), "  "),
     "//",

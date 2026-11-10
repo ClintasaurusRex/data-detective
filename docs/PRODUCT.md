@@ -37,7 +37,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Done** (see [STATUS.md](STATUS.md)) |
-| 2 | The Messy Export | In progress (Slice 2 checker done locally; browser exercise not playable) |
+| 2 | The Messy Export | Browser mission playable (Slice 3); full Node CSV tool still pending |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
@@ -46,11 +46,11 @@ The fun comes from investigation, immediate visible results, collecting useful t
 
 Filtering with `filter`, `trim` and `toLowerCase`, with a prediction step, three hints, an explained solution, checks against seven datasets, a Node script export, and an "open jobs" variation. Details: [cases/01-missing-jobs.md](cases/01-missing-jobs.md).
 
-### Milestone 2: The Messy Export (in progress)
+### Milestone 2: The Messy Export (browser playable; Node CSV tool pending)
 
 The contract and datasets are in [cases/02-messy-export.md](cases/02-messy-export.md).
 
-Teach CSV parsing and data validation through an export with spaces, blank fields and inconsistent values.
+The browser mission teaches CSV parsing and data validation through an export with spaces, blank fields and inconsistent values. Learners inspect both original CSV and parsed string records, predict accepted/rejected counts, write `transform(rows)`, and check it on 13 datasets. Four progressive hints and an explained solution remain optional. Malformed-file examples are separate from business-record rejection. Case 2 Copy to IDE runs the displayed parsed records; a complete CSV-file reader and Toolbox download remain future work.
 
 - Use a maintained CSV parser rather than splitting lines on commas.
 - Parser checks must include quoted commas, newlines inside quoted fields, and a byte-order mark.

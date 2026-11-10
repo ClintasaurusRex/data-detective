@@ -48,7 +48,7 @@ export async function check(page, id = MAIN) {
 }
 
 export function output(page, id = MAIN) {
-  return workbench(page, id).getByRole("region", { name: "Output" });
+  return workbench(page, id).getByRole("region", { name: "Output", exact: true });
 }
 
 export function outputHeading(page, id = MAIN) {

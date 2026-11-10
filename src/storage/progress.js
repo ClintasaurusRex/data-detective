@@ -51,16 +51,24 @@ function cleanExercise(value, exercise) {
   clean.hintsShown = clampInt(value.hintsShown, 0, exercise.hints.length);
   clean.solutionRevealed = value.solutionRevealed === true;
   clean.solved = cleanSolved(value.solved, exercise.hints.length);
+  // Optional additive field: old Case 1 saves keep their original shape.
+  const checked = value.checked;
+  if (checked && cleanCode(checked.code) !== null && typeof checked.passed === "boolean") {
+    clean.checked = { code: checked.code, passed: checked.passed };
+  }
   return clean;
 }
 
-function cleanCase(value) {
+function cleanCase(value, caseDef) {
   const clean = { prediction: null };
   if (!value || typeof value !== "object") return clean;
   const p = value.prediction;
   if (p && typeof p === "object") {
     if (p.skipped === true) clean.prediction = { skipped: true };
-    else if (Number.isInteger(p.value) && p.value >= 0 && p.value <= 1000) clean.prediction = { value: p.value };
+    else if (caseDef.id === "messy-export" && [p.accepted, p.rejected].every((n) => Number.isInteger(n) && n >= 0 && n <= 1000)) {
+      clean.prediction = { accepted: p.accepted, rejected: p.rejected };
+    }
+    else if (caseDef.id !== "messy-export" && Number.isInteger(p.value) && p.value >= 0 && p.value <= 1000) clean.prediction = { value: p.value };
   }
   return clean;
 }
@@ -69,7 +77,7 @@ function cleanCase(value) {
 export function sanitiseState(data, { cases, exercises }) {
   const state = emptyState();
   const valid = data && typeof data === "object" && data.version === 1;
-  for (const c of cases) state.cases[c.id] = cleanCase(valid ? data.cases?.[c.id] : null);
+  for (const c of cases) state.cases[c.id] = cleanCase(valid ? data.cases?.[c.id] : null, c);
   for (const e of exercises) state.exercises[e.id] = cleanExercise(valid ? data.exercises?.[e.id] : null, e);
   return state;
 }

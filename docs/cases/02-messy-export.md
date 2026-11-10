@@ -1,6 +1,6 @@
 # Case 2: The Messy Export
 
-Status: **Milestone 2, Slice 2.** The contract, CSV parser, datasets and validation checker are done. The playable exercise, hints, solution and Node CSV export are not built yet (see [STATUS.md](../STATUS.md)).
+Status: **Milestone 2, Slice 3. Browser mission fully playable.** The contract, CSV parser, datasets, checker, investigation, prediction, editor, hints, explained solution and progress persistence are integrated. The full Node CSV export is a future slice (see [STATUS.md](../STATUS.md)).
 
 Source: [src/missions/messyExport.contract.js](../../src/missions/messyExport.contract.js), [messyExport.fixtures.js](../../src/missions/messyExport.fixtures.js) and the parser in [src/csv/parseCsv.js](../../src/csv/parseCsv.js).
 
@@ -193,7 +193,7 @@ All fictional. Each is CSV text with hand-written expected results. The tests co
 
 ### Why these datasets catch wrong answers
 
-`tests/unit/messyExport.test.js` runs deliberately wrong solutions against the datasets and confirms that each one fails at least one of them. A future checker using the same datasets will therefore tell them apart:
+`tests/unit/messyExport.test.js` runs deliberately wrong solutions against the datasets and confirms that each one fails at least one of them. The integrated checker uses these same datasets to distinguish them:
 
 | Wrong approach | Fails on |
 | --- | --- |
@@ -219,4 +219,19 @@ The checker matches returned records by their original numeric file `line`, not 
 
 It compares actual output against expectations without a production reference transformation. The supplied runner executes learner code once per dataset using the existing sandbox. Shared Case 1 run-error feedback is reused; cancellation stops checking, fatal errors stop early, and dataset-specific errors allow remaining checks to run. `onProgress(done, total)` and the returned outcome follow the Case 1 conventions. File-line feedback refers to CSV input; shared syntax/runtime feedback refers to learner code lines.
 
-Tests in `tests/unit/evaluateMessyExport.test.js` cover all 13 valid fixtures, loop and reduce implementations, deliberately wrong answers, wrong shapes, file order, mutation, finite conversion (including JSON's conversion of Infinity to null), and runner lifecycle. Existing parser tests retain malformed-file coverage. No playable UI is connected yet.
+Tests in `tests/unit/evaluateMessyExport.test.js` cover all 13 valid fixtures, loop and reduce implementations, deliberately wrong answers, wrong shapes, file order, mutation, finite conversion (including JSON's conversion of Infinity to null), and runner lifecycle. Existing parser tests retain malformed-file coverage. Slice 3 connects this checker through the shared workbench; only all 13 required checks passing records a solve. An ordinary Run only shows actual output.
+
+
+## Playable investigation (Slice 3)
+
+Open `#/case/messy-export` or select Case 2 in the sidebar. Inspect Priya’s request, numbered CSV with visible spaces and line endings, and expandable parsed rows/JSON. File line 7 starts the multiline record; file line 8 is its continuation. Read the reporting contract and optional JavaScript field guide before writing validation. Parsing is provided, never a learner requirement.
+
+Predict accepted/rejected counts totalling the eight input records, or skip without penalty. Run and Check both invite a first prediction/skip. A prediction is compared with actual counts after Run without claiming that matching counts prove correctness. The starter deliberately returns empty lists and logs the evidence, leaving classification and cleaning to the learner.
+
+Output shows accepted values and rejected originals with returned reason codes translated to sentences. Run never solves the case. Check runs the existing checker across all 13 fixtures and reports missing/duplicate/out-of-order records, incorrect values or classification, incomplete reasons, changed originals and input mutation. Dataset inspection shows the parsed input and optional expected values/reasons for debugging.
+
+Four hints progress from tracing individual records to numeric checks and output construction. The optional reference solution is behind confirmation and explains string methods, blank versus zero, strict numeric syntax, conversion/finite checks, text identifiers and unchanged originals. Viewing it is recorded honestly. Draft restoration and reference insertion retain the earlier draft.
+
+Case 2 saves its draft, prediction/skip, hints, reference reveal, completed check summary and solve with exact passing code independently of Case 1. Editing a passing solution changes the badge to “Needs checking again” and retains the earlier passing code. The Copy to IDE exercise runs the displayed parsed records with Node; it explicitly does not read CSV files. Case 2 adds no Toolbox download in this slice.
+
+The final panel lets learners select bundled malformed-file examples and inspect actual parser errors, with file lines. The whole malformed file stops; it never becomes accepted/rejected business records or a partial report. There is no CSV editor or upload workflow.

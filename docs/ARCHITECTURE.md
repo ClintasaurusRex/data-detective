@@ -60,17 +60,19 @@ App page (strict CSP, no eval)
 
 ## CSV parsing (Milestone 2)
 
-`parseCsv` wraps Papa Parse 5.7.0 (pinned exactly, MIT, no dependencies). It runs in the app or in Node, never in the sandbox: the learner's `transform` receives already-parsed rows, so the runner and its CSP are unchanged. It is not yet used by the UI, so it isn't in the app bundle.
+`parseCsv` wraps Papa Parse 5.7.0 (pinned exactly, MIT, no dependencies). It runs in the app or in Node, never in the sandbox: the learner's `transform` receives already-parsed rows, so the runner and its CSP are unchanged. Case 2 uses it to prepare every valid checking dataset and to show actual parser errors for malformed-file examples; Papa Parse is included in the app bundle.
 
 It separates **CSV errors** (broken file structure: the whole file stops, `records` is `null`) from **business rules**, which belong to each mission. It fixes the delimiter to a comma, normalises line endings first (Papa Parse would merge rows in a file mixing `\r\n` and `\n`), removes a byte-order mark, keeps every value as an untouched string, checks field counts against the header, reports file line numbers, and lists skipped blank lines. The full contract is in [cases/02-messy-export.md](cases/02-messy-export.md#csv-parsing).
 
-Case 2’s checker is implemented but not connected to the UI. It accepts already-parsed datasets and runner results, reuses execution-error feedback, and verifies exact fields, types, finite hours, classification, reasons, content preservation, order and exactly-once coverage by file line. It contains no reference transformation. See [the checker contract](cases/02-messy-export.md#validation-checker-slice-2).
+Case 2’s checker is connected through the shared workbench using the exercise’s `outputKind: "accepted-rejected"`. It accepts already-parsed datasets and runner results, reuses execution-error feedback, and verifies exact fields, types, finite hours, classification, reasons, content preservation, order and exactly-once coverage by file line. It contains no reference transformation. See [the checker contract](cases/02-messy-export.md#validation-checker-slice-2).
 
 ## Saved progress
 
 One `localStorage` key, `data-detective:v1`, holds `{ version, cases, exercises }`. Writes are debounced and also flushed on `pagehide`. When loading, every field is validated and clamped, and unknown exercises are dropped. Text that can't be parsed is copied to `data-detective:v1:unreadable` before the app starts fresh with a visible notice. If storage is unavailable, the app runs in memory and says so. A React error boundary offers a reset (with the same backup) as a last resort.
 
-A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again, and the Toolbox keeps exporting the last version that passed.
+Case 1’s identifiers and save shape are preserved. Case 2 adds `cases["messy-export"].prediction` as `{ accepted, rejected }` or `{ skipped: true }`, and an exercise with the same stable ID. Its optional `checked: { code, passed }` retains the last completed check across refreshes. Draft, previous draft, hints, reference reveal and the exact passing code reuse the existing exercise fields. Detailed run output/check feedback is visit-local; after refresh a saved check summary invites checking again for full feedback.
+
+A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again, and the Toolbox keeps exporting the last version that passed for Case 1. Case 2 keeps its passing code on the mission page and offers no Toolbox download until the full CSV-file tool is implemented.
 
 ## Export
 
@@ -88,3 +90,14 @@ The learner's code sits inside its own function (`loadYourCode`), as it does in 
 ## Editor display
 
 "Expand editor" and "Wrap long lines" are local display state in `Workbench`, and aren't saved. Expanding switches the workbench grid to one column and sets a larger `min-height` on the textarea. Results stay mounted, so they're kept. Wrapping toggles the textarea's `wrap` attribute and CSS `white-space`. It never changes the value.
+
+
+## Mission navigation and UI (Slice 3)
+
+Hash URLs `#/case/missing-jobs`, `#/case/messy-export` and `#/toolbox` work on static hosts without rewrite rules or a routing dependency. The old `#/case` and empty hash still open Case 1. Unknown/planned case URLs fall back to Case 1; planned sidebar entries remain text. A location change focuses `main`; the skip link focuses content without changing the mission hash.
+
+`MessyExportView` handles CSV investigation, dual-count prediction, the reporting contract and malformed-file examples. `CaseView` keeps the Case 1 investigation and variation. Both use the same `Workbench` for editing, Run, Check, Stop, hints, reference solution and Copy to IDE. Mission views are keyed by stable ID; leaving one cancels active work and invalidates pending completions so late results cannot save a solve. Each valid check runs in a fresh worker using the unchanged sandbox.
+
+`MessyExportOutput` displays actual learner output in labelled accepted/rejected sections. It translates only known returned reason codes, preserves returned values and exposes the raw JSON. Invalid shapes stay inspectable and receive checker feedback; no expected results replace learner output. Tables and CSV/code blocks scroll inside their containers. The editor keeps expansion, vertical resizing and display-only wrapping. Confirmation, prediction and navigation have explicit focus management.
+
+The Case 2 Copy to IDE file states that its sample JSON contains already-parsed records, and is runnable with Node. It includes no CSV file-reading code, hidden checking datasets or automatic reference answer. The full Node CSV export, parser packaging and file-workflow teaching remain a separate future slice.

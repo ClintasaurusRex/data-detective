@@ -2,11 +2,11 @@
 
 A friendly learning app for writing useful workplace data scripts in JavaScript.
 
-You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and finish with a Node script you can keep.
+You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Case 1 also provides a standalone Node script; Case 2’s CSV-file tool comes later.
 
-The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back.
+The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete. Milestone 2 (**The Messy Export**) is in progress: its data contract, CSV parser, test datasets and validation checker are done, and it isn't playable yet. Cases 3–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete. Case 2, **The Messy Export**, is now fully playable in the browser: inspect CSV, predict, write JavaScript validation, and check accepted/rejected records. Milestone 2's full Node CSV-file workflow remains a future slice. Cases 3–5 are planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -65,16 +65,16 @@ tests/e2e/        Playwright
 docs/             product scope, architecture, case notes, status
 ```
 
-Each layer is separate, so later cases add a mission file and datasets without touching the runner. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how learner code is run and isolated, and its known limits.
+Each layer is separate, so later cases add mission content, datasets and the appropriate checker/output presentation without changing the sandbox runner. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how learner code is run and isolated, and its known limits.
 
 ## Adding a case (later milestones)
 
 1. Add a mission file in `src/missions/` with its request, rules, rows, datasets with explicit expected IDs, hints and explained solution. Copy the shape of `missingJobs.js`.
-2. Mark it `playable: true` in `src/missions/index.js`.
+2. Add it to `src/missions/index.js`, mark it `playable: true`, and connect its investigation view and output/checker type.
 3. Document its datasets in `docs/cases/`.
 4. Add unit tests that the expected results follow the case rules, and extend the browser journey.
 
-Case 2 introduces CSV. Its contract, parser and datasets are in place (Milestone 2, Slice 1); the checker for `{ accepted, rejected }` results is implemented (Slice 2); the playable exercise comes next. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
+Case 2 introduces CSV. The contract, parser and datasets (Slice 1), `{ accepted, rejected }` checker (Slice 2), and playable browser investigation (Slice 3) are complete. Use the sidebar to switch cases; hash URLs preserve location through Back, Forward and refresh. Each mission saves its own progress without resetting Case 1. Broken CSV examples stop the whole file before validation. The Node CSV export has not been implemented. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ## Privacy
 

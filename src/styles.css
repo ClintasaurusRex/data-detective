@@ -875,3 +875,63 @@ button.small-button {
 .workbench-grid.expanded .code-editor {
   min-height: max(28rem, 60vh);
 }
+
+/* CSV investigation and validation report use contained scrolling at any width. */
+.panel, .editor-column, .results-column, .workbench-grid > * {
+  min-width: 0;
+}
+.csv-line-number {
+  display: inline-block;
+  min-width: 3ch;
+  margin-right: 1.5ch;
+  text-align: right;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  padding-right: 1ch;
+}
+.lesson-rules {
+  max-width: 90ch;
+  padding-left: 1.25rem;
+}
+.lesson-rules li {
+  margin-bottom: 0.6rem;
+}
+.prediction .inline-fields label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.example-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.75rem 0;
+}
+.example-picker select {
+  font: inherit;
+  max-width: 100%;
+  padding: 0.4rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--muted);
+  border-radius: var(--radius);
+}
+.report-group {
+  border-left: 4px solid var(--success);
+  padding: 0.5rem 0.75rem;
+  margin: 0.75rem 0;
+  background: var(--surface);
+}
+.report-group.rejected {
+  border-color: var(--warning);
+}
+.rejected-entry {
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-top: 0.75rem;
+}
+.report-group li, .case .problems li {
+  overflow-wrap: anywhere;
+}

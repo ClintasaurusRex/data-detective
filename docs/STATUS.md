@@ -1,18 +1,49 @@
 # Status
 
-Last updated: 8 November 2026 (Milestone 2, Slice 2: validation checker; local work awaiting review).
+Last updated: 9 November 2026 (Milestone 2, Slice 3: playable browser mission; local work for review).
 
 ## Milestones
 
 | # | Case | Status |
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Complete** (on branch `claude/sharp-goldberg-u42b65`, not merged) |
-| 2 | The Messy Export | **In progress.** Slice 1 is committed and pushed; Slice 2 checker is complete locally on branch `claude/milestone-2-messy-export` (branched from the Milestone 1 tip, not merged). Not playable yet. |
+| 2 | The Messy Export | **Browser mission fully playable.** Slices 1 and 2 are committed. Slice 3 is implemented locally on `claude/milestone-2-messy-export`, uncommitted for review. Full Node CSV-file export remains pending. |
 | 3 | The Doubled Totals | Planned |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
-## Milestone 2, Slice 2: Validation checker (8 November 2026)
+## Milestone 2, Slice 3: Playable browser mission (9 November 2026)
+
+- Inspection found a clean working tree on the requested branch. Slice 2 was already committed as `30fffa0` (`Add milstone 2 csv validation checker`), following Slice 1 `df0e58d`. Its implementation and tests were preserved.
+- Added Case 2 mission content with Priya’s request, numbered CSV/visible whitespace, parsed records, strict reporting rules, beginner JavaScript field guide, dual-count prediction or skip, four hints, explained reference solution and honest reveal attribution.
+- Added static-host-friendly mission hash navigation with Back/Forward, refresh, active sidebar state and content focus. Case 1’s work and variation retain their identifiers and storage format. Cases 3–5 remain planned.
+- Extended the existing workbench by output type: Case 2 uses the existing checker on all 13 valid datasets, presents actual accepted/rejected output, originals and understandable reasons, and retains JSON and console inspection. Ordinary Run cannot solve a case. Invalid shapes, syntax/runtime errors and Stop remain recoverable. Leaving a mission cancels active work.
+- Case 2 persists its own draft, previous draft, prediction/skip, hint use, reveal, last completed check summary and exact passing code. Changed drafts require another check. Detailed output/check feedback remains visit-local.
+- Preserved all approved editor controls. Copy to IDE exports a runnable parsed-record challenge using the displayed records, explicitly stating that it does not read CSV files. No Case 2 Toolbox download is offered; its passing code remains inspectable on the mission page.
+- Malformed CSV examples run the real parser and show file-line errors with whole-file failure, distinct from rejected business records. No CSV editing/upload application was added.
+- No new dependencies. CSV contract, fixture files, parser, checker, runner and sandbox boundary tests were not modified. No commit, push, PR, merge or deployment performed for Slice 3.
+
+### Slice 3 validation
+
+Node.js v24.18.0; npm 11.16.0 (the installed Node differs from `.nvmrc`’s 24.22.1). Final `npm run check` passed with normal child-process/local-server access:
+
+| Check | Actual final result |
+| --- | --- |
+| ESLint | Pass, no warnings |
+| Vitest | 10 files, 258 tests passed (248 original + 10 integration tests) |
+| Production build | Pass; JavaScript 335.00 kB / 104.90 kB gzip |
+| Playwright, Chromium | 48 tests passed in 39.3 s (25 existing + 23 Case 2) |
+| `git diff --check` | Pass |
+
+The new tests cover navigation/Back/Forward/refresh, preserved Case 1 progress, prediction/skip, all 13 required checking datasets, ten wrong approaches and hardcoded answers, actual wrong output, syntax/runtime/type recovery, Run and Check cancellation, hints/reference confirmation and attribution, refresh/stale code, Node execution of Copy to IDE, keyboard focus, and layouts at 1920×1080, 1366×768 and 375×740. Existing sandbox/isolation, JSON script exports and Case 1 journey tests pass unchanged in behaviour.
+
+- The initial restricted unit run encountered the known child-process output restriction in 14 existing Node export tests; the same 248 tests passed with normal process access.
+- First integrated full run: ESLint, 257 unit tests and production build passed; browser tests were 41 passed / 6 failed. All 25 original browser tests passed. New test failures were an ambiguous region selector (four), early storage read (one), and an incorrect deliberately-wrong fixture (one). Corrected these tests; all 22 focused Case 2 browser tests then passed.
+- Added further coverage for all-digit numeric overflow, actual incorrect output presentation and stopping checks after that focused run; these all pass in the final full check above.
+- Captured and visually inspected local production screenshots at 1366 and 375 px; no page errors or page-level horizontal overflow. Screenshots were temporary review artifacts in `/tmp`, not repository changes. Automated responsive tests also cover 1920 px, editor expansion/wrapping, contained data scrolling and control bounds.
+- Chromium only. Firefox, Safari and a screen-reader/contrast audit remain unverified; the existing sandbox memory-cap and CSP delivery limits remain unchanged. Dependency audit results below are historical; no new dependency audit was performed for this integration slice.
+
+## Milestone 2, Slice 2: Validation checker (8 November 2026; historical record)
 
 - Added `src/checking/evaluateMessyExport.js`: compares actual `{ accepted, rejected }` output with fixture expectations, keyed by input file line. Checks structure, exact fields/types, cleaned values, finite hours, classification, reasons, record preservation, order, coverage and mutation. No production reference solution.
 - Reuses Case 1 execution-error feedback. The new orchestration function accepts the existing runner callback and supports progress, cancellation and fatal-error stopping. It refuses datasets without parsed rows before invoking learner code.
@@ -113,7 +144,7 @@ Run locally on 6 November 2026 with Node.js v24.18.0 and npm 11.16.0 (`.nvmrc` s
 - Restore starter code keeps the previous draft ("Bring back my draft"), and so does putting the solution in the editor.
 - A solved state with a brief "Case closed" stamp (no animation with reduced motion), and a Toolbox with the checked script as `solve.mjs`, plus `sample.json` and instructions explaining why the Node script exists.
 - An "open jobs" variation with less guidance (empty starter, one hint) and its own checks and export.
-- Case list: Case 1 is playable; Cases 2–5 are shown as planned and aren't links.
+- Case list at Milestone 1: Case 1 was playable; Cases 2–5 were planned. Slice 3 now makes Case 2 playable too.
 - Saved locally: draft, previous draft, prediction, hint count, solution reveal and solves. Malformed or unexpected saved data is backed up and the app starts fresh with a notice.
 - Sandboxed runner: an opaque-origin iframe with its own CSP, plus a fresh worker per run with a 2 s timeout, bounded output and stale-run protection. Details and limits: [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -158,6 +189,8 @@ What the tests cover:
 - There was no automated screen-reader or contrast audit (for example, axe). Labels, roles, live regions and focus order were reviewed by hand and through role-based test selectors.
 - `npm audit` reports 6 moderate advisories in ESLint's `minimatch` dependency (development only, not shipped, no fix available yet).
 
-## Next task
+## Remaining before Milestone 2 is complete
 
-**Milestone 2, Slice 3 (not started).** Build the playable browser exercise: mission content, case-specific navigation, raw CSV/parsed rows, CSV errors, accepted/rejected output and checker feedback. Integrate progress while preserving Case 1 saves. Copy to IDE and the practical Node CSV workflow remain future work; parser packaging for downloads still needs a decision. Await owner authorization before further development.
+The browser mission is playable. Owner review of Slice 3 is next. A separately authorized future slice still needs the complete Node CSV-file workflow: choose parser packaging, read real CSV files, fail the whole file for structural errors, print/save accepted and rejected records, provide truthful Toolbox downloads/sample CSV/instructions, and verify browser-to-Node parity and errors with real Node executions. Review whether an independent practice variation is wanted as part of that follow-up. Milestone 3 remains planned and has not started.
+
+Stop after Slice 3. No further implementation is authorized by this completion report.
