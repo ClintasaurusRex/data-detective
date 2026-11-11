@@ -1,3 +1,167 @@
+# Milestone 5 Slice 1 implementation and engineering review
+
+Reviewed 11 November 2026. Case 5's browser capstone and independent variation
+are implemented, with owner QA/approval pending. Production Node file reading,
+file guards/downloads and later slices were not implemented. Cases 2–4 remain
+unapproved with owner QA planned November 14–15; Case 1 remains approved.
+The Milestone 4 and earlier reviews below are historical checkpoints.
+
+## Repository and baseline
+
+Started clean on `feature/milestone-5-reporting-tool`, HEAD
+`d2b29cc37e3a4c0e8eaeefa85459f5b06bc68067`, matching the requested base, with
+no configured upstream. Read the README, docs, all four prior mission contracts,
+roadmap, last engineering review and known limitations; inspected mission
+registration, adapters, checkers, Workbench, outputs, runner/security, progress,
+Toolbox and Copy to IDE. Baseline actually passed lint, **802 unit tests**,
+production build and **129 Chromium tests**. Restricted subprocess execution
+initially returned empty child output and could not start the preview; permitted
+local execution passed. No baseline failure is represented as a passing check.
+
+## Contract and implementation
+
+Defined [the complete contract](cases/05-first-reporting-tool.md) before the
+checker. `buildWeeklyReport(rawOrders, rawEntries, period)` receives parsed
+string records and creates a weekly report with daily/site groups, fixed decimal
+hours, distinct jobs/entries, explicit count vectors and two occurrence audits.
+
+The contract specifies trimming without losing IDs or meaningful site text,
+all validation reasons in field order, real Gregorian dates (including century
+leaps), strict/inclusive valid periods, exact decimal syntax, integer hundredths,
+validation before grouping, whole-export conflict detection before period
+filtering, first-copy provenance, exact job matching and completed-work rules.
+Each original remains unchanged in one audit item, with separate cleaned content,
+reasons, disposition and applicable links. Dispositions are mutually exclusive;
+valid overlaps them and conflictGroups counts unique IDs rather than occurrences.
+Group ordering uses exact JavaScript string order. Work orders have no date.
+
+32 recursively frozen datasets record handwritten cleaned values, decisions,
+reasons, links, group rows/totals and count vectors: **28 complete reports and
+four invalid-period errors**. Factories attach source records and field names,
+without solving the pipeline. The behavioural checker compares exact structure,
+types, content, order and evidence; it runs no reference solver and checks no
+source patterns. Numerical totals alone cannot pass. Feedback names report
+paths/source lines/categories without dumping hidden expected reports.
+
+Two independently structured algorithms verify every handwritten expectation:
+the optional lesson solution uses Map grouping and arithmetic Gregorian dates;
+the test-only alternative uses per-occurrence searches, UTC date round-trips and
+BigInt decimal parsing. Both run in genuine production browser workers, not a
+simulated browser evaluator. Unit tests reject 12 wrong strategies, hardcoded
+sample output and 37 report corruptions (including apparently correct totals
+with incorrect audit evidence), malformed results, mutation, and lifecycle errors.
+
+`ReportingView` provides Sam's request, two source tables, period, notebook,
+contract, field guide, prediction or skip, shared Workbench, progressive hints
+and confirmed explained solution. Output renders actual returned values only:
+daily/site groups, grand totals, audit counts and expandable original/cleaned
+records, reasons, dispositions and links. Malformed outputs remain inspectable
+without crashing, including object-valued disposition fields.
+
+The independent future-week handover starts with less scaffolding, changed
+sites/dates/exclusions and a conflict straddling its period. Its numerical total
+coincidentally equals the main week's total while all the underlying evidence
+differs. It has a stable separate exercise ID, draft, hints, reveal attribution,
+checks and last passing code. Both challenges are accessible independently.
+
+The three-input adapter reuses the existing array-only sandbox and protects
+learner helper names and source-line diagnostics. Review found that the shared
+worker only reports mutation after successful returns. The Case 5 adapter also
+snapshots data around thrown exceptions so mutation before an expected
+invalid-period error fails checking. No sandbox/worker/CSP, storage schema,
+dependency, earlier mission contract or prior standalone generator changes.
+
+Copy to IDE copies only the active sample, period, contract and current draft,
+with a direct buildWeeklyReport preview. Genuine copied files run in real Node
+processes, but do not read production files. Toolbox retains each exact last
+passing browser solution without downloads. Only all-scenario success updates
+that exercise's solved.code; failed/cancelled checks, drafts, refresh, challenge
+switching and navigation cannot substitute a different code version.
+
+## Verification
+
+Executed with Node **v24.18.0**, npm **11.16.0**. `.nvmrc`'s exact 24.22.1
+patch is not installed and was not tested. Final full command:
+`DATA_DETECTIVE_TEST_PORT=4287 npm run check`.
+
+| Check | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| ESLint | pass | 0 | 0 |
+| Vitest, 16 files | **904** | **0** | **0** |
+| Production Vite build | pass, advisory below | 0 | 0 |
+| Full Chromium production suite | **145** | **0** | **0** |
+| Focused Case 5 WebKit | **15** | **0** | **0** |
+| Firefox 159.0.1 native BiDi scenario executions | **96** | **0** | **0** |
+
+Chromium includes the 129 baseline checks and 16 capstone checks. Units include
+802 baseline + 102 new tests. The existing planned-case/registry assertions in
+three tests were updated for five playable cases; earlier contract assertions
+were not weakened. Full Chromium retains all prior actual-download Node parity,
+input-file protection, progress storage warnings/backups, navigation, keyboard,
+CSP/network isolation, timeout/Stop and error-recovery checks.
+
+Focused Chromium/WebKit tests compare both algorithms' complete 32-scenario
+worker results to handwritten expectations; invalid periods require an error,
+not a report. They also exercise prediction without answer reveal, inspectable
+audit records, multiple malformed shapes, source/period mutation, error source
+lines where supplied by the engine, timeout/Stop/check cancellation, switching
+challenges during a check, stale checked-code retention, edits during checking,
+separate main/variation storage, restore/reveal attribution, Toolbox boundaries,
+Copy to IDE and responsive editor controls. Calendar scenarios pass in both
+America/Vancouver and Asia/Tokyo timezones. WebKit's unsupported clipboard
+permission-grant test is explicitly excluded; its fallback-copy tests execute
+both active samples as real Node processes. Chromium also tests clipboard
+success without running code or creating a solve. WebKit is focused coverage,
+not full-suite Safari/iOS certification.
+
+Firefox native BiDi matched complete outputs on main/Map, main/independent and
+variation/Map: 32 scenarios each, including 28 complete reports and four period
+errors per run. Refresh preserved separate passing tools; timeout, Stop and
+valid-run recovery passed, with zero page errors logged. This is targeted
+system Firefox coverage, not the unavailable Playwright Firefox suite or a new
+Firefox network-isolation audit. Current full isolation evidence is Chromium's
+regression suite; earlier Firefox evidence remains historical.
+
+Production screenshots at 1920, 1366 and 375 px were captured. Phone/laptop
+viewport screenshots were visually inspected; controls, tables, audit disclosures
+and editor fit their containers. Keyboard/editor/reduced-motion and no-page-
+overflow assertions pass at all three widths. Full screen-reader/native-device,
+contrast and comprehensive accessibility audits remain unperformed.
+
+Two test-harness corrections were made without relaxing product checks: progress
+polls now wait for the debounced save even when no snapshot exists yet; separate
+engine runs use isolated artifact directories. An initial simultaneous run
+collided in Playwright's test-results directory, causing ENOENT trace failures
+in four Chromium tests; the final full Chromium rerun passes all 145. The first
+WebKit run exposed three null-snapshot polling errors; its final focused rerun
+passes. No failed run is counted as success. A mutation-regression assertion
+initially assigned blank to an already-blank period, which was not a change;
+the test now assigns a distinct value and correctly verifies all four errors.
+
+## Remaining limits and owner checkpoint
+
+- **Low:** bundled case/check content takes the main JS to **512.71 kB**, **153.95
+  kB gzip**, triggering Vite's >500 kB advisory. Build succeeds; no warning was
+  suppressed. Mission chunking can be considered separately if load size matters.
+- **Medium, pre-existing B-01:** concurrent editing tabs can overwrite saved
+  snapshots. Use one active editing tab; no persistence redesign in Slice 1.
+- Browser workers still have no memory cap. Existing engine-specific diagnostics,
+  meta CSP and full-suite WebKit harness limits remain below.
+- Owner review is needed for capstone pacing, contract complexity, independent
+  transfer, actual device/accessibility use and confidence explaining audit
+  decisions. Automated success is separate from owner approval.
+- Slice 2 remains unauthorized: no production Node file workflow/downloads.
+
+Changed files comprise the new mission/fixtures/solution/adapter, checker,
+ReportingView/ReportingOutput, unit/browser/support tests and Case 5 contract;
+additive registry/App/Workbench/Toolbox/Copy-to-IDE integration; three existing
+registry assertions; README, PRODUCT, ARCHITECTURE, STATUS and this report, plus
+a current Case 5 cross-reference in the Case 4 contract.
+`git diff --check` passes. Branch/HEAD remain unchanged. No commits, pushes,
+PR changes, merges or deployments were performed.
+
+---
+
 # Milestone 4 completion and engineering review
 
 Reviewed 11 November 2026. Case 4 is feature-complete with its standalone Node

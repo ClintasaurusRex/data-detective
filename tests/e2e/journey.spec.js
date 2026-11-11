@@ -26,14 +26,14 @@ const screenshots = process.env.UPDATE_SCREENSHOTS ? "docs/screenshots" : null;
 test("a new learner can predict, run, use hints, check, export and come back later", async ({ page }) => {
   await openFresh(page);
 
-  // The request and the planned cases are visible; planned cases aren't links.
+  // All five independently playable investigations remain visible.
   await expect(page.getByText("The weekly report says only one job is complete.")).toBeVisible();
   const caseList = page.getByRole("complementary", { name: "Cases" });
-  await expect(caseList.getByRole("link")).toHaveCount(4);
+  await expect(caseList.getByRole("link")).toHaveCount(5);
   for (const title of ["The Messy Export", "The Doubled Totals", "The Two Exports", "Your First Reporting Tool"]) {
     await expect(caseList.getByText(title)).toBeVisible();
   }
-  await expect(caseList.getByText("Planned")).toHaveCount(1);
+  await expect(caseList.getByText("Planned")).toHaveCount(0);
 
   // Running before predicting asks for a prediction instead.
   const prediction = page.getByLabel("How many job records should the weekly report include?");

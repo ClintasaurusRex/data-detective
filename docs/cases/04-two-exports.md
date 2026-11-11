@@ -159,7 +159,7 @@ edits, errors, failed checks, cancellation and refresh preserve the passing code
 Copy to IDE produces the current draft, both displayed arrays and a direct
 `reconcile` preview, runnable as `node challenge.js`. No hidden fixtures or
 automatic reference solution are included. The Toolbox retains checked browser
-code and offers the four-file Node reconciliation package below. Case 5 is unstarted.
+code and offers the four-file Node reconciliation package below. Case 5 now has a browser capstone; see [its contract](05-first-reporting-tool.md).
 
 ## Explicit expected source-line decisions
 

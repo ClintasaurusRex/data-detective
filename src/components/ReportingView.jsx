@@ -1,0 +1,42 @@
+import { useRef, useState } from 'react';
+import { CodeBlock, RichText } from './common.jsx';
+import { ReportingSources } from './ReportingOutput.jsx';
+import { reportingShape } from '../missions/firstReportingTool.js';
+import { Workbench } from './Workbench.jsx';
+import { ToolboxEntry } from './ToolboxEntry.jsx';
+
+export function ReportingView({caseDef,caseState,updateCase,exerciseStates,updateExercise,runner}) {
+  const [active,setActive]=useState(0);
+  const exercise=caseDef.exercises[active], state=exerciseStates[exercise.id];
+  const draft=state.draft ?? exercise.starterCode, stale=state.solved && state.solved.code!==draft;
+  const [prediction,setPrediction]=useState('');
+  const input=useRef(null), task=useRef(null);
+  const [prompt,setPrompt]=useState(false);
+  const saved=caseState.prediction;
+  function beforeRun() {
+    if (active || saved) return true;
+    setPrompt(true);input.current?.focus();return false;
+  }
+  function save(value) {updateCase(s=>({...s,prediction:value}));setPrompt(false);task.current?.focus();}
+  return <article className="case" aria-labelledby="case-title">
+    <header className="case-header"><p className="eyebrow">Case 5</p><h2 id="case-title">Your First Reporting Tool</h2><p className={`badge ${state.solved && !stale ? 'badge-solved' : ''}`} data-testid="case-status">{stale ? 'Needs checking again' : state.solved ? 'Solved' : 'Open case'}</p></header>
+    <section className="panel request" aria-labelledby="request-title"><h3 id="request-title">The request</h3><blockquote><p>&ldquo;{caseDef.request}&rdquo;</p><footer>Sam Okafor, Operations Planner, Riverbend Water Services</footer></blockquote><p className="target">{caseDef.target}</p><p>This final investigation combines Cases 1–4. You can begin independently: CSV parsing is already done. Your JavaScript makes the reporting decisions.</p></section>
+    <section className="panel" aria-label="Choose reporting challenge"><h3>Choose your investigation</h3><div className="actions">{caseDef.exercises.map((e,i)=><button key={e.id} type="button" aria-pressed={active===i} onClick={()=>setActive(i)}>{i ? 'Independent variation' : 'Main investigation'}</button>)}</div><p>{active ? 'Sam has a future-week handover with different dates, sites and exclusions. Design your own pipeline with less scaffolding. Its draft, hints and checked solution are saved separately.' : 'Build the first weekly pipeline, then test your understanding on the independent variation.'}</p></section>
+    <section className="panel evidence" aria-labelledby="evidence-title"><h3 id="evidence-title">The evidence: work and recorded time</h3><ReportingSources {...exercise} /><p className="small">Quoted strings reveal whitespace. Source line identifies an occurrence within its own export. Multiple field entries may legitimately reference one job.</p><details><summary>Detective&rsquo;s notebook: establish trust</summary><p>Pick one entry and trace its ID, job ID, date and hours. What would a duplicate import change? Find a job with competing versions. Which team should Sam ask? Why might correct-looking totals still conceal lost records?</p></details></section>
+    <section className="panel" aria-labelledby="rules-title"><h3 id="rules-title">Your reporting contract</h3><p><strong>Inspect → Clean → Validate → Deduplicate → Match → Filter → Group → Verify</strong></p><p>Know every stage&rsquo;s purpose. For classification, detect all conflicts first, then check dates before looking up candidate jobs. This gives out-of-period entries one consistent disposition.</p><ul className="lesson-rules">{caseDef.rules.map(rule=><li key={rule}><RichText text={rule} /></li>)}</ul><details><summary>Exact return structure</summary><CodeBlock code={reportingShape} label="Weekly report return shape" /><p>Object key order is irrelevant. Every object must have exactly its documented keys. Hours are two-decimal strings; counts and source-line links are numbers; nonapplicable links are null.</p></details>
+      <details><summary>JavaScript field guide: assembling a pipeline</summary><dl>
+        <div><dt>map and filter</dt><dd>map creates new wrappers or cleaned values; filter selects items for a later stage. Preserve the complete audit list even when filtering reportable work.</dd></div>
+        <div><dt>Map, Set and grouping</dt><dd>Map associates exact keys with arrays of occurrences. Set counts distinct keys. Neither chooses which conflicting version is true. Plain object equality compares references; compare business field values instead.</dd></div>
+        <div><dt>Exact and composite identifiers</dt><dd>entryId identifies a time entry; jobId connects it to an order. A composite key combines fields when no single key exists. Joining strings with a separator can collide if values contain that separator; this contract supplies explicit IDs, so a composite key is unnecessary.</dd></div>
+        <div><dt>reduce and integer units</dt><dd>reduce can add hundredths starting at 0. Decimal binary arithmetic can make 0.1 + 0.2 differ from 0.3; adding 10 + 20 integer units keeps this calculation exact.</dd></div>
+        <div><dt>Inclusive date filtering</dt><dd>Validate the actual date first. Padded ISO dates then compare as strings. Keep both boundary days, without converting to local midnight or relying on automatic date rollover.</dd></div>
+        <div><dt>Audit trail and reconciliation</dt><dd>An audit trail explains each occurrence. Reconciliation independently checks that nothing is lost or counted twice. Group totals alone cannot prove the matching, rejection reasons or original evidence are correct.</dd></div>
+      </dl></details>
+    </section>
+    {!active && <section className="panel prediction" aria-label="Your prediction"><h3>Your prediction</h3><p>How many field-time entries will be reportable? Hand-trace the evidence, or skip without penalty. This compares only with your eventual output.</p>{saved && <p>{saved.skipped ? 'Prediction skipped.' : `You predicted ${saved.value} reportable entries.`}</p>}{prompt && <p role="alert">Make a prediction or skip before running.</p>}<form onSubmit={event=>{event.preventDefault();if(prediction.trim() && Number.isInteger(Number(prediction)) && Number(prediction)>=0 && Number(prediction)<=1000) save({value:Number(prediction)});}}><div className="inline-fields"><label>Reportable entries<input ref={input} type="number" min="0" max="1000" step="1" required className="number-input" value={prediction} onChange={event=>setPrediction(event.target.value)} /></label><button type="submit">Save prediction</button><button type="button" onClick={()=>save({skipped:true})}>Skip for now</button></div></form></section>}
+    <section className="panel" aria-labelledby="investigate-title"><h3 id="investigate-title" ref={task} tabIndex={-1}>{exercise.title}</h3><p>Start small: log one cleaned value, inspect one group, then combine stages. Run displays your actual report. Check solution tests all {exercise.checks.length} scenarios, including other weeks and invalid periods.</p><p className="small">Copy to IDE runs your current draft with only this sample and period. The Toolbox keeps checked browser code. Production Node file downloads belong to Slice 2.</p>
+      <Workbench key={exercise.id} exercise={exercise} state={state} update={fn=>updateExercise(exercise.id,fn)} runner={runner} beforeRun={beforeRun} describeRun={result=>!active && saved && !saved.skipped ? `You predicted ${saved.value} reportable entries. Your code returned ${JSON.stringify(result.output?.entryCount) ?? 'no entryCount'}. Matching counts do not prove reliability; trace the audit.` : null} challenge={{caseNumber:5,caseTitle:caseDef.title,exerciseTitle:exercise.title,request:caseDef.request,requestFrom:'Sam Okafor, Operations Planner',goal:exercise.goal,rules:caseDef.rules,weeklyReport:true,orders:exercise.orders,entries:exercise.entries,period:exercise.period}} />
+    </section>
+    {state.solved && <section className="panel solved" data-testid="solved-panel"><h3>{stale ? 'Your earlier report passed' : 'Weekly investigation solved'}</h3><p>Explain to Sam why the total is trustworthy and what remains unresolved. Trace an exclusion back to the source team. {active ? 'Could you adapt your pipeline to another reporting request?' : 'Try the independent variation to test transfer of learning.'}</p><ToolboxEntry exercise={{...exercise,caseNumber:5}} solved={state.solved} headingLevel={4} /></section>}
+  </article>;
+}

@@ -40,7 +40,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
 | 3 | The Doubled Totals | Feature-complete, including standalone Node JSON tool; owner QA queued for November 14–15, 2026; approval pending |
 | 4 | The Two Exports | Feature-complete, including standalone two-file Node reconciliation; owner QA/approval pending November 14–15 if practical |
-| 5 | Your First Reporting Tool | Planned |
+| 5 | Your First Reporting Tool | Slice 1 browser capstone and independent variation implemented; owner QA/approval pending; Slice 2 Node workflow deferred |
 
 ### Milestone 1: The Missing Jobs (done)
 
@@ -83,7 +83,7 @@ line identifies an occurrence rather than business equality.
   Beginner instructions cover trusted code, Node 24, conflict investigation and
   independent reconciliation. Complete browser/Node parity covers all 17 datasets.
 - Copy to IDE remains the current-draft sample exercise. Owner review is queued
-  for November 14–15, 2026, with approval pending. Milestone 5 remains unstarted.
+  for November 14–15, 2026, with approval pending. Milestone 5 Slice 1 is now implemented; its Node workflow awaits Slice 2.
 
 See [cases/03-doubled-totals.md](cases/03-doubled-totals.md) for the precise contract.
 
@@ -121,9 +121,18 @@ union ordering and a summary that can be independently audited.
 See [cases/04-two-exports.md](cases/04-two-exports.md) for the full contract,
 dataset inventory and independent checking strategy.
 
-### Milestone 5: Your First Reporting Tool (backlog)
+### Milestone 5: Your First Reporting Tool (Slice 1 implemented)
 
 Combine cleaning, validation, deduplication, matching, filtering and grouping into a reusable report.
+
+The independently playable browser mission and future-week variation share the
+[Case 5 contract](cases/05-first-reporting-tool.md): raw string records, exact
+IDs, strict actual calendar dates, inclusive periods, safe integer hundredths,
+whole-group conflicts and original-preserving occurrence audits. A behavioural
+checker verifies 32 immutable handwritten scenarios. Each exercise saves its own
+draft, hints, reveal attribution and exact last passing browser code. No Node
+file workflow is implemented in Slice 1. Owner QA/approval remains pending.
+
 
 - Define the date format, reporting period, boundary inclusion and rounding rules explicitly.
 - Show reconciled counts: input, accepted, rejected and output.

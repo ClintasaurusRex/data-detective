@@ -157,7 +157,7 @@ describe("Doubled Totals behavioural checker", () => {
 describe("Case 3 integration contracts", () => {
   const catalogue = {cases:playableCases, exercises:allExercises};
   it("is playable without earlier solves and requires passing checks before a file Toolbox export", async () => {
-    expect(playableCases.map(c => c.id)).toEqual(["missing-jobs","messy-export","doubled-totals","two-exports"]);
+    expect(playableCases.map(c => c.id)).toEqual(["missing-jobs","messy-export","doubled-totals","two-exports","first-reporting-tool"]);
     expect(exercise.exportFileName).toBe("deduplicate.mjs");
     expect((await runDoubledTotalsChecks(execute,exercise,exercise.starterCode)).passed).toBe(false);
     expect(sanitiseState(null,catalogue).exercises[exercise.id].solved).toBeNull();

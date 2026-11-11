@@ -84,16 +84,16 @@ export function buildChallengeFile(challenge, code) {
 
 // ===== SAMPLE DATA: the rows shown in the app (don't paste this back) =====
 // Strings are exact, including spaces, tabs (\\t) and line breaks (\\n).
-${challenge.reconciliation ? `const caseSampleOrders = ${JSON.stringify(challenge.orders, null, 2)};\nconst caseSampleFieldReports = ${JSON.stringify(challenge.fieldReports, null, 2)};` : `const caseSampleRows = ${JSON.stringify(rows, null, 2)};`}
+${challenge.weeklyReport ? `const caseSampleOrders = ${JSON.stringify(challenge.orders, null, 2)};\nconst caseSampleEntries = ${JSON.stringify(challenge.entries, null, 2)};\nconst caseSamplePeriod = ${JSON.stringify(challenge.period, null, 2)};` : challenge.reconciliation ? `const caseSampleOrders = ${JSON.stringify(challenge.orders, null, 2)};\nconst caseSampleFieldReports = ${JSON.stringify(challenge.fieldReports, null, 2)};` : `const caseSampleRows = ${JSON.stringify(rows, null, 2)};`}
 
 ${SOLUTION_START}
-// Your ${challenge.reconciliation ? "reconcile" : "transform"} function goes here, plus any helper functions it uses.
+// Your ${challenge.weeklyReport ? "buildWeeklyReport" : challenge.reconciliation ? "reconcile" : "transform"} function goes here, plus any helper functions it uses.
 
 ${draft}${SOLUTION_END}
 
 // ===== PREVIEW: runs your function on the sample data (don't paste this back) =====
-console.log("${challenge.reconciliation ? "reconcile(caseSampleOrders, caseSampleFieldReports)" : "transform(caseSampleRows)"} returned:");
-console.log(JSON.stringify(${challenge.reconciliation ? "reconcile(caseSampleOrders, caseSampleFieldReports)" : "transform(caseSampleRows)"}, null, 2));
+console.log("${challenge.weeklyReport ? "buildWeeklyReport(caseSampleOrders, caseSampleEntries, caseSamplePeriod)" : challenge.reconciliation ? "reconcile(caseSampleOrders, caseSampleFieldReports)" : "transform(caseSampleRows)"} returned:");
+console.log(JSON.stringify(${challenge.weeklyReport ? "buildWeeklyReport(caseSampleOrders, caseSampleEntries, caseSamplePeriod)" : challenge.reconciliation ? "reconcile(caseSampleOrders, caseSampleFieldReports)" : "transform(caseSampleRows)"}, null, 2));
 `;
 }
 

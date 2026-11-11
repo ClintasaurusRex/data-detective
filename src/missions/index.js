@@ -1,16 +1,17 @@
+import { firstReportingToolCase } from "./firstReportingTool.js";
 import { messyExportCase } from "./messyExport.js";
 import { missingJobsCase } from "./missingJobs.js";
 import { twoExportsCase } from "./twoExports.js";
 import { doubledTotalsCase } from "./doubledTotals.js";
 
 // All five cases share one fictional workplace: Riverbend Water Services.
-// Cases 1–4 are playable; later missions remain planned.
+// All five missions are independently playable.
 export const cases = [
   missingJobsCase,
   messyExportCase,
   doubledTotalsCase,
   twoExportsCase,
-  { id: "first-reporting-tool", number: 5, title: "Your First Reporting Tool", playable: false },
+  firstReportingToolCase,
 ];
 
 export const playableCases = cases.filter((c) => c.playable);

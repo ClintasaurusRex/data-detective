@@ -6,7 +6,7 @@ You play a data detective at a fictional water utility, Riverbend Water Services
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, is feature-complete with an independently playable browser mission and standalone two-file Node reconciliation tool; owner QA remains pending, queued for November 14–15 if practical. Milestone 5 remains unstarted; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, is feature-complete with an independently playable browser mission and standalone two-file Node reconciliation tool; owner QA remains pending, queued for November 14–15 if practical. Milestone 5 Slice 1 is playable in the browser, including an independent variation; its production Node workflow awaits Slice 2. Owner QA/approval remains pending; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -41,7 +41,7 @@ The app is static. After `npm run build`, the `dist/` folder can be served from 
 | Command | What it does |
 | --- | --- |
 | `npm run lint` | ESLint |
-| `npm test` | Unit tests (Vitest): all four mission contracts/checkers, saved progress, exported tools run in real Node processes, the sandbox CSP and runner messaging, and CSV parsing |
+| `npm test` | Unit tests (Vitest): all five mission contracts/checkers, saved progress, exported tools run in real Node processes, the sandbox CSP and runner messaging, and CSV parsing |
 | `npm run build` | Production build into `dist/` |
 | `npm run test:e2e` | Browser tests (Playwright, Chromium) against the production build: the learner journey, keyboard use, a phone-sized screen, runner errors and recovery, and the isolation boundaries |
 | `npm run check` | All of the above, in that order |
@@ -100,6 +100,27 @@ failed or cancelled checks and refresh. Copy to IDE runs your current draft on
 the two displayed sample arrays as `node challenge.js`; it contains no hidden
 fixtures or automatic reference solution. The Toolbox downloads the last passing
 solution as a standalone two-file Node tool described below. See [the exact Case 4 contract](docs/cases/04-two-exports.md).
+
+## Investigate Case 5: Your First Reporting Tool
+
+Open `#/case/first-reporting-tool`. Sam needs a trustworthy weekly operations
+report from raw parsed work orders and field-time entries. Write
+`buildWeeklyReport(rawOrders, rawEntries, period)` to clean, validate, distinguish
+copies from conflicts, match jobs, select inclusive dates and group reliable
+hours by site and day. Every original stays in an inspectable audit trail.
+
+Run displays your actual report. Check verifies all **32 scenarios**, using
+handwritten expectations for original preservation, cleaning, reasons,
+classification, links, grouping, exact hundredths, ordering and full accounting.
+Optional hints progress by stage; the explained solution requires confirmation.
+The **Independent variation** offers a different future-week handover with less
+scaffolding and separately saved drafts, hints, reveals and passing code.
+
+Copy to IDE runs the active sample and period with the current draft. The
+Toolbox retains each exercise's last passing browser code. Production Node file
+reading/downloads are deferred to Slice 2. See [the full contract](docs/cases/05-first-reporting-tool.md)
+and [current verification](docs/ENGINEERING-REVIEW.md). Cases 2–4 still await
+owner QA November 14–15, 2026; no approval is inferred from this implementation.
 
 ## Use your Case 4 reconciliation tool
 

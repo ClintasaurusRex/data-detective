@@ -229,7 +229,7 @@ Copy to IDE uses a reconciliation flag to emit both displayed sample arrays,
 the current draft and a direct reconcile preview. No file reader, hidden dataset
 or automatic reference solution is bundled. The exported challenge runs as real
 Node JavaScript in browser tests. The checked Node-file workflow is now complete;
-Milestone 5 is unstarted. No new dependencies were added.
+Milestone 5 now has its Slice 1 browser capstone, described below. No new dependencies were added.
 
 The Playwright configuration now takes `DATA_DETECTIVE_TEST_PORT` (default
 4173) and refuses server reuse. Baseline testing found an unrelated application
@@ -285,3 +285,42 @@ messages for both algorithms. Keyboard downloads, newer drafts, failed/cancelled
 checks, refresh, stale checking and contained layouts cover 1920/1366/375 px.
 Current counts and engine-specific limits are in ENGINEERING-REVIEW.md; the older
 browser evidence above is historical, not a full current cross-engine claim.
+
+
+## Case 5: weekly reporting capstone (Slice 1)
+
+`firstReportingTool.fixtures.js` holds 32 recursively frozen scenarios with
+explicit cleaned values, per-occurrence dispositions, reasons, links, summary
+rows, grand totals and count vectors. Its materializer attaches originals and
+field names without solving classification or totals. Two independent test
+implementations review complete expectations (Map/Gregorian arithmetic and
+per-occurrence searches/UTC calendar round-trip/BigInt decimal parsing).
+
+`evaluateFirstReportingTool.js` compares exact fields, types, arrays/order,
+unchanged originals, cleaned content, categories, links, count vectors and
+summaries against the handwritten contract. Object key order and reference
+identity do not matter. Feedback names report paths and source lines without
+printing hidden reports. Four invalid-period scenarios require a precise Error
+instead of a partial report. Timeout, errors, cancellation and progress reuse
+shared conventions. The checker imports no reference solution or source patterns.
+
+The `firstReportingTool.adapter.js` scopes learner helpers and passes
+`[rawOrders, rawEntries, period]` through the existing array-only runner. Its
+first prefix shares the learner's first source line for diagnostics. Since the
+worker detects input mutation only after a successful return, the adapter also
+snapshots data and detects mutation before a thrown error. No sandbox/CSP,
+worker, security permission, storage schema or dependency changes are made.
+
+`ReportingView` uses one keyed Workbench for the selected challenge, so switching
+main/variation cancels active workers and ignores late completions. Stable IDs
+`first-reporting-tool` and `first-reporting-tool-transfer` use version-1 progress
+fields independently. Only all-scenario success updates each solved.code.
+Prediction is an optional main-investigation integer count or skip; variation
+requires no repeated prediction. Hints and confirmed solution attribution stay
+separate. `ReportingOutput` shows actual totals, groups, counts and expandable
+original/cleaned audit items; malformed results remain available in raw JSON.
+Lists are capped at 200 rendered items with complete returned JSON retained.
+
+Copy to IDE adds only the active sample, period, draft and direct function call.
+The Toolbox keeps browser code without downloads. Slice 2's production Node file
+workflow is not implemented. Earlier mission file generators remain unchanged.

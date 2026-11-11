@@ -5,6 +5,7 @@ import { loadState, saveState } from "./storage/progress.js";
 import { MessyExportView } from "./components/MessyExportView.jsx";
 import { DoubledTotalsView } from "./components/DoubledTotalsView.jsx";
 import { TwoExportsView } from "./components/TwoExportsView.jsx";
+import { ReportingView } from "./components/ReportingView.jsx";
 import { CaseView } from "./components/CaseView.jsx";
 import { ToolboxEntry } from "./components/ToolboxEntry.jsx";
 
@@ -88,7 +89,7 @@ export default function App() {
   const mainRef = useRef(null);
   const solvedExercises = allExercises.filter((e) => (e.exportFileName || e.keepCheckedCode) && state.exercises[e.id]?.solved);
   const currentCase = playableCases.find((c) => c.id === view) ?? playableCases[0];
-  const MissionView = currentCase.id === "two-exports" ? TwoExportsView : currentCase.id === "doubled-totals" ? DoubledTotalsView : currentCase.id === "messy-export" ? MessyExportView : CaseView;
+  const MissionView = currentCase.id === "first-reporting-tool" ? ReportingView : currentCase.id === "two-exports" ? TwoExportsView : currentCase.id === "doubled-totals" ? DoubledTotalsView : currentCase.id === "messy-export" ? MessyExportView : CaseView;
 
   // Move focus to the content when the view changes (not on first load).
   const firstView = useRef(true);
@@ -197,7 +198,7 @@ function Toolbox({ solvedExercises, state }) {
   return (
     <section aria-labelledby="toolbox-title">
       <h2 id="toolbox-title">Your Toolbox</h2>
-      <p>Checked code and downloadable scripts. Case 4 reconciles two separate JSON exports. Cases 1 and 3 read one JSON file; Case 2 reads CSV files after installing its parser dependency. Each tool includes instructions for running it independently with Node.</p>
+      <p>Checked code and downloadable scripts. Case 5 retains browser code; its production Node file workflow awaits Slice 2. Case 4 reconciles two separate JSON exports. Cases 1 and 3 read one JSON file; Case 2 reads CSV files after installing its parser dependency. Each tool includes instructions for running it independently with Node.</p>
       {solvedExercises.length === 0 ? (
         <p className="panel muted">
           Nothing downloadable yet. Pass a case&rsquo;s checks to keep its working script here: JSON tools for Cases 1, 3 and 4, or a CSV reporting tool for Case 2.

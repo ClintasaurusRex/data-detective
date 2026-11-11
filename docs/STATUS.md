@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 11 November 2026 (Milestone 4 standalone workflow complete; owner QA pending).
+Last updated: 11 November 2026 (Milestone 5 Slice 1 browser capstone implemented; owner QA pending).
 
 ## Milestones
 
@@ -10,9 +10,53 @@ Last updated: 11 November 2026 (Milestone 4 standalone workflow complete; owner 
 | 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
 | 3 | The Doubled Totals | **Feature-complete**, including the standalone Node JSON tool. Ready for owner QA, queued for November 14–15, 2026 if practical; approval pending. |
 | 4 | The Two Exports | **Feature-complete**, including standalone two-file Node reconciliation; owner QA/approval pending, November 14–15 if practical. |
-| 5 | Your First Reporting Tool | Planned, unstarted |
+| 5 | Your First Reporting Tool | Slice 1 browser capstone and independent variation implemented; owner QA/approval pending. Slice 2 production Node workflow deferred. |
 
-## Milestone 4 standalone workflow and review (11 November 2026)
+## Milestone 5 Slice 1 (11 November 2026)
+
+Started clean on `feature/milestone-5-reporting-tool` at `d2b29cc`, without an
+upstream configured. Baseline actually passed lint, 802 unit tests, production
+build and 129 Chromium tests. Restricted subprocess/preview failures were rerun
+with permitted local execution; they were not counted as passing results.
+
+- Defined the [Case 5 contract](cases/05-first-reporting-tool.md) before its checker.
+- Implemented raw-value cleaning, complete ordered rejection reasons, strict
+  Gregorian dates/inclusive periods, integer hundredths, whole-ID conflicts,
+  safe first-copy provenance, exact matching, completed-work inclusion,
+  deterministic day/site summaries and exact-once occurrence audit accounting.
+- Added 32 frozen handwritten scenarios (28 complete reports, four period
+  errors) and behavioural checking; two independent algorithms verify them.
+- Made `#/case/first-reporting-tool` independently playable, preserving the
+  shared Run/Check/Stop, console, editor, error recovery and accessibility flows.
+- Added future-week independent variation with less scaffolding and separate
+  draft, hints, reveal attribution, checks and passing code. Both exercises are
+  accessible before solving either one.
+- Copy to IDE runs only the active sample/period/current draft. Toolbox retains
+  the last passing browser code. Slice 2 production Node downloads are deferred.
+- Sandbox/CSP, progress schema, dependencies, earlier mission rules and earlier
+  standalone generators are unchanged. Earlier registry expectations in three
+  tests now correctly reflect all five playable missions.
+
+Current verification and test-harness corrections are documented in
+[ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). Automated checks do not grant
+owner approval. Case 1 remains approved; Cases 2–4 retain their November 14–15
+owner QA plans and pending approval. Slice 1 still needs owner review.
+
+### Owner review — Case 5 Slice 1
+
+- [ ] Review capstone pacing, scaffold, contract readability and optional hints.
+- [ ] Trace all 8 order and 15 field occurrences; independently verify the
+  main report's 4.00 hours, 2 jobs and 5 entries and all exclusions.
+- [ ] Explain why the future handover's same total does not imply the same report.
+- [ ] Try the independent variation without revealing the solution; explain
+  cross-boundary conflicts, blank versus zero and source follow-up decisions.
+- [ ] Review keyboard, phone/laptop layouts, audit disclosures and assistive
+  technology as available; verify separate saved drafts and checked tools.
+- [ ] Authorize Slice 2 separately before production Node workflow implementation.
+
+No commits, pushes, PR changes, merges or deployments were performed.
+
+## Milestone 4 standalone workflow and review (11 November 2026; historical checkpoint)
 
 Started clean at `a653eed` on `feature/milestone-4-two-exports`, tracking the same
 origin branch. Baseline passed 611 unit tests and 121 Chromium tests, lint/build.

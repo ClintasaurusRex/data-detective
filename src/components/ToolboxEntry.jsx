@@ -10,6 +10,15 @@ export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
   if (exercise.outputKind === "accepted-rejected") return <CsvToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
   if (exercise.outputKind === "deduplication") return <DoubledTotalsToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
   if (exercise.outputKind === "reconciliation") return <TwoExportsToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
+  if (exercise.outputKind === "weekly-report") {
+    const Heading = `h${headingLevel}`;
+    return <article className="toolbox-entry" data-testid={`toolbox-${exercise.id}`}>
+      <Heading>Case 5: {exercise.title}</Heading>
+      <p className="small muted">{solvedLabel(solved)}{solved.solvedAt && ` · checked ${formatDate(solved.solvedAt)}`}</p>
+      <CodeBlock code={solved.code} label={`Checked code for ${exercise.title}`} />
+      <p>Your exact last passing browser code is kept here. Production Node file downloads await Slice 2.</p>
+    </article>;
+  }
   const Heading = `h${headingLevel}`;
   const fileName = exercise.exportFileName;
 
