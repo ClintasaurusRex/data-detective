@@ -3,7 +3,7 @@
 Feature-complete through Slice 2: browser capstone, independent variation and
 standalone Node workflow. Owner QA/approval is pending. This contract was defined
 before the checker; its business rules are unchanged. Cases 2–4 remain unapproved.
-Final Slice 3 application-wide audit has not started.
+Final Slice 3 application-wide audit is complete; see [the review](../ENGINEERING-REVIEW.md) and [owner QA](../OWNER-QA.md).
 
 ## Investigation and learning
 
@@ -323,4 +323,4 @@ Firefox all pass. Each also verifies the four invalid-period scenarios separatel
 (16 algorithm/exercise refusals per engine), nonzero exit, empty stdout and
 unchanged existing output; these are not counted as valid-report parity.
 See ../ENGINEERING-REVIEW.md for final counts, limitations and regression evidence.
-Owner approval remains pending; Slice 3 requires separate authorization.
+Owner approval remains pending; the authorized Slice 3 audit is complete.

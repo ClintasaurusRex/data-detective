@@ -43,6 +43,11 @@ export function normaliseResult(raw) {
     try {
       result.output = JSON.parse(raw.outputJson);
       result.hasOutput = true;
+      const outputType = result.output === null ? "null" : Array.isArray(result.output) ? "array" : typeof result.output;
+      if (outputType !== result.resultType) {
+        result.status = "error";
+        result.error = { stage: "result", name: "Result changed type", message: "Your result changed type during JSON conversion. Return plain records and arrays with finite numbers; avoid custom toJSON methods." };
+      }
     } catch {
       return runnerError("Runner error", "The result couldn't be read.");
     }

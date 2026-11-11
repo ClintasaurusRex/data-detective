@@ -120,6 +120,11 @@ describe("Case 2 checker: incorrect behaviour", () => {
     hasProblem(result.results.find((r) => r.id === "numbers"), "classification");
   });
   it("detects lost leading zeros", () => hasProblem(evaluate("leadingZeros", (out) => { out.accepted[0].id = String(Number(out.accepted[0].id)); }), "changed", 2));
+  it("the actual checking datasets reject syntax-only conversion overflow", async () => {
+    const result = await runAll(loopSolution.replace(' || !Number.isFinite(Number(hours))', ''));
+    hasProblem(result.results.find(r => r.id === "numbers"), "classification", 20);
+    expect(result.passed).toBe(false);
+  });
   it.each([
     ["missing", (reasons) => reasons.slice(1)],
     ["reordered", (reasons) => [...reasons].reverse()],

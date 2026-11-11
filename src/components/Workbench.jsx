@@ -11,6 +11,7 @@ import { runTwoExportsChecks } from "../checking/evaluateTwoExports.js";
 import { reconciliationCode } from "../missions/twoExports.adapter.js";
 import { TwoExportsOutput, SourceExports } from "./TwoExportsOutput.jsx";
 import { DEFAULT_TIMEOUT_MS } from "../runner/sandboxRunner.js";
+import { MAX_CODE_CHARS } from "../storage/progress.js";
 import { CodeBlock, RecordTable, RichText } from "./common.jsx";
 import { CopyToIde } from "./CopyToIde.jsx";
 import { HintsPanel } from "./HintsPanel.jsx";
@@ -181,6 +182,10 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
             rows={expanded ? Math.max(draft.split("\n").length + 4, 24) : Math.min(Math.max(draft.split("\n").length + 1, 7), 20)}
             data-testid={`editor-${exercise.id}`}
           />
+          {draft.length > MAX_CODE_CHARS && <p className="notice warning" role="status">
+            This draft exceeds the runner&rsquo;s {MAX_CODE_CHARS.toLocaleString("en-US")}-character limit.
+            Your text remains editable; shorten it before running or checking, or use Copy to IDE to keep working on it.
+          </p>}
           <div className="actions">
             <button type="button" className="primary" onClick={handleRun} disabled={!!busy}>
               Run

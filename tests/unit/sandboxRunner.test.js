@@ -127,4 +127,8 @@ describe("normaliseResult", () => {
     expect(normaliseResult({ status: "timeout", timeoutMs: 2000 })).toMatchObject({ status: "timeout" });
     expect(normaliseResult({ status: "cancelled" })).toMatchObject({ status: "cancelled" });
   });
+
+  it.each([["array", "null"], ["object", '"date text"'], ["number", "null"]])("refuses %s results changed by serialization to %s", (resultType, outputJson) => {
+    expect(normaliseResult({ status: "ok", resultType, outputJson })).toMatchObject({ status: "error", hasOutput: true, error: { stage: "result" } });
+  });
 });

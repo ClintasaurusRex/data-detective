@@ -2,6 +2,7 @@
 // Only the contract import path changes; no second parser implementation.
 import parserSource from "../csv/parseCsv.js?raw";
 import contractSource from "../missions/messyExport.contract.js?raw";
+import reportGuardSource from "./csvReportContract.js?raw";
 
 export const CSV_RUN_FILE = "report.mjs";
 
@@ -30,10 +31,12 @@ function buildCsvScript(code) {
 import { Console } from "node:console";
 import * as fs from "node:fs/promises";
 import { resolve } from "node:path";
-import { rowsFromCsv } from "./contract.mjs";
+import { rowsFromCsv, HOURS_PATTERN, STATUSES } from "./contract.mjs";
 
 // Both console.log and globalThis.console.log belong on stderr.
 globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr });
+
+${reportGuardSource.replace(/^import .*;\n/m, "").replace(/^export /gm, "")}
 
 async function runScript() {
   const args = process.argv.slice(2);
@@ -65,6 +68,7 @@ async function runScript() {
       parsed.errors.map(error => "File line " + error.line + " [" + error.code + "]: " + error.message).join("\\n"));
   }
   if (parsed.blankLines.length) console.error("Skipped blank file lines: " + parsed.blankLines.join(", "));
+  const before = JSON.stringify(parsed.rows), originals = JSON.parse(before);
 
   // This function scope matches the browser's strict function body. Helper
   // names cannot collide with fs, parsed, runScript or other runner names.
@@ -79,10 +83,11 @@ ${code}\n// ---- End of your checked code ----
   let result, json;
   try {
     result = transform(parsed.rows);
-    if (!result || !Array.isArray(result.accepted) || !Array.isArray(result.rejected)) {
-      throw new Error("Expected { accepted: [], rejected: [] } from transform(rows).");
-    }
+    if (JSON.stringify(parsed.rows) !== before) throw new Error("Your code changed the input. Preserve originals and source order.");
+    validateCsvReport(result, originals);
     json = JSON.stringify(result, null, 2) + "\\n";
+    validateCsvReport(JSON.parse(json), originals);
+    if (JSON.stringify(parsed.rows) !== before) throw new Error("Your code changed the input while preparing the report.");
   } catch (error) {
     throw new Error("transform stopped with an error: " + error.message);
   }
@@ -197,6 +202,14 @@ Malformed structure stops the whole file BEFORE your code runs: no partial
 report is printed, and an existing output report is left alone. Fix the CSV
 or ask for a corrected export, then run again. Invalid record values instead
 belong in rejected with your reason codes; other records can be accepted.
+
+Before printing or opening output, integrity guards verify your returned
+cleaned values, finite hours, unchanged rejected originals, ordered reasons,
+file order and complete record accounting. They also reject input mutation
+and misleading JSON serialization. They refuse a wrong report rather than
+creating or repairing one. A browser check cannot prove every future input.
+Input, code and report failures leave an earlier output unchanged; a failure
+while writing can leave incomplete output, so require successful completion.
 
 stdout (standard output) carries only the JSON report when no output path is
 given. stderr (standard error) carries console.log messages, errors and save

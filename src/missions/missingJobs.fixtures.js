@@ -60,6 +60,8 @@ export const datasets = deepFreeze({
       { id: "J-314", status: "On hold" },
       { id: "J-315", status: "  OPEN" },
       { id: "J-316", status: "complete" },
+      { id: "J-317", status: "Completed" },
+      { id: "J-318", status: "Opening" },
     ],
   },
   mixedCase: {

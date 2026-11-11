@@ -135,7 +135,13 @@ describe("incorrect implementations fail with useful feedback", () => {
 
   it('includes("complete") wrongly accepts "Incomplete"', async () => {
     const outcome = await checkAll((rows) => rows.filter((row) => row.status.toLowerCase().includes("complete")));
-    expect(problemsFor(outcome, "moreOpen")).toContain('Included 1 job that should be left out: J-313 (status "Incomplete")');
+    expect(problemsFor(outcome, "moreOpen")).toContain('Included 2 jobs that should be left out: J-313 (status "Incomplete"), J-317 (status "Completed")');
+  });
+
+  it("prefix matching does not count Completed as complete", async () => {
+    const outcome = await checkAll(rows => rows.filter(row => row.status.trim().toLowerCase().startsWith("complete")));
+    expect(outcome.passed).toBe(false);
+    expect(problemsFor(outcome, "moreOpen")).toContain('J-317 (status "Completed")');
   });
 
   it("changing the input rows is reported", async () => {

@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 11 November 2026 (Milestone 5 feature-complete through Slice 2; owner QA pending).
+Last updated: 11 November 2026 (Milestone 5 Slice 3 final audit complete; owner QA pending).
 
 ## Milestones
 
@@ -10,9 +10,62 @@ Last updated: 11 November 2026 (Milestone 5 feature-complete through Slice 2; ow
 | 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
 | 3 | The Doubled Totals | **Feature-complete**, including the standalone Node JSON tool. Ready for owner QA, queued for November 14–15, 2026 if practical; approval pending. |
 | 4 | The Two Exports | **Feature-complete**, including standalone two-file Node reconciliation; owner QA/approval pending, November 14–15 if practical. |
-| 5 | Your First Reporting Tool | Feature-complete through Slice 2, including both investigations and the standalone Node workflow; owner QA/approval pending. Slice 3 final audit awaits authorization. |
+| 5 | Your First Reporting Tool | Feature-complete, including both investigations and standalone Node workflow; Slice 3 independent audit complete. Owner QA/approval pending. |
 
-## Milestone 5 Slice 2 (11 November 2026)
+## Milestone 5 Slice 3 — independent final audit (11 November 2026)
+
+Started clean at `6009d91968ecc77d6a316665b59353cd060b3b0a` on
+`feature/milestone-5-reporting-tool`, equal to its configured origin upstream.
+The independently verified baseline passed lint, 1,213 units, build and 156
+Chromium checks. Node **v24.18.0**, npm **11.16.0** were used; exact pinned
+**24.22.1** remains untested here.
+
+Five confirmed defects were fixed: cross-tab loss of drafts/checked solutions
+(High; B-01), Case 1 prefix-status false acceptance/unguarded Node reports (High),
+Case 2 overflow false acceptance/null-hours reports (High), oversized saved-draft
+loss on refresh (Medium), and serialized result-type mismatch breaking Run
+feedback (Medium). Read the reproductions, root causes, evidence, corrections
+and limits in [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md).
+
+One participating document now owns saving via Web Locks before startup recovery.
+Secondary tabs show a clear warning/Retry without an editor; missing/denied locks
+use memory without changing existing saves/backups. Close all older loaded builds
+first. Quota/backup/pagehide safeguards remain; storage schema/IDs are unchanged.
+Older Node generators now validate full report integrity before emitting JSON.
+Business rules, sandbox/CSP, dependencies and lockfile are unchanged.
+
+| Current verification | Result |
+| --- | --- |
+| Full lint / production build | Pass; Vite size advisory remains |
+| Vitest, 17 files | **1240 passed**, 0 failed/skipped |
+| Full Chromium production suite | **167 passed**, 0 failed/skipped |
+| Focused WebKit | **71 passed**, 0 failed/skipped |
+| Native Firefox BiDi exercise scenarios | **193 passed**, 0 failed/skipped; targeted, not full-suite certification |
+| Case 5 actual downloaded Node parity | **336 complete valid comparisons** plus **48 separate invalid-period refusals**, across three engines |
+| Fresh downloaded Case 2 package | Independent npm install, print/save execution and identical complete JSON passed |
+
+All five real generated/downloaded Node workflows execute; Cases 1–4 and both
+Case 5 exercises retain checked code, original evidence and file protection.
+Five additional full Case 3–5 reports matched bespoke handwritten contract probes.
+All five rendered missions fit at 1920/1366/375 px, with no normal-use page/console
+errors in the independent UI probes. Keyboard/semantics/reduced-motion checks
+pass; native devices/screen readers/full contrast remain owner work.
+
+The final JS is **550.93 kB / 165.07 kB gzip**; synthetic editor-ready timings and
+large-output probes do not justify an unrelated splitting refactor. npm audit
+reports four moderate **development-only** ESLint/minimatch package findings,
+zero production findings; no compatible major-10 fix was applied. Other limits
+include trusted Node permissions/whole-file memory, no worker memory cap,
+Cases 1–3 non-atomic writes, best-effort browser shutdown and filesystem/platform
+limits. No unresolved Critical/High application defect remains after these fixes.
+
+**Ready for owner-led QA within documented limits.** Follow
+[OWNER-QA.md](OWNER-QA.md): prioritize Cases 2–4 November 14–15, then Case 5 as
+practical. It has separate pending acceptance entries for Cases 2, 3, 4 and 5.
+Case 1's existing approval is retained; no pending case is marked approved.
+No further milestone, commit, push, merge, deployment or PR action occurred.
+
+## Milestone 5 Slice 2 (11 November 2026; historical checkpoint)
 
 Started clean on feature/milestone-5-reporting-tool at 6dc9d3c55073bde42c20d5ec545c9a5c41b1e76b,
 tracking origin/feature/milestone-5-reporting-tool. Baseline passed lint, 904 unit

@@ -48,7 +48,7 @@ If the case file passes but other datasets fail, it adds a note that the code ma
 | The case file | The four rows from the request | J-101, J-102, J-104 |
 | Different job numbers | New IDs; catches hardcoded sample IDs | J-2051, J-2053, J-2055 |
 | Same jobs, new order | Results must follow input order; catches picking rows by position | J-104, J-101, J-102 |
-| More open jobs | Extra open/on-hold jobs and `"Incomplete"`, which catches `includes("complete")` | J-312, J-316 |
+| More open jobs | Extra open/on-hold jobs plus `"Incomplete"`, `"Completed"` and `"Opening"`, catching substring/prefix matching | J-312, J-316 |
 | Mixed capitals | `COMPLETE`, `cOmPlEtE`, `Complete` | J-420, J-421, J-422 |
 | Extra whitespace | Leading/trailing spaces, a tab and a line break | J-530, J-531, J-532, J-534 |
 | No completed jobs | The correct answer is an empty array | (none) |
@@ -87,3 +87,19 @@ The learner's code runs inside its own function, so helper names can't clash wit
 ## Working in an IDE
 
 Both the main exercise and the variation have **Copy to IDE**. It copies `challenge.js`, which contains that exercise's request, goal and rules, the four case-file rows, the current draft, and a preview call. Learners save it, run `node challenge.js`, and paste the YOUR SOLUTION section back into the app to check it. The variation's copy asks for open jobs. Neither copy includes solutions, hints or the extra check datasets.
+
+## Final audit corrections (11 November 2026)
+
+The existing near-match dataset now also includes Completed and Opening; neither
+is an exact target status. Check counts remain seven main/eight variation. A
+prefix-matching implementation previously passed despite violating the contract.
+
+Both downloaded tools now validate unique string IDs and string statuses before
+loading code. They verify exact target selection, order and all original content,
+plus net input preservation and report integrity before/after JSON serialization.
+Unexpected types, missing/extra/changed records and misleading serialization fail
+with nonzero exit, empty stdout and no changes to an earlier report. Extra original
+fields remain valid evidence. The checked function stays verbatim and each
+exercise supplies its own complete/open rule. Guards never supply a replacement
+answer or sandbox arbitrary Node code. Write failures can still leave incomplete
+output; require exit 0. Case 1's owner approval remains historical and unchanged.

@@ -123,4 +123,15 @@ describe("saved progress", () => {
     expect(storage.getItem(STORAGE_KEY)).toBe("{bad json");
     expect(storage.getItem(BACKUP_KEY)).toBeNull();
   });
+
+  it("retains long drafts and restore copies without accepting oversized checked code", () => {
+    const code = "//" + "x".repeat(50000);
+    const storage = memoryStorage({ [STORAGE_KEY]: JSON.stringify({ version: 1, exercises: {
+      "missing-jobs": { draft: code, previousDraft: code, solved: { code } },
+    } }) });
+    const loaded = loadState(catalogue, storage);
+    expect(loaded.state.exercises["missing-jobs"].draft).toBe(code);
+    expect(loaded.state.exercises["missing-jobs"].previousDraft).toBe(code);
+    expect(loaded.state.exercises["missing-jobs"].solved).toBeNull();
+  });
 });

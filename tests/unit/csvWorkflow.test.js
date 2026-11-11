@@ -179,4 +179,33 @@ ${exercise.solution.code.replace("const accepted = [];", 'console.warn("validati
     expect(result.stdout).toBe("");
     expect(result.stderr).toContain("Error:");
   });
+
+  it("refuses overflow from a syntax-only solution before serialization can turn Infinity into null", async () => {
+    const code = exercise.solution.code.replace(' ||\n             !Number.isFinite(Number(hoursText))', '');
+    await generate(code);
+    await writeFile(join(dir, "next.csv"), "id,status,hours,notes\nNEW,complete," + "9".repeat(400) + ",\n");
+    await writeFile(join(dir, "old.json"), "KEEP OLD REPORT");
+    const result = await node(["next.csv", "old.json"]);
+    expect(result.code).toBe(1); expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Invalid report");
+    expect(await readFile(join(dir, "old.json"), "utf8")).toBe("KEEP OLD REPORT");
+  });
+
+  it.each([
+    'report.accepted.pop();',
+    'report.accepted[0].hours = null;',
+    'report.accepted[0].id = "wrong";',
+    'report.accepted.reverse();',
+    'report.rejected[0].reasons = [];',
+    'report.rejected[0].record.id = "changed";',
+    'report.accepted.push(report.accepted[0]);',
+    'report.toJSON = () => ({accepted: [], rejected: []});',
+  ])("rejects incorrect reports (%s) before replacing an old report", async change => {
+    await generate(exercise.solution.code.replace('function transform(rows)', 'function originalTransform(rows)') +
+      `\nfunction transform(rows) { const report = originalTransform(rows); ${change} return report; }`);
+    await writeFile(join(dir, "old.json"), "KEEP OLD REPORT");
+    const result = await node(["jobs-export.csv", "old.json"]);
+    expect(result.code).toBe(1); expect(result.stdout).toBe("");
+    expect(await readFile(join(dir, "old.json"), "utf8")).toBe("KEEP OLD REPORT");
+  });
 });

@@ -6,7 +6,7 @@
 
 export const STORAGE_KEY = "data-detective:v1";
 export const BACKUP_KEY = "data-detective:v1:unreadable";
-const MAX_CODE_CHARS = 50000;
+export const MAX_CODE_CHARS = 50000;
 
 export function emptyExerciseState() {
   return {
@@ -46,8 +46,11 @@ function clampInt(value, min, max) {
 function cleanExercise(value, exercise) {
   const clean = emptyExerciseState();
   if (!value || typeof value !== "object") return clean;
-  clean.draft = cleanCode(value.draft);
-  clean.previousDraft = cleanCode(value.previousDraft);
+  // Drafts can be pasted/saved before they are executable. Never silently
+  // discard their text on refresh because it exceeds the runner's code limit.
+  // Checked code still has that limit; quota errors remain visible on writes.
+  clean.draft = typeof value.draft === "string" ? value.draft : null;
+  clean.previousDraft = typeof value.previousDraft === "string" ? value.previousDraft : null;
   clean.hintsShown = clampInt(value.hintsShown, 0, exercise.hints.length);
   clean.solutionRevealed = value.solutionRevealed === true;
   clean.solved = cleanSolved(value.solved, exercise.hints.length);
@@ -97,7 +100,7 @@ function safeStorage() {
 
 // Returns { state, notice, storage }. `notice` is text to show the learner,
 // or null when everything loaded normally.
-export function loadState(catalogue, storage = safeStorage()) {
+export function loadState(catalogue, storage = safeStorage(), { readOnly = false } = {}) {
   const fresh = sanitiseState(null, catalogue);
   if (!storage) {
     return {
@@ -116,12 +119,17 @@ export function loadState(catalogue, storage = safeStorage()) {
       notice: "Your saved progress couldn't be accessed. The app is working in memory and will leave existing storage alone. Copy your code before refreshing or closing this page.",
     };
   }
-  if (raw === null) return { state: fresh, storage, notice: null };
+  const writable = readOnly ? null : storage;
+  if (raw === null) return { state: fresh, storage: writable, notice: null };
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object" || parsed.version !== 1) throw new Error("unknown format");
-    return { state: sanitiseState(parsed, catalogue), storage, notice: null };
+    return { state: sanitiseState(parsed, catalogue), storage: writable, notice: null };
   } catch {
+    if (readOnly) return {
+      state: fresh, storage: null,
+      notice: "Saved progress couldn't be read. The original and any backup are left unchanged; this session is working in memory. Copy your code before leaving.",
+    };
     let backedUp = false;
     try {
       storage.setItem(BACKUP_KEY, raw);

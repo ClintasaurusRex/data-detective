@@ -12,16 +12,16 @@ import { ToolboxEntry } from "./components/ToolboxEntry.jsx";
 const catalogue = { cases: playableCases, exercises: allExercises };
 const SAVE_FAILURE_NOTICE = "Your latest changes couldn't be saved in this browser. Keep this page open and copy your code to your editor before refreshing or closing it. The app will try saving again when you make a change.";
 
-function useProgress() {
-  const [loaded] = useState(() => loadState(catalogue));
+function useProgress(readOnlyStorage, mayWrite) {
+  const [loaded] = useState(() => loadState(catalogue, undefined, { readOnly: readOnlyStorage }));
   const [state, setState] = useState(loaded.state);
   const [notice, setNotice] = useState(loaded.notice);
   const latest = useRef(state);
   const persist = useCallback((value) => {
-    if (!loaded.storage) return;
+    if (!loaded.storage || !mayWrite()) return;
     if (!saveState(value, loaded.storage)) setNotice(SAVE_FAILURE_NOTICE);
     else setNotice(current => current === SAVE_FAILURE_NOTICE ? null : current);
-  }, [loaded.storage]);
+  }, [loaded.storage, mayWrite]);
 
   useEffect(() => {
     latest.current = state;
@@ -82,8 +82,8 @@ function useHashView() {
   return view;
 }
 
-export default function App() {
-  const { state, updateExercise, updateCase, notice, dismissNotice } = useProgress();
+export default function App({ readOnlyStorage, mayWrite }) {
+  const { state, updateExercise, updateCase, notice, dismissNotice } = useProgress(readOnlyStorage, mayWrite);
   const runner = useRunner();
   const view = useHashView();
   const mainRef = useRef(null);

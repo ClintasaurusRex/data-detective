@@ -12,6 +12,7 @@ export class ErrorBoundary extends Component {
   }
 
   reset = () => {
+    if (!this.props.mayWrite()) return;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw !== null) localStorage.setItem(BACKUP_KEY, raw);
@@ -37,7 +38,7 @@ export class ErrorBoundary extends Component {
             <button type="button" className="primary" onClick={() => window.location.reload()}>
               Reload
             </button>
-            <button type="button" onClick={this.reset}>
+            <button type="button" onClick={this.reset} disabled={!this.props.mayWrite()}>
               Reset saved progress
             </button>
           </div>

@@ -12,7 +12,7 @@ Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Miles
 
 ## Run it locally
 
-You need **Node.js 24 LTS**. This project was built and tested with **Node.js v24.22.1** (see [.nvmrc](.nvmrc)) and npm 11.
+You need **Node.js 24 LTS**. [.nvmrc](.nvmrc) pins **v24.22.1**. The final independent audit ran **v24.18.0 / npm 11.16.0**; the exact pinned patch was unavailable in that environment and still needs an owner check.
 
 ```bash
 npm install
@@ -161,7 +161,9 @@ complete production browser-worker reports for both correct algorithms on all
 28 valid scenarios in Chromium, WebKit and targeted system Firefox. Four invalid
 period scenarios per algorithm/exercise are verified separately as failures.
 See [ENGINEERING-REVIEW.md](docs/ENGINEERING-REVIEW.md) for exact counts and limits.
-Case 5 is ready for owner QA; approval is pending. Final Slice 3 is not started.
+Case 5 is ready for owner QA; approval is pending. Final Slice 3 is complete;
+see the [independent audit](docs/ENGINEERING-REVIEW.md) and
+[practical owner QA checklist](docs/OWNER-QA.md).
 
 ## Use your Case 4 reconciliation tool
 
@@ -214,7 +216,7 @@ node report.mjs another-export.csv another-report.json
 
 `npm install` installs Papa Parse 5.7.0 locally and needs internet access once. Later runs use those installed files offline; the Data Detective source repository and global packages are not required. Without an output argument, stdout contains JSON. With one, the report is saved to that path. Console logs, diagnostics and errors go to stderr. Malformed CSV produces no partial report and exits unsuccessfully. The input CSV cannot be overwritten, including through file links.
 
-The script contains the last passing solution, even after the browser draft changes. Only run code you trust: Node has normal filesystem permissions. The downloaded README explains filesystem access, dependencies, arguments, parsing versus validation, errors and report verification. Copy to IDE stays a separate parsed-record exercise.
+The script contains the last passing solution, even after the browser draft changes. Runtime guards verify cleaning, finite hours, ordered reasons, unchanged originals, file order and complete accounting before emitting a report, including after serialization. Incorrect results or input mutation fail before output is opened. Only run code you trust: Node has normal filesystem permissions. The downloaded README explains filesystem access, dependencies, arguments, parsing versus validation, errors and report verification. Copy to IDE stays a separate parsed-record exercise.
 
 ## Use your Case 3 JSON tool
 
@@ -238,4 +240,20 @@ Only run trusted learner code. Node has normal filesystem permissions, with no b
 
 Everything stays in your browser. Drafts and progress are saved in `localStorage` for this site only. All people, places and records are fictional.
 
-If saving fails, the app shows a warning and keeps the current session working in memory; copy your code before refreshing. Use one active editing tab: concurrent tabs can overwrite each other's saved snapshots. See the [engineering review and backlog](docs/ENGINEERING-REVIEW.md) for verified limits, browser coverage and remaining owner QA.
+One tab owns saved progress through the browser's Web Locks API. A second tab
+shows a warning and Retry instead of an editor. Close the first tab, then retry
+to load its latest save. Ownership covers startup recovery, debounced writes,
+pagehide flushing and reset; it does not merge simultaneous edits. Close all
+older loaded builds before using this version, because they do not take the lock.
+Use localhost or HTTPS. If exclusive access is unavailable, the app reads existing
+progress and works in memory without replacing it. If saving fails, copy your
+code before refreshing; shutdown flushing is best effort. Long drafts survive
+refresh even above the runner's execution limit.
+
+Cases 1 and 2 now verify returned reports on new local files as well as browser
+fixtures. Case 1 checks unique string IDs, string statuses, exact status filtering,
+original content and order. Both reject unexpected output, mutation and misleading
+serialization before printing/saving. These guards catch mistakes, not malicious
+Node code. Cases 1–3 retain non-atomic output writes: a write failure can leave an
+incomplete report; require exit 0. See the [final independent audit](docs/ENGINEERING-REVIEW.md)
+and [owner QA checklist](docs/OWNER-QA.md). Cases 2–5 remain unapproved.

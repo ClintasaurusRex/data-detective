@@ -40,7 +40,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
 | 3 | The Doubled Totals | Feature-complete, including standalone Node JSON tool; owner QA queued for November 14–15, 2026; approval pending |
 | 4 | The Two Exports | Feature-complete, including standalone two-file Node reconciliation; owner QA/approval pending November 14–15 if practical |
-| 5 | Your First Reporting Tool | Feature-complete through Slice 2: browser capstone, independent variation and standalone Node workflow; owner QA/approval pending; Slice 3 final audit remains |
+| 5 | Your First Reporting Tool | Feature-complete; Slice 3 independent application audit complete; owner QA/approval pending |
 
 ### Milestone 1: The Missing Jobs (done)
 
@@ -140,8 +140,9 @@ Staged output replacement protects all three inputs and earlier reports, with
 filesystem/trusted-code limits documented. Actual downloaded Node reports match
 all 28 valid production-worker scenarios with both correct algorithms for both
 exercises; four period-error cases are verified separately. Owner QA/approval
-remains pending. Slice 3 final application-wide verification needs separate
-authorization; no redesign or additional mission has begun.
+remains pending. Slice 3 final application-wide verification is complete; see
+[ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md) and the
+[owner QA checklist](OWNER-QA.md). No additional mission has begun.
 
 
 - Define the date format, reporting period, boundary inclusion and rounding rules explicitly.

@@ -22,6 +22,7 @@ export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
       caseTitle: exercise.caseTitle,
       exerciseTitle: exercise.title,
       fileName,
+      matchWord: exercise.matchWord,
       checkedAt: solved.solvedAt ? new Date(solved.solvedAt).toISOString().slice(0, 10) : null,
     });
     downloadText(fileName, script, "text/javascript");
@@ -65,6 +66,7 @@ export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
             {" "}Choose a separate output file; the runner protects the input, including links to it.
           </li>
           <li>Try it on your own JSON file, as long as it&rsquo;s an array of records with the same fields.</li>
+          <li>The runner checks unique string IDs, string statuses, exact filtering and unchanged originals before emitting JSON. Invalid input or output leaves an earlier report untouched. A write failure can leave an incomplete file; require a successful exit.</li>
           <li>
             Anything your code logs with <code>console.log</code> still shows in the terminal, but it&rsquo;s kept out of
             the JSON result, so a saved <code>result.json</code> stays valid.

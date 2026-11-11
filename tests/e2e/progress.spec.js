@@ -86,6 +86,21 @@ test("pagehide flushes the latest draft without waiting for the debounce", async
   expect((await saved(page)).exercises["missing-jobs"].draft).toBe(draft);
 });
 
+test("a saved draft above the execution limit survives refresh and restore without silent loss", async ({ page }) => {
+  await page.goto("./");
+  const draft = SOLUTION + "\n//" + "x".repeat(50000);
+  await setCode(page, draft);
+  await expect(workbench(page).getByRole("status").filter({ hasText: "exceeds the runner" })).toContainText("50,000-character limit");
+  await expect.poll(async () => (await saved(page))?.exercises["missing-jobs"]?.draft).toBe(draft);
+  await page.reload();
+  await expect(page.getByTestId("editor-missing-jobs")).toHaveValue(draft);
+  await workbench(page).getByRole("button", { name: "Restore starter code" }).click();
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pagehide")));
+  await page.reload();
+  await workbench(page).getByRole("button", { name: "Bring back my draft" }).click();
+  await expect(page.getByTestId("editor-missing-jobs")).toHaveValue(draft);
+});
+
 test("switching through all four missions cancels pending checks and cannot create stale solves", async ({ page }) => {
   const missions = [
     ["missing-jobs", SOLUTION, "The Messy Export"],

@@ -167,7 +167,7 @@ All fictional. Each is CSV text with hand-written expected results. The tests co
 | Different job numbers | New IDs, Unix line endings; catches typed-in answers | 2: 010233, 4: 010235, 6: 010237 | 3: missing-hours; 5: missing-status |
 | Same jobs, new order | The case file reordered, so line numbers change too | 2: 004108, 4: 004106, 8: 004104, 10: 004101 | 3: invalid-status; 6: missing-id; 7: invalid-hours; 9: missing-hours |
 | Leading zeros | `000017`, `0042`, a quoted `"00981"`, `" 000500 "`, and `17`, a different job from `000017` | all 5 | none |
-| Blank and invalid hours | `0`, `0.0`, `07.50`, `" 2.25 "` accepted; blank, spaces, `""`, and 11 invalid forms | 2, 3, 4, 18 | 5–7: missing-hours; 8–17 and 19: invalid-hours |
+| Blank and invalid hours | `0`, `0.0`, `07.50`, `" 2.25 "` accepted; blank, spaces, `""`, and invalid forms including 400-digit numeric overflow | 2, 3, 4, 18 | 5–7: missing-hours; 8–17, 19 and 20: invalid-hours |
 | Capitals and spaces | Every mix of capitals, tabs, a leading non-breaking space; near-miss statuses; notes keep their spaces | 2, 3, 4, 5, 6, 7, 12 | 8–10: invalid-status (`on  hold`, `Completed`, `Incomplete`); 11: missing-status |
 | Quotes, commas and line breaks | Byte-order mark, Windows line endings, a three-line note, `""` escapes, every value quoted, no final line break | 2, 3, 6, 8, 9, 10 | 7: missing-hours |
 | Missing job IDs | Blank, spaces, quoted blank, and `,,,` | 2, 7 | 3–5: missing-id; 6: missing-id, missing-status, missing-hours |
@@ -267,3 +267,20 @@ Malformed structure fails the entire file before learner code executes, with no 
 Only run code you trust: the exported script has normal filesystem permissions, no sandbox timeout, and reads the whole CSV into memory. Start with small exports. The README explains npm dependencies, input/output arguments, stdout/stderr and how to check exit codes. Copy to IDE remains a separate exercise using already-parsed records.
 
 Automated tests execute the genuine generated artifacts as Node processes, cover all 13 valid and nine malformed datasets, and compare actual browser-worker outputs with downloaded Node outputs on all 13 datasets. Blank versus zero, leading zeros, multiline/quoted fields, original rejection values/lines, console separation and helper-name collisions agree. Case 2 has one exercise and no separate variation; Case 1's existing main/variation JSON exports remain tested. Owner-led manual QA is still pending.
+
+## Final audit corrections (11 November 2026)
+
+The existing hours dataset now contains a 400-digit number at file line 20. Its
+syntax is numeric but conversion overflows, so invalid-hours is required. There
+are still 13 checking datasets. This closes a previously passing syntax-only
+implementation; no approved numeric rule changed.
+
+The six-file download is unchanged in shape and dependency requirements. Embedded
+runtime integrity guards now verify accepted cleaning/finite hours, rejected
+originals/all ordered reasons, file order, full accounting, net input mutation
+and the serialized report. Incorrect results fail before printing or opening
+output, preserving earlier reports on validation/preparation failures. They do
+not supply or repair a learner result or sandbox malicious Node code. Output
+writes remain non-atomic; require a successful exit after any write. Fresh-folder
+npm installation and complete print/save output comparison were independently
+performed during Slice 3; see ENGINEERING-REVIEW.md. Owner approval is pending.

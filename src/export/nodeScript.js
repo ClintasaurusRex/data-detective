@@ -1,3 +1,5 @@
+import contractSource from "./missingJobsContract.js?raw";
+
 // Builds the downloadable Node script and sample data for a checked exercise.
 //
 // The learner's code is placed in the file as code, between two comment
@@ -14,8 +16,9 @@ function commentSafe(text) {
   return String(text).replace(/[\r\n\u2028\u2029]+/g, " ");
 }
 
-export function buildNodeScript({ code, caseNumber, caseTitle, exerciseTitle, fileName, checkedAt }) {
-  const learnerCode = code.replace(/\r\n?/g, "\n").replace(/\s*$/, "\n");
+export function buildNodeScript({ code, caseNumber, caseTitle, exerciseTitle, fileName, checkedAt, matchWord = "complete" }) {
+  if (!["complete", "open"].includes(matchWord)) throw new Error("Unknown Case 1 status rule.");
+  const learnerCode = code + "\n";
   const header = [
     `// Data Detective, Case ${caseNumber}: ${commentSafe(caseTitle)}`,
     `// ${commentSafe(exerciseTitle)}`,
@@ -40,18 +43,22 @@ globalThis.console = new Console({ stdout: process.stderr, stderr: process.stder
 // Your code runs inside its own function, so its names can't clash with the
 // rest of this file. Its console messages go to standard error: they still
 // appear in the terminal, but never mix with the JSON result.
-const transform = (function loadYourCode(console) {
+function loadYourCode(console) {
 // ---- Your transform function, as checked in Data Detective ----
 ${learnerCode}// ---- End of your function ----
-  return transform;
-})(globalThis.console);
+  return typeof transform === "function" ? transform : undefined;
+}
+
+${contractSource.replace(/^export /gm, "")}
 
 // Reads a JSON file, runs transform on it, and prints or saves the result.
 async function runScript() {
-  const [inputPath, outputPath] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const [inputPath, outputPath] = args;
   if (!inputPath) {
     fail("Tell me which JSON file to read, for example:\\n  node ${fileName} sample.json");
   }
+  if (args.length > 2 || args.some(arg => !arg || arg.startsWith("--"))) fail("Give an input JSON and optionally a separate output path.");
   if (outputPath && resolve(inputPath) === resolve(outputPath)) {
     fail("The output must be a different file from the input JSON. Choose a name such as result.json.");
   }
@@ -62,6 +69,7 @@ async function runScript() {
     try {
       inputInfo = await input.stat();
       if (inputInfo.isDirectory()) throw Object.assign(new Error("Is a directory"), { code: "EISDIR" });
+      if (!inputInfo.isFile()) throw new Error("Expected a regular JSON file.");
       text = await input.readFile("utf8");
     } finally { await input.close(); }
   } catch (error) {
@@ -84,8 +92,16 @@ async function runScript() {
     fail(\`"\${inputPath}" should contain a JSON array (a list in [square brackets]) of records, but it contains \${found === "object" ? "an object" : found}.\`);
   }
 
+  validateMissingJobsInput(rows);
+  const before = JSON.stringify(rows), originals = JSON.parse(before);
+  const transform = loadYourCode(globalThis.console);
+  if (typeof transform !== "function") throw new Error("Define a transform(rows) function.");
   const result = transform(rows);
+  if (JSON.stringify(rows) !== before) throw new Error("Your code changed the input. Preserve original records and order.");
+  validateMissingJobsReport(result, originals, ${JSON.stringify(matchWord)});
   const json = JSON.stringify(result, null, 2) + "\\n";
+  validateMissingJobsReport(JSON.parse(json), originals, ${JSON.stringify(matchWord)});
+  if (JSON.stringify(rows) !== before) throw new Error("Your code changed the input while preparing the report.");
   if (outputPath) {
     let output;
     try {
@@ -95,6 +111,7 @@ async function runScript() {
       if (info.dev === inputInfo.dev && info.ino === inputInfo.ino) {
         throw new Error("The output points to the input JSON. Choose a different output file.");
       }
+      if (!info.isFile()) throw new Error("Expected a regular output file.");
       await output.truncate(0);
       await output.writeFile(json, "utf8");
     } finally { await output?.close(); }

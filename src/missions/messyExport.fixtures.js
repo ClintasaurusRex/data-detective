@@ -178,6 +178,7 @@ export const datasets = deepFreeze({
       "020316,complete,5.,",
       "020317,complete, 2.25 ,Spaces around the number",
       "020318,complete,1 000,",
+      "020319,complete," + "9".repeat(400) + ",Digit syntax can still overflow",
     ]),
     expected: {
       accepted: [
@@ -201,6 +202,7 @@ export const datasets = deepFreeze({
         rejected(16, "invalid-hours"),
         rejected(17, "invalid-hours"),
         rejected(19, "invalid-hours"),
+        rejected(20, "invalid-hours"),
       ],
     },
   },

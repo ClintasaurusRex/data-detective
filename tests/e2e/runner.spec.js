@@ -89,6 +89,36 @@ test("running code can't change the case data", async ({ page }) => {
   expect((await output(page).locator("tbody tr").allTextContents()).join("|")).toContain('" COMPLETE "');
 });
 
+test("a serialized array changing to null is explained without an unhandled error, and Run recovers", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await setCode(page, "function transform() { const result = []; result.toJSON = () => null; return result; }");
+  await run(page);
+  await expect(output(page).getByTestId("run-error")).toContainText("changed type during JSON conversion");
+  expect(await outputJson(page)).toBeNull();
+  await setCode(page, SOLUTION); await run(page);
+  await expect(outputHeading(page)).toContainText("3 records");
+  expect(errors).toEqual([]);
+});
+
+test("the actual sandbox host ignores a correct run ID with an incorrect worker nonce", async ({ page }) => {
+  const frame = page.frames().find(f => f.url().endsWith("/sandbox.html"));
+  await frame.evaluate(() => {
+    const NativeWorker = window.Worker;
+    window.Worker = class extends NativeWorker {
+      postMessage(message, ...rest) {
+        this.dispatchEvent(new MessageEvent("message", { data: {
+          type: "done", runId: message.runId, nonce: "incorrect-nonce",
+          status: "ok", resultType: "array", outputJson: "[]",
+        } }));
+        return super.postMessage(message, ...rest);
+      }
+    };
+  });
+  await setCode(page, SOLUTION); await run(page);
+  await expect(outputHeading(page)).toContainText("3 records");
+});
+
 test.describe("isolation", () => {
   let server;
   let hits;

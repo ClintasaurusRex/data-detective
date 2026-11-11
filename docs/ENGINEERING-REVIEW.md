@@ -1,4 +1,400 @@
-# Milestone 5 Slice 2 implementation and focused engineering review
+# Milestone 5 Slice 3 — final independent engineering audit
+
+Reviewed **11 November 2026**. **Technically ready for owner-led QA within the
+operating boundaries below.** Five confirmed defects were corrected. No unresolved
+Critical/High application defect was found after remediation. This is not owner
+acceptance or a claim of full native-browser/accessibility certification.
+Case 1 remains owner-approved; **Cases 2–5 remain unapproved**. Start owner QA on
+November 14–15, initially Cases 2–4, then Case 5 as practical. Use
+[OWNER-QA.md](OWNER-QA.md) for the practical checklist and four separate decisions.
+No further development begins automatically.
+
+## Repository, environment and baseline
+
+- Branch: `feature/milestone-5-reporting-tool`.
+- Starting HEAD: `6009d91968ecc77d6a316665b59353cd060b3b0a` (`6009d91`).
+- Upstream: `origin/feature/milestone-5-reporting-tool`; local refs were equal,
+  working tree clean. No remote fetch or Git mutation was needed.
+- Linux x86_64; **Node v24.18.0, npm 11.16.0**. `.nvmrc` specifies **24.22.1**;
+  that exact patch was unavailable and remains an owner-environment check.
+- Chromium **153.0.8010.12**, installed Playwright WebKit **26.6**, native Firefox
+  **159.0.1** through WebDriver BiDi. Playwright's patched Firefox is absent.
+- Baseline: lint, **1,213/1,213 units in 17 files**, production build and
+  **156/156 Chromium tests** passed on isolated port **4287**.
+- The first restricted baseline had 664 child-process-related unit failures with
+  empty stdout/stderr. Repeating the unchanged command with normal local process
+  and loopback access passed. This was an execution boundary, not a product fix.
+
+## Risk-led investigation and independent methods
+
+Read README, PRODUCT, ARCHITECTURE, STATUS, prior engineering evidence and all
+five contracts before implementation. Inspected actual mission definitions,
+starters/hints/explanations, frozen fixtures, expected answers, checkers/adapters,
+all export generators and runtime guards, progress validation/recovery, shared
+Workbench/Toolbox/download/copy code, navigation, ErrorBoundary, worker/host,
+app-side runner, CSP build plugin and existing unit/browser coverage.
+
+Priority order was saved-work loss; sandbox/lifecycle boundaries; correctness on
+new inputs and standalone report/file integrity; rendered accessibility/layout;
+then performance, maintainability and educational consistency. Historical results
+were independently rerun. Separate adversarial probes used real same-origin tabs,
+actual passing browser checks, genuine downloaded artifacts and normal Node
+processes outside the repository. New unit and production-browser regressions
+cover the confirmed gaps. No approved business rule was changed.
+
+Additional handwritten Case 3–5 probes combined cases rather than deriving an
+oracle from a production solver: interleaved duplicates and late conflicts with
+exact notes/IDs; two-source ambiguity plus unique/missing/differing pairs; and a
+year-0001 weekly report with nonnumeric source order, cleaned copies, exact hundredths
+of an hour, ordered multi-field rejections and a cross-period conflict. Five full
+reports matched handwritten evidence across the lesson/independent algorithms
+and runtime guards. No defect was found in these Case 3–5 probes.
+
+## Confirmed and fixed defects
+
+### A-01 / existing B-01 — High: concurrent tabs erase checked progress
+
+**Reproduction:** open Tab A on Case 2 and Tab B on Case 5 at the same origin.
+Pass/save Case 2 in A, then edit/save Case 5 in B. A's persisted draft and
+`solved.code` became null. Closing A then flushed its old snapshot, restored
+Case 2 and erased B's Case 5 draft. Separate simultaneous same-exercise edits
+retained only the last writer; refresh loaded that winner without a warning.
+
+**Expected:** another tab must not silently replace saved progress or checked
+code. **Root cause:** every mounted app loaded its own whole snapshot and wrote
+it after debounce and on pagehide, including otherwise stale tabs. The previous
+Medium backlog classification is raised to High here because loss includes
+verified downloadable solutions and work across unrelated cases.
+
+**Fix:** `ProgressSession` acquires an exclusive, document-lifetime Web Lock
+before App mounts or recovery can write. A secondary tab has an explanatory
+warning and Retry, with no editor, initial save, backup or pagehide writer. Retry
+reloads the latest snapshot after ownership is available. Closing/unloading the
+owner releases the browser-managed lock; its pagehide flush runs while ownership
+is held. A restored history document reloads before writes resume. Error reset
+also requires ownership. Missing/rejected lock access allows reading saved work
+and memory-only learning, with a persistent warning and no storage/backup/reset
+writes. No schema, stable ID, timestamp lease, check-and-set race or merge.
+
+**Regression:** real browser tabs cover different-case checked-code retention,
+blocked retry/refresh/close, simultaneous startup on one exercise, immediate
+close before debounce, handoff, history navigation, unavailable/rejected locks,
+unreadable originals/previous backups, and existing quota/read/backup recovery.
+Chromium and WebKit pass; targeted native Firefox verifies exclusion and close
+handoff with checked-code retention.
+
+**Limits:** this coordinates participating documents in one browser storage
+partition, not old loaded builds, arbitrary same-origin scripts, other profiles
+or browsers. **Close all old Data Detective tabs before adopting this build.**
+Localhost/HTTPS is needed for Web Locks. Failed writes and browser termination
+remain best effort; copy unsaved work when warned. Shared simultaneous editing
+is deliberately unavailable rather than merged.
+
+An additional isolated Chromium probe exhausted real localStorage quota
+(5,111,808 filler characters before QuotaExceededError). Reload retained readable
+progress; a subsequent larger draft failed visibly without replacing the old
+save. Removing the filler and editing again restored saving and cleared the
+warning. The development server also passed Run, StrictMode ownership and close
+handoff. These are independent probes, outside the framework-test counts below.
+
+### A-02 — High: Case 1 can approve and export incorrect status filtering
+
+**Reproduction:** `startsWith("complete")` passed every original checking dataset.
+Its genuine downloaded script accepted `{id:"NEW",status:"Completed"}` on a new
+valid file and exited 0. The contract requires exact normalized `complete`.
+**Root cause:** the near-match fixtures lacked a prefix extension, while the Node
+wrapper accepted any returned value without report verification.
+
+**Fix:** add `Completed`/`Opening` to an existing checking dataset, keeping all
+check IDs/counts and expected matching IDs. Both exports embed maintained guards
+for unique string IDs/string statuses, exact complete/open selection, original
+content, order, result type and net mutation. Validate before and after JSON
+serialization, before emitting output; load code only after input validation.
+The exercise supplies its explicit matchWord and checked code remains verbatim.
+
+**Regression:** browser prefix rejection/download gating; real-process wrong
+status, malformed sources, missing/extra/changed/repeated output, Promise/undefined,
+mutation and custom serialization refusals. Earlier output survives validation
+failure. Both exercises retain correct Node output, console separation and input
+path/symlink/hard-link protection. Case 1's approval history is unchanged; these
+were previously uncovered correctness gaps, now fixed.
+
+### A-03 — High: Case 2 can save overflowed hours as successful null values
+
+**Reproduction:** remove only the finite-number check from an otherwise correct
+solution. It passed the original 13 browser datasets. On a new CSV with 400-digit
+hours, its actual download exited 0, emitted `accepted.hours: null` (Infinity's
+JSON representation), and replaced an existing report with that invalid result.
+**Root cause:** overflow existed only in supplemental tests, outside the actual
+mission datasets; the Node wrapper checked only two array fields.
+
+**Fix:** add overflow at file line 20 to the existing hours dataset, still 13
+checks. Embed runtime report guards for exact fields, cleaning, finite hours,
+classification, ordered reasons, original preservation, order and exactly-once
+accounting. Snapshot input and validate before/after serialization. Refuse a
+wrong answer without supplying or repairing one; no numeric business rule changes.
+
+**Regression:** browser overflow rejection/download gating; actual generated
+processes reject overflow, dropped/repeated/reordered originals, bad cleaned
+values/reasons, mutation and misleading serialization before opening output.
+Existing parser, nine malformed-file fixtures, complete parity, console and file
+alias/permission checks still pass. Six download files and pinned dependency stay
+unchanged in shape.
+
+### A-04 — Medium: a successfully saved long draft disappears on refresh
+
+**Reproduction:** paste/save a 50,026-character draft; localStorage contained it.
+Refresh silently restored the 85-character starter, with no warning. **Root
+cause:** the editor/writer accepted arbitrary draft text but the loader discarded
+all code strings above its 50,000-character execution cap.
+
+**Fix:** preserve draft/previousDraft strings independently of the checked-code
+cap. Warn in the editor when the draft exceeds the execution limit without
+truncating it. Quota failures still produce the existing save warning. No storage
+shape or runner limit changes. **Regression:** real save/refresh, starter restore,
+refresh and bring-back are lossless; a unit checks long drafts and rejects
+oversized purported checked code.
+
+### A-05 — Medium: serialized result-type mismatch breaks Run feedback
+
+**Reproduction:** return an array with `toJSON() { return null; }`. The worker
+reported array, transport decoded null, and Workbench accessed `.length`, causing
+an unhandled page error and stale “Running your code…” feedback. **Root cause:**
+normalization trusted the pre-serialization result type.
+
+**Fix:** compare decoded JSON type with the reported type; show an inspectable
+result error when they differ. Preserve actual JSON for debugging. **Regression:**
+unit array/object/number conversions and a production-browser null-array run,
+zero page errors and successful next Run. No CSP or isolation permission changed.
+
+## Sandbox/security and lifecycle conclusions
+
+The opaque-origin iframe still has only `allow-scripts`, no same-origin,
+top-navigation or popup permission. App CSP disallows inline/eval execution and
+app workers; sandbox CSP confines workers to blob URLs and blocks network APIs.
+Actual Chromium controls confirm zero HTTP/WebSocket probe hits, inaccessible
+DOM/storage, no popup/navigation, and independent app/sandbox CSP enforcement.
+The host accepts requests only from its parent and validates shapes/code/time
+limits; worker replies need both run ID and random nonce. A new test injects the
+correct ID with a wrong nonce into a real host worker event and confirms rejection.
+The app checks frame window, null origin and current run ID. Cancellation, late
+replies, timeout/Stop, syntax/runtime recovery, mission/exercise switching and
+stale-check protection pass. Invalid results remain inspectable, not substituted.
+
+Console and returned-JSON limits remain in force. No code ran on the app thread;
+no sandbox security policy was weakened. Workers still have **no hard memory
+cap**; rapid allocation/OOM was not stress-tested. Meta CSP lacks response-header
+capabilities such as frame-ancestors. Dev app CSP intentionally differs for Vite
+hot reload; sandbox CSP still applies. This is a local learning tool, not anti-cheat
+or a service for running hostile third-party code.
+
+## All five mission and Node workflow conclusions
+
+| Case | Independent conclusion and actual execution |
+| --- | --- |
+| 1 | Exact normalized status/original preservation checked; prefix gap fixed. Main seven and variation eight generated-Node datasets pass; genuine downloaded sample reports match browser output, including helper/logging variants. |
+| 2 | CSV syntax remains separate from field validation. BOM, quotes, multiline/blank lines and physical provenance preserved; blank differs from zero; overflow gap fixed. All 13 full downloaded-Node/browser reports agree in Chromium and WebKit; nine malformed files refuse partial output. |
+| 3 | Exact IDs/all business fields, whole late conflicts, first-occurrence links, every original and reliable quarter-hour totals agree. Two algorithms × 17 complete downloaded-Node/browser reports pass per tested Playwright engine. |
+| 4 | Exact two-source joins, missingness, all differences, whole-key ambiguity, source provenance, union ordering and accounting agree. Two algorithms × 20 complete downloaded-Node/browser reports pass per tested Playwright engine. |
+| 5 | Ordered cleaning/rejections, whole-ID conflicts, entry/job identity, inclusive Gregorian dates, safe hundredths, exclusions, groups/distinct jobs and full audits agree. Both algorithms for both independently saved exercises compare 28 valid full reports per combination per engine; invalid periods are refused separately. |
+
+Across Chromium, WebKit and native Firefox, Case 5 again has **336 complete
+valid-report comparisons** and **48 separate invalid-period refusals**. Native
+Firefox additionally passes the other 65 exercise-check scenarios, for **193
+scenario executions total**. These are not 193 Playwright tests or full Firefox
+certification. Native Firefox's new run did not repeat the network-probe server
+suite; current full network-isolation evidence is Chromium.
+
+All five standalone workflows execute actual generated/downloaded artifacts in
+fresh directories as normal Node processes. Checked code survives newer drafts,
+failed/stopped checks, edits during checking, refresh/navigation and Case 5
+main/variation switching. Copy to IDE retains current-draft/sample semantics.
+No hidden fixture or automatic reference solution leaks in downloads. Logs use
+stderr; stdout contains only validated JSON on success. Cases 1/2 now have report
+integrity checks as well as Cases 3–5. Runtime guards refuse bad results, not
+replace them with expected output. Source files remain byte-for-byte unchanged.
+
+Resolved-path and open-file identity checks still protect inputs through symlinks
+and hard links. Invalid input/code/reports and pre-write failures preserve earlier
+reports; actual permission/file-size/interruption tests retain their guarantees.
+**Cases 1–3 output writes remain non-atomic** and can leave incomplete output after
+mid-write failure. Cases 4–5 stage, sync, recheck and rename; power loss, externally
+concurrent path changes, parent-directory durability and platform/network-filesystem
+behavior are not guaranteed. Abrupt termination can leave temporary staging folders.
+
+The freshly downloaded Case 2 six-file package also completed its own
+`npm install --ignore-scripts --no-fund --no-audit` outside the repository, then
+print/save commands with byte-identical complete reports. npm may use its cache;
+this proves ordinary independent installation, not a forced uncached-network test.
+Only Papa Parse 5.7.0 is required. No project dependency/lockfile was changed.
+
+**Separate threat models:** file guards prevent accidental runner output onto an
+input. Arbitrary downloaded learner code has normal filesystem/network/process
+permissions and can bypass them by writing directly. Node has no browser sandbox,
+timeout or memory cap and reads whole files. Instructions explicitly require
+trusted code, small files and successful exit status; no stronger security claim.
+
+## Accessibility, usability and educational review
+
+All five rendered production missions were exercised at **1920, 1366 and 375 px**:
+no page-level horizontal overflow, essential controls within horizontal bounds,
+unique IDs and captioned/scoped tables. Tables/code retain their own scrolling.
+Viewport screenshots of desktop/phone requests, paired tables, laptop/phone
+editor/focus and long audit output were visually inspected. One immediate-scroll
+screenshot omitted a sticky header during painting; a stable follow-up displayed
+all headings at their measured positions. No reproducible table-header defect.
+
+Full Chromium and focused WebKit retain keyboard activation, skip/content focus,
+Back/Forward, editor expansion/wrapping, Copy to IDE fallback/selection, hint
+confirmation/return focus, download/help controls, status/error feedback and
+reduced motion. New storage warnings explain ownership and memory-only operation.
+Normal-use independent probes logged **zero page or console errors**. Semantic
+checks and headless keyboard tests do not establish native screen-reader behavior.
+No axe package was available; no major accessibility dependency was added. Actual
+screen readers, full contrast/forced-colors review and native phone/Safari/iOS
+remain owner QA.
+
+The progression filtering → CSV validation → duplicates/conflicts → two-source
+matching → end-to-end reporting is coherent in source and actual behavior.
+Starters intentionally expose less scaffolding over time; hints and solutions
+remain optional/attributed. Feedback retains wrong output for debugging. Additional
+near-match/overflow data now test transferable rules rather than accidental fixture
+coverage. The capstone's variation changes dates/sites/exclusions and requires a
+full independent audit despite a coincidentally equal grand total. No lesson rewrite.
+Owner review should judge Case 5's substantial contract length, hint usefulness,
+long audit navigation and the phone case-list footprint rather than infer enjoyment
+or difficulty from automated success.
+
+## Performance, dependencies and maintainability
+
+Baseline JS: **541.49 kB / 162.54 kB gzip**. Final JS:
+**550.93 kB / 165.07 kB gzip**; CSS **12.89 / 3.65 kB**. Vite's >500 kB advisory
+remains visible. The roughly 9.44 kB increase supplies the scoped ownership and
+integrity protections; no warning threshold was raised.
+
+An instrumented temporary build confirmed one eager registry imports all cases,
+fixtures, optional solution material, checkers, guides and export-source strings.
+They could be loaded per case/Toolbox, but no unexpected duplicate React/Papa Parse
+runtime or new dependency was found. Raw maintained-source strings for independent
+exports are intentional. Module rendered lengths are pre-minification diagnostics,
+not an exact attribution of compressed network cost.
+
+Three independent cache-disabled localhost Chromium loads reached the editor in
+**108–121 ms**. With **150 ms latency, 1.6 Mbit/s download and 4× CPU throttling**,
+three loads reached it in **1,427–1,450 ms**. These are synthetic editor-ready timings,
+not real-device or runner-ready certification. A 700-item preview rendered only
+200 audit disclosures in **61 ms**, with no observed >50 ms main-thread long task
+in that sample. Actual results remain bounded by 200,000 transport characters.
+No measured blocking/loading problem justified a lazy-loading refactor. Future
+chunking could reduce first-case payload but needs a separate measured change;
+saved progress must still be validated against the complete catalogue.
+
+A fresh npm audit reports **four moderate development-only package findings**,
+all from **minimatch 10.2.6**, via ESLint/config-array and its dependents
+([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)).
+`npm ls`/`npm explain` confirm the path. `npm audit --omit=dev` reports **zero**.
+The current major-10 ranges cannot take the advisory's 11.0.1 fix; npm suggests
+major tooling changes. Leave this as a bounded tooling risk for a separate
+compatible dependency review; no force upgrade, override or dependency churn.
+
+## Executed integration verification and remaining limits
+
+Final required commands: `DATA_DETECTIVE_TEST_PORT=4295 npm run check`,
+`git diff --check`, `git status -sb`. Production tests refuse unknown-server reuse.
+Independent preview used **4293**; targeted Chromium used **4294**. No test used
+another application's port 4173.
+
+| Check | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| ESLint | pass | 0 | 0 |
+| Vitest, 17 files | **1240** | 0 | 0 |
+| Production build | pass, existing size advisory | 0 | 0 |
+| Full Chromium suite | **167** | 0 | 0 |
+| Focused WebKit | **71** | 0 | 0 |
+| Native Firefox targeted exercise scenarios | **193** | 0 | 0 |
+
+1240 = 1213 baseline + 27 focused regressions. 167 = 156 baseline + 11 browser
+regressions. WebKit explicitly selects all workflow files, Case 5, progress,
+ownership, contract regressions and supported runner cases; it excludes clipboard
+permission success, Chromium-specific source-line assertions and the synchronous
+URL-worker constructor assumption at selection time. Nothing excluded is reported
+passed. Its frame/app CSP tests, timeout/Stop/recovery, wrong-nonce test and new
+serialization recovery run. The full native Firefox suite remains unavailable.
+
+Failing-first evidence includes the genuine downloaded Case 1/2 probes and two
+new multi-tab browser regressions against the old app. Focused unit corrections
+fixed an `it.each` array-argument fixture shape; the final assertion checks the
+intended malformed array. Native Firefox harness corrections scoped the Check
+button to its own exercise and awaited Retry navigation before closing the owner;
+initial harness failures are not counted as passing product evidence. An optional
+screenshot montage failed because Pillow is absent; individual images were
+inspected directly. No assertions, sandbox policies or business rules were relaxed.
+
+Remaining limits: development-only advisory, bundle advisory, unavailable exact
+Node patch, old-build tabs outside the lock protocol, best-effort shutdown/quota,
+no worker memory cap, trusted/whole-file Node execution, earlier non-atomic output,
+platform/filesystem durability, focused cross-browser coverage and unperformed
+native assistive-technology/device/contrast QA. These do not block owner-led QA
+for this local fictional-data learning application. Broader release approval is
+**pending owner decisions for each of Cases 2–5**.
+
+## Change inventory and approval boundary
+
+Application/storage: App, main, ErrorBoundary, new ProgressSession, Workbench,
+ToolboxEntry and progress validation. Integrity: new missingJobsContract and
+csvReportContract, older Node/CSV generators and runner result normalization.
+Fixtures: two existing datasets extended without changing contracts or check IDs.
+Tests: new concurrentProgress/auditContracts browser files; focused progress,
+runner, export, CSV and evaluator regressions. Documentation: README, PRODUCT,
+ARCHITECTURE, STATUS, this review, Cases 1/2/5 and new OWNER-QA checklist.
+
+Exact changed/new files (33):
+
+```text
+README.md
+docs/ARCHITECTURE.md
+docs/ENGINEERING-REVIEW.md
+docs/OWNER-QA.md
+docs/PRODUCT.md
+docs/STATUS.md
+docs/cases/01-missing-jobs.md
+docs/cases/02-messy-export.md
+docs/cases/05-first-reporting-tool.md
+src/App.jsx
+src/ErrorBoundary.jsx
+src/components/ProgressSession.jsx
+src/components/ToolboxEntry.jsx
+src/components/Workbench.jsx
+src/export/csvReportContract.js
+src/export/csvWorkflow.js
+src/export/missingJobsContract.js
+src/export/nodeScript.js
+src/main.jsx
+src/missions/messyExport.fixtures.js
+src/missions/missingJobs.fixtures.js
+src/runner/sandboxRunner.js
+src/storage/progress.js
+tests/e2e/auditContracts.spec.js
+tests/e2e/concurrentProgress.spec.js
+tests/e2e/progress.spec.js
+tests/e2e/runner.spec.js
+tests/unit/csvWorkflow.test.js
+tests/unit/evaluate.test.js
+tests/unit/evaluateMessyExport.test.js
+tests/unit/exportScript.test.js
+tests/unit/progress.test.js
+tests/unit/sandboxRunner.test.js
+```
+
+Historical reviews follow unchanged as historical evidence. No existing work was
+discarded. **No commit, push, merge, deployment or pull-request creation/modification
+occurred.** No sixth mission, backend, authentication, runtime AI, redesign, new
+runtime dependency or pending-case owner approval was introduced. Stop after this
+audit and owner handoff.
+
+---
+
+# Historical Milestone 5 Slice 2 implementation and focused engineering review
 
 Reviewed 11 November 2026. Case 5 is feature-complete through Slice 2, including
 both independent exercises and their complete standalone Node workflow. Owner

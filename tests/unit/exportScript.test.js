@@ -59,7 +59,7 @@ describe("exported Node script", () => {
     await writeFile(join(dir, variation.exportFileName), buildNodeScript({
       code: variation.solution.code, caseNumber: missingJobsCase.number,
       caseTitle: missingJobsCase.title, exerciseTitle: variation.title,
-      fileName: variation.exportFileName,
+      fileName: variation.exportFileName, matchWord: variation.matchWord,
     }));
     for (const check of variation.checks) {
       await writeFile(join(dir, "variation.json"), buildSampleJson(check.rows));
@@ -209,5 +209,43 @@ function transform(rows) {
     expect(result.code).toBe(0);
     expect(result.stderr).toContain("global loading log");
     expect(JSON.parse(result.stdout).map(row => row.id)).toEqual(["J-101", "J-102", "J-104"]);
+  });
+
+  it("refuses a prefix-matching report on a new valid status before replacing an old report", async () => {
+    const code = 'function transform(rows) { return rows.filter(row => row.status.trim().toLowerCase().startsWith("complete")); }';
+    await writeFile(join(dir, "prefix.mjs"), script(code));
+    await writeFile(join(dir, "next.json"), JSON.stringify([{ id: "NEXT", status: "Completed" }]));
+    await writeFile(join(dir, "old.json"), "KEEP OLD REPORT");
+    const result = await node(["prefix.mjs", "next.json", "old.json"]);
+    expect(result.code).toBe(1); expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("Invalid report");
+    expect(await readFile(join(dir, "old.json"), "utf8")).toBe("KEEP OLD REPORT");
+  });
+
+  it.each([
+    "undefined", "Promise.resolve([])", "{}", "[rows[0], rows[0]]", "[]",
+    '[{...rows[0], status: "changed"}]',
+    'Object.assign(rows.filter(r => r.status.trim().toLowerCase() === "complete"), {toJSON() { return []; }})',
+  ])("rejects unexpected or misleading output %s without touching an old report", async expression => {
+    await writeFile(join(dir, "invalid.mjs"), script(`function transform(rows) { return ${expression}; }`));
+    await writeFile(join(dir, "old.json"), "KEEP OLD REPORT");
+    const result = await node(["invalid.mjs", "sample.json", "old.json"]);
+    expect(result.code).toBe(1); expect(result.stdout).toBe("");
+    expect(await readFile(join(dir, "old.json"), "utf8")).toBe("KEEP OLD REPORT");
+  });
+
+  it.each([[null], [{id:"X",status:1}], [{id:"X",status:"open"},{id:"X",status:"complete"}]].map(rows => ({ rows })))("rejects malformed source records $rows before loading code", async ({ rows }) => {
+    await writeFile(join(dir, "invalid-input.mjs"), script('console.log("LOADED"); function transform() {return [];}'));
+    await writeFile(join(dir, "bad-records.json"), JSON.stringify(rows));
+    const result = await node(["invalid-input.mjs", "bad-records.json"]);
+    expect(result.code).toBe(1); expect(result.stdout).toBe("");
+    expect(result.stderr).not.toContain("LOADED");
+  });
+
+  it("rejects mutation even when a separate returned copy has correct content", async () => {
+    await writeFile(join(dir, "mutation.mjs"), script('function transform(rows) { const out=rows.filter(r=>r.status.trim().toLowerCase()==="complete").map(r=>({...r})); rows[0].status="changed"; return out; }'));
+    const result = await node(["mutation.mjs", "sample.json"]);
+    expect(result.code).toBe(1); expect(result.stdout).toBe("");
+    expect(result.stderr).toContain("changed the input");
   });
 });
