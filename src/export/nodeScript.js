@@ -32,6 +32,10 @@ export function buildNodeScript({ code, caseNumber, caseTitle, exerciseTitle, fi
 
 import { Console } from "node:console";
 import * as fs from "node:fs/promises";
+import { resolve } from "node:path";
+
+// Global console calls need the same separation as the supplied console.
+globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr });
 
 // Your code runs inside its own function, so its names can't clash with the
 // rest of this file. Its console messages go to standard error: they still
@@ -40,7 +44,7 @@ const transform = (function loadYourCode(console) {
 // ---- Your transform function, as checked in Data Detective ----
 ${learnerCode}// ---- End of your function ----
   return transform;
-})(new Console({ stdout: process.stderr, stderr: process.stderr }));
+})(globalThis.console);
 
 // Reads a JSON file, runs transform on it, and prints or saves the result.
 async function runScript() {
@@ -48,10 +52,18 @@ async function runScript() {
   if (!inputPath) {
     fail("Tell me which JSON file to read, for example:\\n  node ${fileName} sample.json");
   }
+  if (outputPath && resolve(inputPath) === resolve(outputPath)) {
+    fail("The output must be a different file from the input JSON. Choose a name such as result.json.");
+  }
 
-  let text;
+  let text, inputInfo;
   try {
-    text = await fs.readFile(inputPath, "utf8");
+    const input = await fs.open(inputPath, "r");
+    try {
+      inputInfo = await input.stat();
+      if (inputInfo.isDirectory()) throw Object.assign(new Error("Is a directory"), { code: "EISDIR" });
+      text = await input.readFile("utf8");
+    } finally { await input.close(); }
   } catch (error) {
     if (error.code === "ENOENT") {
       fail(\`Couldn't find "\${inputPath}". Check the file name, and that you're running this command in the folder that contains it.\`);
@@ -75,7 +87,17 @@ async function runScript() {
   const result = transform(rows);
   const json = JSON.stringify(result, null, 2) + "\\n";
   if (outputPath) {
-    await fs.writeFile(outputPath, json, "utf8");
+    let output;
+    try {
+      // Check file identity before truncating, including symlinks/hard links.
+      output = await fs.open(outputPath, "a");
+      const info = await output.stat();
+      if (info.dev === inputInfo.dev && info.ino === inputInfo.ino) {
+        throw new Error("The output points to the input JSON. Choose a different output file.");
+      }
+      await output.truncate(0);
+      await output.writeFile(json, "utf8");
+    } finally { await output?.close(); }
     const count = Array.isArray(result) ? \`\${result.length} record(s)\` : "the result";
     console.error(\`Wrote \${count} to \${outputPath}\`);
   } else {

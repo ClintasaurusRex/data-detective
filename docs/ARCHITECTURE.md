@@ -9,7 +9,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
 | Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js`, `src/checking/evaluateDoubledTotals.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records; Case 3 checks occurrence classification, duplicate links, complete conflicts, order and totals against explicit fixture expectations |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
-| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, the standalone Case 2 CSV workflow, and the "Copy to IDE" `challenge.js` |
+| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/doubledTotalsWorkflow.js`, `src/export/doubledTotalsContract.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, Case 2 CSV workflow, Case 3 JSON audit workflow and its guards, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
 
 ## Running learner code
@@ -50,7 +50,7 @@ App page (strict CSP, no eval)
 
 ### Known limitations
 
-- **Tested only in Chromium** (Playwright 1.63, Chromium build 1243). Firefox and Safari are unverified. Blob workers inside opaque-origin iframes have historically differed between browsers. If a worker can't be created, the learner sees "Runner unavailable" rather than code running unsandboxed.
+- **Browser coverage varies.** The full supported suite runs in Chromium (Playwright 1.63, build 1243). WebKit 26.6 passed 83/90 tests in the November 10 review; four clipboard-permission tests cannot run in its driver, two error-line expectations differ, and a URL worker fails asynchronously instead of throwing at construction. A separate controlled probe received zero network requests. System Firefox 159.0.1 passed all three missions' 37 checking datasets and targeted persistence, timeout, Stop, recovery and isolation probes through native BiDi; its Playwright-specific build is unavailable. This is not a full Firefox or native Safari/iOS certification. See [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). If a browser cannot create a worker, the learner sees "Runner unavailable"; code never falls back to the app thread.
 - **No memory limit.** Browsers don't offer one for workers. Code that allocates memory very quickly could exhaust the worker, or possibly the tab, before the 2-second timeout. This wasn't tested.
 - **CSP is set with `<meta>` tags**, so `frame-ancestors` and reporting can't be set. A host that supports response headers could add them. The development server (`npm run dev`) omits the app page CSP because Vite's hot reload needs inline scripts; the sandbox CSP applies in development too.
 - **The iframe posts results to the app with target origin `"*"`**, because an opaque origin can't name its parent's origin. Messages only contain run results. The app checks the sender's window and origin.
@@ -68,11 +68,13 @@ Case 2’s checker is connected through the shared workbench using the exercise�
 
 ## Saved progress
 
-One `localStorage` key, `data-detective:v1`, holds `{ version, cases, exercises }`. Writes are debounced and also flushed on `pagehide`. When loading, every field is validated and clamped, and unknown exercises are dropped. Text that can't be parsed is copied to `data-detective:v1:unreadable` before the app starts fresh with a visible notice. If storage is unavailable, the app runs in memory and says so. A React error boundary offers a reset (with the same backup) as a last resort.
+One `localStorage` key, `data-detective:v1`, holds `{ version, cases, exercises }`. Writes are debounced and also flushed on `pagehide`. When loading, every field is validated and clamped, and unknown exercises are dropped. Text that can't be parsed is copied to `data-detective:v1:unreadable` before the app starts fresh with a visible notice. If that backup fails, the original is left untouched and this session stays in memory with an honest warning. A read exception likewise leaves existing storage alone. Storage access no longer requires a successful probe write, so a full quota does not hide otherwise readable drafts and checked tools. A React error boundary offers a reset (with the same backup) as a last resort.
+
+Failed debounced writes display an alert explaining that the latest changes are unsaved and should be copied before leaving. A later successful write clears that save-failure notice. Drafts, checks and exports continue in memory. The `pagehide` flush remains best effort; browsers cannot guarantee a warning will render during termination. Regression tests simulate late quota failure and recovery, startup quota, failed backup and immediate flush. Concurrent tabs still write whole snapshots and can overwrite each other's progress; use one active editing tab pending the separate ownership/conflict work in the review backlog. No storage schema or mission IDs changed.
 
 Case 1’s identifiers and save shape are preserved. Case 2 adds `cases["messy-export"].prediction` as `{ accepted, rejected }` or `{ skipped: true }`, and an exercise with the same stable ID. Its optional `checked: { code, passed }` retains the last completed check across refreshes. Draft, previous draft, hints, reference reveal and the exact passing code reuse the existing exercise fields. Detailed run output/check feedback is visit-local; after refresh a saved check summary invites checking again for full feedback.
 
-A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Both cases' Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Case 2 uses the same saved fields and storage version; no migration is needed.
+A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. All three cases' Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
 
 ## Export
 
@@ -81,11 +83,12 @@ A solve stores the exact code that passed. When the draft differs from it, the a
 The learner's code sits inside its own function (`loadYourCode`), as it does in the browser runner:
 
 - **Its names are isolated.** Helpers named `fs`, `runScript`, `fail` or anything else can't clash with the wrapper's declarations.
-- **Standard output stays valid JSON.** The function receives a `console` that writes to standard error, so logging at the top level or inside `transform` still shows in the terminal but never mixes with the printed result. The wrapper's own messages ("Wrote 3 record(s)…", errors) also go to standard error. Unit tests run generated scripts in a real Node process, including scripts with all those characters, with clashing helper names, and with logging. Browser tests check that such solutions pass the checker, then download `solve.mjs` and `sample.json` and checks that Node's output equals the browser's output.
+- **Standard output stays valid JSON.** Both the supplied and global `console` write to stderr, so logging at the top level or inside `transform` stays separate. Operational messages also use stderr. Unit tests run generated scripts in real Node processes with special characters, clashing helpers and both console paths. Browser tests download passing solutions and compare Node output with the browser.
+- **Input files are protected.** The Case 1 runner checks resolved paths and open-file `dev`/`ino` before truncating output, including symlinks and hard links. The November 10 review reproduced the earlier overwrite and global-console defects before applying these fixes, with five new real-process regressions. Both Case 1 exercises share the corrected generator. Exported scripts run trusted code with normal filesystem permissions, without sandbox limits.
 
 ### Case 2 CSV workflow (Slice 4)
 
-`buildCsvWorkflow(exercise, solved)` returns six `{ name, type, text }` artifacts: `report.mjs`, `parseCsv.mjs`, `contract.mjs`, `package.json`, `jobs-export.csv`, and `README.md`. `CsvToolboxEntry` offers individual Blob downloads on both the solved mission and Toolbox. No archive library, new dependency or backend is involved. Case 1's generator remains unchanged.
+`buildCsvWorkflow(exercise, solved)` returns six `{ name, type, text }` artifacts: `report.mjs`, `parseCsv.mjs`, `contract.mjs`, `package.json`, `jobs-export.csv`, and `README.md`. `CsvToolboxEntry` offers individual Blob downloads on both the solved mission and Toolbox. No archive library, new dependency or backend is involved. Its parser, generator and contract remain unchanged in the Case 3 completion task.
 
 Vite/Vitest `?raw` imports package the actual maintained parser and contract sources as text. The contract's parser import is rewritten to `./parseCsv.mjs`; its mapping and all parsing rules stay identical. The manifest pins Papa Parse 5.7.0, matching the application dependency. Learners run `npm install` once in the download folder; subsequent runs need only those files and the locally installed dependency. The sample is exactly `exercise.csv`. No hidden fixtures or automatic reference solution are exported.
 
@@ -147,8 +150,38 @@ hints, reveal attribution, last check summary and exact passing code use existin
 fields. A stale draft cannot replace the passing code. No new runner or sandbox
 permissions, CSV rules or dependencies were introduced.
 
-Case 3 intentionally has no `exportFileName`, so it cannot create a misleading
-Toolbox file tool. Its solved panel retains the checked code; the existing Copy
-to IDE generator copies its displayed records, contract and current draft as a
-runnable sample-data challenge. It adds no hidden fixture, reference answer or
-file reader. The full Case 3 Node-file workflow is deferred.
+Case 3's `exportFileName: "deduplicate.mjs"` enables its checked Toolbox entry.
+`DoubledTotalsToolboxEntry` is used on the solved page and Toolbox and offers
+three Blob downloads from `buildDoubledTotalsWorkflow(exercise, solved)`:
+`deduplicate.mjs`, `jobs-cleaned.json` and `README.md`. Only `solved.code` enters
+the runner; changing drafts, cancelled checks and subsequent failures cannot
+replace it. Existing saves with a Case 3 solve qualify without migration.
+
+The exported module has only Node built-in imports. A `?raw` import embeds the
+maintained `doubledTotalsContract.js` guards directly (removing their export
+keywords), so the one `.mjs` file is independent of the repository. Input must
+already satisfy the cleaned-record contract, including exact fields, increasing
+unique provenance, string IDs, valid statuses, notes and safe quarter-hour units.
+`line` stays source provenance rather than a JSON file line. Invalid data stops
+before learner code; it is never repaired or cleaned. The whole file is read.
+
+Learner code executes verbatim inside its own anonymous strict function body,
+matching browser declaration scope and isolating helper names. Both lexical and
+global console messages use stderr. Mutation checks compare the input before
+and after execution. Report guards check fields, original content, classification,
+links, complete conflicts, order, exactly-once coverage and totals before and
+after serialization. They never generate a substitute report or contain hidden
+fixture answers. The report is fully ready before any output is opened. Path and
+file-identity checks protect the input even through links; read, JSON, validation,
+execution, serialization and write errors exit unsuccessfully with diagnostics.
+Validation/execution failure leaves old output untouched; a write failure may
+leave incomplete output. Trusted Node code still has normal filesystem access,
+no sandbox timeout and no memory cap. These limits are explicit in the guide.
+
+The existing Copy to IDE generator continues to copy displayed records,
+contract and current draft as a runnable sample-data challenge. It adds no hidden
+fixture, reference answer or file reader. Real-process tests execute both correct
+algorithms across all 17 datasets. Browser tests download the genuine files and
+compare every complete report with actual production worker replies, alongside
+keyboard, stale-code, refresh and gating coverage. No sandbox permissions,
+checker expectations, dependency versions or later milestones changed.

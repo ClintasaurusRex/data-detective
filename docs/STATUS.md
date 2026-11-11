@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 9 November 2026 (Milestone 3 browser mission; Milestone 2 owner QA deferred).
+Last updated: 10 November 2026 (Milestone 3 Node workflow and engineering review complete; owner QA pending).
 
 ## Milestones
 
@@ -8,11 +8,84 @@ Last updated: 9 November 2026 (Milestone 3 browser mission; Milestone 2 owner QA
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Complete and owner-approved** |
 | 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
-| 3 | The Doubled Totals | **Contract, checker and browser mission implemented.** Full Node-file export deferred; owner QA pending. |
-| 4 | The Two Exports | Planned |
-| 5 | Your First Reporting Tool | Planned |
+| 3 | The Doubled Totals | **Feature-complete**, including the standalone Node JSON tool. Ready for owner QA, queued for November 14–15, 2026 if practical; approval pending. |
+| 4 | The Two Exports | Planned, unstarted |
+| 5 | Your First Reporting Tool | Planned, unstarted |
 
-## Milestone 3: The Doubled Totals (9 November 2026)
+## Milestone 3 completion and engineering review (10 November 2026)
+
+- Verified clean `feature/milestone-3-doubled-totals` at
+  `691f9a6a9aa156aaf36760ad13084a7a6e32d17b`, tracking the same origin branch.
+  Baseline actually passed 376 unit and 77 Chromium tests, lint and production build.
+- Completed the checked JSON-file Toolbox workflow: `deduplicate.mjs`,
+  `jobs-cleaned.json`, `README.md`. No installation, external dependency or
+  repository is needed to run it with Node 24. It uses exact `solved.code`,
+  rejects invalid cleaned inputs and misleading reports, preserves source
+  provenance and all originals, protects input paths/links, separates logs from
+  JSON and leaves old output untouched on validation/execution failure.
+- Both correct algorithms passed complete browser-worker-to-downloaded-Node
+  report comparisons on **all 17 datasets**, in Chromium and WebKit. Real-process
+  tests cover content, links, whole conflicts, ordering, coverage, exact string
+  IDs, totals, input preservation, console/helper collisions and errors.
+- Fixed verified Case 1 input-overwrite and global-console JSON-corruption
+  defects. Five regressions first failed against the old generator and now pass.
+  Both Case 1 exercises retain their download names and use the protected runner.
+- Fixed invisible later storage write failures, inaccessible-read handling,
+  startup quota hiding readable progress and false backup-success claims.
+  Failed backups preserve the only original and keep the session in memory.
+  Accessible warnings and retry recovery are covered by unit/browser regressions.
+- Confirmed navigation, cancellation, stale-result/checked-code protection,
+  storage version 1, editor features, Copy to IDE, Case 1/2 downloads and sandbox
+  isolation. No lesson, fixture, checker, sandbox-security or dependency changes.
+- Reviewed production screenshots, keyboard/focus, responsive/reduced-motion
+  behavior, table semantics and sampled light/dark Toolbox contrast. Full manual
+  accessibility and owner/device approval remain pending.
+- New [engineering review and backlog](ENGINEERING-REVIEW.md) records severity,
+  reproduction, fixes, browser evidence and limitations. Verified remaining
+  **Medium** issue: concurrent tabs can overwrite saved snapshots; use one active
+  editing tab pending separate persistence ownership/conflict work. **Low**:
+  WebKit error-line omissions and cross-engine test-harness portability.
+- No commits, pushes, PR changes, merges or deployments. Cases 4/5 unstarted.
+
+### Completion verification
+
+Executed on Node **v24.18.0**, npm **11.16.0**; `.nvmrc`'s exact 24.22.1 patch
+was not installed. Full `npm run check` passed:
+
+| Check | Actual result |
+| --- | --- |
+| ESLint | Pass, no warnings |
+| Vitest | **500 passed**, 13 files |
+| Production build | Pass; JavaScript 409.66 kB / 125.79 kB gzip |
+| Playwright Chromium | **90 passed** |
+| Extra WebKit 26.6 run | **83 passed, 7 failed**: 4 unsupported clipboard permission setups, 2 missing error-line details, 1 synchronous worker-constructor expectation |
+| System Firefox 159.0.1 | All 7 + 13 + 17 mission datasets and targeted persistence, timeout, Stop, recovery and isolation probes passed via native BiDi; full Playwright Firefox unavailable |
+
+A separate WebKit HTTP/WebSocket control probe received zero requests despite
+its asynchronous URL-worker constructor behavior. Firefox network probes also
+received zero requests. No browser installation or large dependency was added.
+WebKit results are not claimed as a completely passing suite or native Safari
+coverage. The full review explains clipboard, diagnostic, assistive-technology,
+memory, write-atomicity and concurrent-tab limitations. Restricted subprocess
+and server checks were rerun with permitted local access; failures were not
+counted as successful checks.
+
+Current changed files:
+
+- Application: `src/App.jsx`, `src/storage/progress.js`,
+  `src/missions/doubledTotals.js`, `src/components/DoubledTotalsView.jsx`,
+  `src/components/ToolboxEntry.jsx`, `src/components/DoubledTotalsToolboxEntry.jsx`,
+  `src/export/nodeScript.js`, `src/export/doubledTotalsWorkflow.js`,
+  `src/export/doubledTotalsContract.js`.
+- Tests: `tests/unit/doubledTotals.test.js`,
+  `tests/unit/doubledTotalsWorkflow.test.js`, `tests/unit/exportScript.test.js`,
+  `tests/unit/progress.test.js`, `tests/e2e/doubledTotals.spec.js`,
+  `tests/e2e/doubledTotalsWorkflow.spec.js`, `tests/e2e/progress.spec.js`.
+- Documentation: `README.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`,
+  `docs/STATUS.md`, `docs/ENGINEERING-REVIEW.md`,
+  `docs/cases/01-missing-jobs.md`, `docs/cases/03-doubled-totals.md`.
+
+## Milestone 3 browser mission (9 November 2026; historical record)
 
 - Initial inspection: expected branch `feature/milestone-3-doubled-totals`, clean
   working tree, HEAD `e2ed1d791d47023a01afc619d12be8e328b764c7`. Recent checkpoints
@@ -110,6 +183,20 @@ weekend of November 14–15. Automated results do not substitute for manual revi
 - [ ] Download all six Node CSV files into a fresh separate directory and run `npm install`.
 - [ ] Run sample and another CSV, print/save JSON, inspect records/line numbers/totals, and exercise error paths.
 - [ ] Perform final regression checks of Case 1, Case 2 and their Toolbox downloads before approval.
+
+## Owner QA backlog — Milestone 3, November 14–15, 2026 if practical
+
+**Ready for review; not owner-approved.** Automated checks do not substitute for
+owner approval. Use one active editing tab while reviewing saved progress.
+
+- [ ] Review the investigation, predictions, hints, explanation and conflict terminology.
+- [ ] Inspect exact originals, leading zeros, notes, links, full conflicts and the reliable subtotal.
+- [ ] Switch all three missions, refresh and confirm stale drafts preserve the earlier passing Toolbox code.
+- [ ] Review keyboard/focus, audit tables, reduced motion and responsive layouts on owner devices.
+- [ ] Copy to IDE, edit/run the sample challenge and paste code back for checking.
+- [ ] Download the three Case 3 files to a fresh folder; run Node 24 print/save commands without npm install.
+- [ ] Reconcile all eight originals and 3.5 kept hours, try another cleaned JSON file, investigate conflicts and test errors.
+- [ ] Verify storage warnings and Case 1/2 download regressions before final approval.
 
 ## Milestone 2, Slice 4: Complete Node CSV workflow (9 November 2026; historical record)
 
@@ -315,7 +402,11 @@ What the tests cover:
 - **Acceptance 8:** keyboard-only flow (Tab to fields, Enter to submit, Ctrl+Enter to run, Tab and Enter to check) with a 3 px solid focus outline. At 375 px wide: no horizontal scroll, Run, Check and the download buttons fit on screen, and the reduced-motion stamp has no animation. Desktop (1280 px) and phone screenshots are in [screenshots/](screenshots/).
 - The development server (`npm run dev`) was also checked once: the runner works there, with no page errors.
 
-## Known issues and limits
+## Known issues and limits (historical Milestone 1 review)
+
+The current browser evidence and severity backlog are in
+[ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). The following records what had
+and had not been checked at the original Milestone 1 checkpoint.
 
 - Browser checks ran in **Chromium only**. Firefox and Safari are **unverified**, and sandboxed blob workers may behave differently there.
 - No memory cap for learner code (browsers don't provide one). Untested: a very fast allocation loop might exhaust the tab before the 2 s timeout.
@@ -325,10 +416,9 @@ What the tests cover:
 
 ## Owner review checkpoint
 
-Milestone 3's contract, checker and browser mission are ready for owner review
-after the verification above. Its full Node-file workflow remains outside this
-task. Milestone 2 is checkpointed and feature-complete; its final owner QA remains
-pending for November 14–15, 2026. No automated result substitutes for owner approval.
+Milestone 3's browser mission and standalone Node JSON-file workflow are
+feature-complete and ready for owner QA, queued for November 14–15, 2026 if
+practical. Milestone 2's owner QA and final approval remain pending for that
+weekend. Neither milestone becomes owner-approved through automated results.
 
-Stop after this Milestone 3 browser task. Do not begin another milestone or the
-Case 3 Node-file workflow without separate authorization.
+Stop after this completion and review task. Do not begin Milestones 4 or 5.

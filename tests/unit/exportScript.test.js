@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { link, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -187,5 +187,27 @@ function transform(rows) {
     const result = await node(["throws.mjs", "sample.json"]);
     expect(result.code).toBe(1);
     expect(result.stderr).toMatch(/stopped with an error/);
+  });
+
+  it.each(["input.json", "./input.json", "symlink.json", "hardlink.json"])("protects Case 1 input reached through %s", async output => {
+    const input = buildSampleJson(completed.rows);
+    await writeFile(join(dir, "input.json"), input);
+    await rm(join(dir, "symlink.json"), { force: true });
+    await rm(join(dir, "hardlink.json"), { force: true });
+    await symlink(join(dir, "input.json"), join(dir, "symlink.json"));
+    await link(join(dir, "input.json"), join(dir, "hardlink.json"));
+    const result = await node(["solve.mjs", "input.json", output]);
+    expect(result.code).toBe(1);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toMatch(/different file|points to the input/);
+    expect(await readFile(join(dir, "input.json"), "utf8")).toBe(input);
+  });
+
+  it("routes Case 1 global console calls to stderr as well as lexical calls", async () => {
+    await writeFile(join(dir, "global-log.mjs"), script('globalThis.console.log("global loading log");\n' + completed.solution.code));
+    const result = await node(["global-log.mjs", "sample.json"]);
+    expect(result.code).toBe(0);
+    expect(result.stderr).toContain("global loading log");
+    expect(JSON.parse(result.stdout).map(row => row.id)).toEqual(["J-101", "J-102", "J-104"]);
   });
 });

@@ -2,10 +2,12 @@ import { buildNodeScript, buildSampleJson, downloadText } from "../export/nodeSc
 import { CodeBlock } from "./common.jsx";
 import { formatDate, solvedLabel } from "./format.js";
 import { CsvToolboxEntry } from "./CsvToolboxEntry.jsx";
+import { DoubledTotalsToolboxEntry } from "./DoubledTotalsToolboxEntry.jsx";
 
 // One checked script in the Toolbox, with downloads and instructions.
 export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
   if (exercise.outputKind === "accepted-rejected") return <CsvToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
+  if (exercise.outputKind === "deduplication") return <DoubledTotalsToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
   const Heading = `h${headingLevel}`;
   const fileName = exercise.exportFileName;
 
@@ -56,6 +58,7 @@ export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
           </li>
           <li>
             To save the result instead, run <code>node {fileName} sample.json result.json</code>.
+            {" "}Choose a separate output file; the runner protects the input, including links to it.
           </li>
           <li>Try it on your own JSON file, as long as it&rsquo;s an array of records with the same fields.</li>
           <li>
@@ -68,6 +71,7 @@ export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
           it: browser code can&rsquo;t open files on your computer. The Node script adds the missing part. It reads a
           JSON file from your disk, runs your function, and prints or saves the result.
         </p>
+        <p><strong>Only run code you trust.</strong> The downloaded script has normal filesystem permissions and no sandbox timeout.</p>
       </details>
     </article>
   );

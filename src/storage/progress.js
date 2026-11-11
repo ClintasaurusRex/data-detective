@@ -87,11 +87,9 @@ export function sanitiseState(data, { cases, exercises }) {
 
 function safeStorage() {
   try {
-    const storage = globalThis.localStorage;
-    const probe = "data-detective:probe";
-    storage.setItem(probe, "1");
-    storage.removeItem(probe);
-    return storage;
+    // A full quota can block writes while existing progress is still readable.
+    // Load it first; the debounced save reports write failures to the learner.
+    return globalThis.localStorage;
   } catch {
     return null;
   }
@@ -112,7 +110,11 @@ export function loadState(catalogue, storage = safeStorage()) {
   try {
     raw = storage.getItem(STORAGE_KEY);
   } catch {
-    raw = null;
+    return {
+      state: fresh,
+      storage: null,
+      notice: "Your saved progress couldn't be accessed. The app is working in memory and will leave existing storage alone. Copy your code before refreshing or closing this page.",
+    };
   }
   if (raw === null) return { state: fresh, storage, notice: null };
   try {
@@ -120,15 +122,19 @@ export function loadState(catalogue, storage = safeStorage()) {
     if (!parsed || typeof parsed !== "object" || parsed.version !== 1) throw new Error("unknown format");
     return { state: sanitiseState(parsed, catalogue), storage, notice: null };
   } catch {
+    let backedUp = false;
     try {
       storage.setItem(BACKUP_KEY, raw);
+      backedUp = true;
     } catch {
-      // Nothing more we can do; carry on with a fresh start.
+      // Preserve the unreadable original if its backup cannot be written.
     }
     return {
       state: fresh,
-      storage,
-      notice: `Your saved progress couldn't be read, so the app started fresh. A copy of the old data was kept in this browser's storage under "${BACKUP_KEY}".`,
+      storage: backedUp ? storage : null,
+      notice: backedUp
+        ? `Your saved progress couldn't be read, so the app started fresh. A copy of the old data was kept in this browser's storage under "${BACKUP_KEY}".`
+        : "Your saved progress couldn't be read or backed up. The original was left in storage; this session is working in memory. Copy your code before refreshing or closing this page.",
     };
   }
 }

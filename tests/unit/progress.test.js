@@ -106,7 +106,21 @@ describe("saved progress", () => {
         throw new Error("blocked");
       },
     };
-    expect(loadState(catalogue, throwing).notice).toBeNull();
+    const loaded = loadState(catalogue, throwing);
+    expect(loaded.notice).toMatch(/couldn't be accessed/);
+    expect(loaded.storage).toBeNull();
     expect(saveState({}, throwing)).toBe(false);
+  });
+
+  it("leaves unreadable progress untouched when its backup cannot be saved", () => {
+    const storage = memoryStorage({ [STORAGE_KEY]: "{bad json" });
+    storage.setItem = () => { throw new Error("quota"); };
+    const loaded = loadState(catalogue, storage);
+    expect(loaded.notice).toContain("couldn't be read or backed up");
+    expect(loaded.notice).not.toContain("copy of the old data was kept");
+    expect(loaded.storage).toBeNull();
+    expect(saveState(loaded.state, loaded.storage)).toBe(false);
+    expect(storage.getItem(STORAGE_KEY)).toBe("{bad json");
+    expect(storage.getItem(BACKUP_KEY)).toBeNull();
   });
 });

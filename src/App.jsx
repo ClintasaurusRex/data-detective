@@ -8,24 +8,30 @@ import { CaseView } from "./components/CaseView.jsx";
 import { ToolboxEntry } from "./components/ToolboxEntry.jsx";
 
 const catalogue = { cases: playableCases, exercises: allExercises };
+const SAVE_FAILURE_NOTICE = "Your latest changes couldn't be saved in this browser. Keep this page open and copy your code to your editor before refreshing or closing it. The app will try saving again when you make a change.";
 
 function useProgress() {
   const [loaded] = useState(() => loadState(catalogue));
   const [state, setState] = useState(loaded.state);
   const [notice, setNotice] = useState(loaded.notice);
   const latest = useRef(state);
+  const persist = useCallback((value) => {
+    if (!loaded.storage) return;
+    if (!saveState(value, loaded.storage)) setNotice(SAVE_FAILURE_NOTICE);
+    else setNotice(current => current === SAVE_FAILURE_NOTICE ? null : current);
+  }, [loaded.storage]);
 
   useEffect(() => {
     latest.current = state;
-    const timer = setTimeout(() => saveState(state, loaded.storage), 250);
+    const timer = setTimeout(() => persist(state), 250);
     return () => clearTimeout(timer);
-  }, [state, loaded.storage]);
+  }, [state, persist]);
 
   useEffect(() => {
-    const flush = () => saveState(latest.current, loaded.storage);
+    const flush = () => persist(latest.current);
     window.addEventListener("pagehide", flush);
     return () => window.removeEventListener("pagehide", flush);
-  }, [loaded.storage]);
+  }, [persist]);
 
   const updateExercise = useCallback((id, fn) => {
     setState((s) => ({ ...s, exercises: { ...s.exercises, [id]: fn(s.exercises[id]) } }));
@@ -190,11 +196,10 @@ function Toolbox({ solvedExercises, state }) {
   return (
     <section aria-labelledby="toolbox-title">
       <h2 id="toolbox-title">Your Toolbox</h2>
-      <p>Downloadable scripts you&rsquo;ve checked. Case 1 reads JSON files; Case 2 reads CSV files after installing its parser dependency. Each tool includes instructions for running it independently with Node.</p>
-      <p>Case 3 keeps its checked code on the mission page. Its full file-processing tool is not available yet; Copy to IDE provides the sample-data exercise.</p>
+      <p>Downloadable scripts you&rsquo;ve checked. Cases 1 and 3 read JSON files; Case 2 reads CSV files after installing its parser dependency. Each tool includes instructions for running it independently with Node.</p>
       {solvedExercises.length === 0 ? (
         <p className="panel muted">
-          Nothing downloadable yet. Pass Case 1 or Case 2&rsquo;s checks to keep its working script here: a JSON tool for Case 1 or a CSV reporting tool for Case 2.
+          Nothing downloadable yet. Pass a case&rsquo;s checks to keep its working script here: JSON tools for Cases 1 and 3, or a CSV reporting tool for Case 2.
         </p>
       ) : (
         solvedExercises.map((exercise) => (

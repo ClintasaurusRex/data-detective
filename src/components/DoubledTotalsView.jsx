@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CodeBlock, RecordTable, RichText } from "./common.jsx";
 import { solvedLabel } from "./format.js";
 import { Workbench } from "./Workbench.jsx";
+import { ToolboxEntry } from "./ToolboxEntry.jsx";
 
 export function DoubledTotalsView({ caseDef, caseState, updateCase, exerciseStates, updateExercise, runner }) {
   const exercise = caseDef.exercises[0];
@@ -59,7 +60,7 @@ export function DoubledTotalsView({ caseDef, caseState, updateCase, exerciseStat
     <section className="panel" aria-labelledby="investigate-title">
       <h3 id="investigate-title">Reconcile the report</h3>
       <p>Experiment with one ID at a time and log what you find. Run shows your actual audit trail. Check solution tests all {exercise.checks.length} datasets before recording a solve.</p>
-      <p className="small">Copy to IDE gives you this sample and your current draft as challenge.js. It does not read files; a full Case 3 Node-file workflow is not available yet.</p>
+      <p className="small">Copy to IDE gives you this sample and your current draft as challenge.js. After all checks pass, the Toolbox offers a separate Node tool that reads a cleaned JSON file.</p>
       <Workbench exercise={exercise} state={state} update={fn => updateExercise(exercise.id, fn)} runner={runner} beforeRun={beforeRun} describeRun={describeRun}
         challenge={{ caseNumber: 3, caseTitle: caseDef.title, exerciseTitle: exercise.title, request: caseDef.request,
           requestFrom: `${caseDef.colleague.name}, ${caseDef.colleague.role}`, goal: exercise.goal, rules: caseDef.rules, rows: exercise.rows }} />
@@ -68,8 +69,7 @@ export function DoubledTotalsView({ caseDef, caseState, updateCase, exerciseStat
       <h3 id="solved-title">{stale ? "Your earlier audit passed" : "Case solved"}</h3>
       <p>{solvedLabel({ ...state.solved, solutionRevealed: state.solutionRevealed })}. Your checked code accounts for every occurrence and only totals safely retained jobs. Sam has a traceable list of questions for the crews.</p>
       <p>{stale ? "Your draft has changed and needs checking again. Your last passing code is preserved below." : "Explain why excluding conflicting versions is different from saying no work happened. Reconcile the lists as well as the subtotal."}</p>
-      <details><summary>Inspect the code that passed</summary><CodeBlock code={state.solved.code} label="Last passing Case 3 code" /></details>
-      <p className="small">Checked code is saved here. The Toolbox continues to offer Case 1 and 2 tools; Case 3 has no full file-processing download yet.</p>
+      <ToolboxEntry exercise={{ ...exercise, caseTitle: caseDef.title, caseNumber: caseDef.number }} solved={state.solved} headingLevel={4} />
     </section>}
   </article>;
 }

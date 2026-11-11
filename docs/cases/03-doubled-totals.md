@@ -1,9 +1,10 @@
 # Case 3: The Doubled Totals
 
-Status: **contract, checker and browser mission implemented; ready for owner QA**.
-The contract was defined before checker implementation. The full Node
-file-processing export is outside this task. Case 3 does not imply owner approval
-of Case 2; its manual QA remains deferred to November 14–15, 2026.
+Status: **feature-complete, including the standalone Node JSON-file workflow;
+ready for owner QA, approval pending**. Owner review is queued for November
+14–15, 2026. The contract was defined before checker implementation. Case 3
+does not imply owner approval of Case 2; its manual QA remains deferred to
+November 14–15, 2026.
 
 ## The request
 
@@ -24,9 +25,11 @@ Case 2 completion and CSV parsing are not prerequisites.
 { line: 2, id: "00110", status: "complete", hours: 2, notes: "Meter swap" }
 ```
 
-- `line` is the unique positive integer physical line in the combined staging
-  file. Rows are in file order, with increasing lines; gaps are allowed. This
-  identifies an occurrence, not a job, and is excluded from business equality.
+- `line` is the unique positive integer physical line in the source combined
+  staging file, carried in the cleaned record as provenance. It is not a physical
+  line number in the JSON input. Rows are in source order, with increasing lines;
+  gaps are allowed. This identifies an occurrence, not a job, and is excluded
+  from business equality.
 - `id` is a nonblank, already-trimmed string. It is the explicit unique job key.
   Compare it exactly: `"0007"`, `"7"`, `"Job-A"`, and `"job-a"` are distinct IDs.
   Never convert IDs to numbers, trim them again, or change their capitalization.
@@ -119,9 +122,9 @@ not disclose the expected subtotal or treat matching counts as proof. Check
 solution verifies all datasets before saving the exact passing code. Editing a
 draft or failing a later check preserves the earlier passing solution. Drafts,
 quarter-hour predictions, hints, reveal attribution and checks survive refresh
-under the existing storage version. Case 3's checked code stays on its mission
-page; Copy to IDE reproduces its sample and current draft, without hidden
-datasets, a reference answer or a file reader. It adds no Toolbox file tool yet.
+under the existing storage version. Case 3's checked code appears on its mission
+page and in the Toolbox's JSON-file tool. Copy to IDE reproduces the sample and
+current draft, without hidden datasets, a reference answer or a file reader.
 
 ## The 17 checking datasets
 
@@ -146,3 +149,68 @@ datasets, a reference answer or a file reader. It adds no Toolbox file tool yet.
 | IDs are data, not object properties | Map supports arbitrary string keys, including names inherited by plain objects. | 2, 3, 5 | 4 → 2 | none | 3 |
 
 Expected output records are the unchanged originals at these lines. The line-based expected answers are fixture data, not computed by a production reference solver. Unit tests verify them against an independent per-occurrence algorithm as well as the lesson solution.
+
+## Standalone Node JSON workflow
+
+Only passing **Check solution** on all 17 datasets creates a Toolbox entry.
+Run, a failed check or a cancelled check cannot create one. The entry uses
+`solved.code`, never the current editor draft or the latest failed check.
+Editing during a check retains the exact code being checked and marks a changed
+draft stale. Refresh preserves that same last passing version.
+
+Download all three files into a fresh folder:
+
+| File | Purpose |
+| --- | --- |
+| `deduplicate.mjs` | Exact checked code, file runner, input and report guards |
+| `jobs-cleaned.json` | The displayed fictional case-file records |
+| `README.md` | Node setup, commands, input contract, conflict investigation, reconciliation and errors |
+
+With Node 24 installed, open a terminal in that folder:
+
+```bash
+node deduplicate.mjs jobs-cleaned.json
+node deduplicate.mjs jobs-cleaned.json report.json
+node deduplicate.mjs another-week.json another-report.json
+```
+
+No npm install, external dependencies or source repository is required. The
+first path supplies a JSON array with exactly the five cleaned fields. The
+optional second path saves the four-field JSON report instead of printing it.
+Quote paths containing spaces. Console messages, diagnostics and save confirmations
+use stderr; stdout contains JSON alone. Errors exit with code 1; success uses 0.
+
+The runner validates the whole input before loading learner code. It rejects
+wrong fields/types, blank or untrimmed IDs, unknown statuses, invalid hours and
+nonpositive, repeated or out-of-order provenance. Lines must be safe integers;
+individual and combined quarter-hour units must fit JavaScript's safe integer
+range. These guards keep the established small, exact-number contract honest
+on external files. A leading UTF-8 byte-order mark is accepted as file metadata;
+original field content is never cleaned or renumbered.
+
+The result must have exactly `{ kept, duplicates, conflicts, totalHours }`.
+Guards check originals, classification, every occurrence exactly once, links,
+ordering, complete unresolved groups and the sum before and after JSON
+serialization. They reject a misleading report rather than supplying a corrected
+answer. Input mutation, code and serialization failures stop without touching an
+existing output or creating a new one. The input is protected by resolved path
+and open-file identity, including symlinks and hard links. An output write failure
+can leave an incomplete report; require a successful exit and save confirmation.
+
+Investigate every conflicting ID with the crews using the preserved versions and
+source lines. Resolve the authoritative information in the source process before
+preparing another input. Never silently retain the first or last disputed version.
+The reliable total intentionally excludes unresolved jobs, without claiming zero
+work occurred. Verify sample lines, links and all records, then sum kept hours:
+3 kept + 2 copies + 3 conflicting originals = 8 records, with 3.5 reliable hours.
+The downloaded README reconciles the 17 raw hours and explains the 10 unverified
+hours attached to conflict `00111`.
+
+Only execute trusted learner code: Node has normal filesystem permissions and
+no browser sandbox, timeout or memory limit. The whole file is read into memory.
+The script includes only the learner's checked code, validation/file helpers and
+instructions; it contains no hidden checking datasets or automatic reference
+solution. All 17 complete reports are compared between actual production
+browser-worker replies and downloaded Node executions, with both correct
+algorithms. Negative tests cover input, report, file, collision, console,
+serialization and persistence failures. Owner approval remains separate.

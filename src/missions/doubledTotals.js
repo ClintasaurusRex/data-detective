@@ -53,7 +53,7 @@ export const doubledTotalsCase = {
   target: "Keep safe jobs once, link exact copies to their originals, and set aside every version of a conflicting job for review.",
   rules,
   exercises: [{
-    id: "doubled-totals", title: "Reconcile the combined weekly export", outputKind: "deduplication",
+    id: "doubled-totals", title: "Reconcile the combined weekly export", outputKind: "deduplication", exportFileName: "deduplicate.mjs",
     goal: "Return kept originals, linked duplicate occurrences, complete conflict groups and a reliable hours subtotal.",
     rules, rows: doubledTotalsDatasets.caseFile.rows,
     checks: Object.entries(doubledTotalsDatasets).map(([id, dataset]) => ({ id, ...dataset })),

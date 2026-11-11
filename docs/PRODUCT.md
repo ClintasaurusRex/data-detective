@@ -38,7 +38,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | --- | --- | --- |
 | 1 | The Missing Jobs | **Done; owner-approved** (see [STATUS.md](STATUS.md)) |
 | 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
-| 3 | The Doubled Totals | Browser mission, contract and checker implemented; ready for owner QA; full Node-file export deferred |
+| 3 | The Doubled Totals | Feature-complete, including standalone Node JSON tool; owner QA queued for November 14–15, 2026; approval pending |
 | 4 | The Two Exports | Planned |
 | 5 | Your First Reporting Tool | Planned |
 
@@ -59,7 +59,7 @@ The browser mission teaches CSV parsing and data validation through an export wi
 - Report rejected rows with reasons.
 - Add a Node CSV runner alongside the browser's parsed-record exercise.
 
-### Milestone 3: The Doubled Totals (browser mission implemented)
+### Milestone 3: The Doubled Totals (feature-complete; owner QA pending)
 
 Sam Okafor's combined weekly export appears to count too many hours. Learners
 group cleaned records by exact string ID, compare status/hours/notes, and return
@@ -76,8 +76,14 @@ line identifies an occurrence rather than business equality.
   hints and confirmed explained solution, Copy to IDE and independently saved progress.
 - Quarter-hour values require no rounding lesson. Every original is accounted for once;
   conflicting versions never have an arbitrary winner.
-- No full Node-file export yet; checked code stays on the mission page and Copy to IDE
-  runs the sample-data exercise. No Milestone 4 or 5 work.
+- Toolbox and solved page download the last passing code as a dependency-free
+  JSON-file tool: `deduplicate.mjs`, `jobs-cleaned.json`, `README.md`.
+- The Node runner rejects invalid cleaned inputs and incorrect reports, preserves
+  originals and provenance, protects the input file and separates logs from JSON.
+  Beginner instructions cover trusted code, Node 24, conflict investigation and
+  independent reconciliation. Complete browser/Node parity covers all 17 datasets.
+- Copy to IDE remains the current-draft sample exercise. Owner review is queued
+  for November 14–15, 2026, with approval pending. No Milestone 4 or 5 work.
 
 See [cases/03-doubled-totals.md](cases/03-doubled-totals.md) for the precise contract.
 

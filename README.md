@@ -2,11 +2,11 @@
 
 A friendly learning app for writing useful workplace data scripts in JavaScript.
 
-You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Case 1 provides a standalone Node JSON script; Case 2 provides a complete Node CSV reporting tool.
+You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Cases 1 and 3 provide standalone Node JSON tools; Case 2 provides a complete Node CSV reporting tool.
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Case 3, **The Doubled Totals**, now has a playable browser mission: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its full Node-file export is deferred. Cases 4–5 remain planned; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Cases 4–5 remain planned and unstarted; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -41,7 +41,7 @@ The app is static. After `npm run build`, the `dist/` folder can be served from 
 | Command | What it does |
 | --- | --- |
 | `npm run lint` | ESLint |
-| `npm test` | Unit tests (Vitest): checking logic, saved progress, the exported Node script (run in a real Node process), the sandbox CSP and runner messaging, the CSV parser and the Case 2 data contract |
+| `npm test` | Unit tests (Vitest): all three mission contracts/checkers, saved progress, exported tools run in real Node processes, the sandbox CSP and runner messaging, and CSV parsing |
 | `npm run build` | Production build into `dist/` |
 | `npm run test:e2e` | Browser tests (Playwright, Chromium) against the production build: the learner journey, keyboard use, a phone-sized screen, runner errors and recovery, and the isolation boundaries |
 | `npm run check` | All of the above, in that order |
@@ -76,7 +76,7 @@ Each layer is separate, so later cases add mission content, datasets and the app
 
 Case 2 introduces CSV. The contract, parser and datasets (Slice 1), `{ accepted, rejected }` checker (Slice 2), playable browser investigation (Slice 3), and standalone Node CSV workflow (Slice 4) are implemented. Use the sidebar to switch cases; hash URLs preserve location through Back, Forward and refresh. Each mission saves its own progress without resetting Case 1. Broken CSV examples stop the whole file before validation. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
 
-Case 3 is independently playable at `#/case/doubled-totals`; no Case 2 completion is needed. Use the exact string job ID as a key, compare business fields, and separate safe originals, linked exact duplicates and whole conflict groups. Only safely retained records contribute to the reliable subtotal. The lesson teaches Map, Set, grouping, equality, provenance and verification through 17 checking datasets. Prediction, hints, explained solution, editor controls and saved progress follow the earlier cases. Copy to IDE provides the sample-data challenge; Case 3 does not add a file-processing Toolbox download. See [the Case 3 contract](docs/cases/03-doubled-totals.md).
+Case 3 is independently playable at `#/case/doubled-totals`; no Case 2 completion is needed. Use the exact string job ID as a key, compare business fields, and separate safe originals, linked exact duplicates and whole conflict groups. Only safely retained records contribute to the reliable subtotal. The lesson teaches Map, Set, grouping, equality, provenance and verification through 17 checking datasets. Prediction, hints, explained solution, editor controls and saved progress follow the earlier cases. Copy to IDE provides the current draft as a sample-data challenge; the Toolbox exports the last passing code with a real JSON-file runner. See [the Case 3 contract](docs/cases/03-doubled-totals.md).
 
 ## Use your Case 2 CSV tool
 
@@ -93,6 +93,26 @@ node report.mjs another-export.csv another-report.json
 
 The script contains the last passing solution, even after the browser draft changes. Only run code you trust: Node has normal filesystem permissions. The downloaded README explains filesystem access, dependencies, arguments, parsing versus validation, errors and report verification. Copy to IDE stays a separate parsed-record exercise.
 
+## Use your Case 3 JSON tool
+
+Pass all 17 checks, then download `deduplicate.mjs`, `jobs-cleaned.json`, and `README.md` into a new folder. With Node 24 installed, open a terminal there:
+
+```bash
+node deduplicate.mjs jobs-cleaned.json
+node deduplicate.mjs jobs-cleaned.json report.json
+node deduplicate.mjs another-week.json another-report.json
+```
+
+No npm install or additional dependency is needed. The first argument supplies input; the optional second saves JSON instead of printing it. Console messages and errors go to stderr, keeping stdout valid JSON. Quote paths with spaces. The script contains the exact last passing code; editing or failing a subsequent check does not replace it.
+
+Supply a JSON array of already-cleaned `{ line, id, status, hours, notes }` records. `line` is carried source provenance, never a fabricated physical JSON line. IDs stay exact strings, hours are numeric nonnegative quarter-hour values, and notes remain unchanged. Invalid input is rejected instead of cleaned. The runner validates all four report fields, complete original accounting, ordering, duplicate links, conflicts and the reliable total before opening output. Input paths and file links are protected against accidental overwrite. Validation or execution failure leaves an existing report unchanged; an output write failure can leave an incomplete file, so require a successful exit before using it.
+
+`kept` contains safe first occurrences; `duplicates` links later exact copies to them; `conflicts` preserves every version of each disputed job. `totalHours` sums only kept hours across all statuses. Check every original and link, then add kept hours independently. For the sample, 3 kept + 2 duplicates + 3 conflicting occurrences account for 8 records; kept hours total **3.5**. Ask the crews which version of conflict `00111` is authoritative. Unresolved conflicting jobs are excluded intentionally; that does not mean no work happened. The downloaded README explains the full reconciliation and error recovery.
+
+Only run trusted learner code. Node has normal filesystem permissions, with no browser sandbox, timeout or memory cap. Start with small files. The tool includes the displayed sample and validation helpers, with no hidden fixtures or automatically supplied reference solution.
+
 ## Privacy
 
 Everything stays in your browser. Drafts and progress are saved in `localStorage` for this site only. All people, places and records are fictional.
+
+If saving fails, the app shows a warning and keeps the current session working in memory; copy your code before refreshing. Use one active editing tab: concurrent tabs can overwrite each other's saved snapshots. See the [engineering review and backlog](docs/ENGINEERING-REVIEW.md) for verified limits, browser coverage and remaining owner QA.

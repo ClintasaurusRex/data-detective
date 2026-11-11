@@ -46,7 +46,7 @@ test("independent investigation, fractional prediction, actual audit, all checks
   await check(page,ID);
   await expect(page.getByTestId("check-summary")).toHaveText("All 17 checks passed.");
   await expect(page.getByTestId("solved-panel")).toContainText("Solved without hints");
-  await expect(page.getByRole("button",{name:/Download/})).toHaveCount(0);
+  await expect(page.getByRole("button",{name:/Download/})).toHaveCount(3);
   await page.getByText("Inspect this dataset",{exact:true}).first().click();
   await expect(page.getByTestId("check-panel")).toContainText("3 kept, 2 duplicates, 1 conflict groups; 3.5 reliable hours");
   await expect.poll(async()=> (await saved(page))?.exercises[ID]?.solved?.code).toBe(solution);
@@ -61,10 +61,9 @@ test("independent investigation, fractional prediction, actual audit, all checks
   await expect.poll(async()=> (await saved(page))?.exercises[ID]?.checked?.passed).toBe(false);
   await page.reload();
   await expect(page.getByTestId(`editor-${ID}`)).toHaveValue("function transform() { return {}; }");
-  await page.getByText("Inspect the code that passed",{exact:true}).click();
-  await expect(page.getByLabel("Last passing Case 3 code")).toContainText("// changed draft");
-  await page.getByRole("link",{name:"Toolbox (0)"}).click();
-  await expect(page.getByTestId(`toolbox-${ID}`)).toHaveCount(0);
+  await expect(page.getByLabel(`Checked code for ${exercise.title}`)).toContainText("// changed draft");
+  await page.getByRole("link",{name:"Toolbox (1)"}).click();
+  await expect(page.getByTestId(`toolbox-${ID}`)).toBeVisible();
 });
 
 test("a different valid algorithm passes the real sandbox checker", async ({page}) => {
@@ -178,9 +177,9 @@ test("three-case navigation, Back, Forward, refresh and existing Toolbox retain 
   const after=await saved(page);
   for(const id of ["missing-jobs","missing-jobs-open","messy-export"]) expect(after.exercises[id]).toEqual(before.exercises[id]);
   expect(after.cases["missing-jobs"]).toEqual(before.cases["missing-jobs"]); expect(after.cases["messy-export"]).toEqual(before.cases["messy-export"]);
-  await page.getByRole("link",{name:"Toolbox (2)"}).click();
+  await page.getByRole("link",{name:"Toolbox (3)"}).click();
   await expect(page.getByTestId("toolbox-missing-jobs")).toBeVisible(); await expect(page.getByTestId("toolbox-messy-export")).toBeVisible();
-  await expect(page.getByTestId(`toolbox-${ID}`)).toHaveCount(0);
+  await expect(page.getByTestId(`toolbox-${ID}`)).toBeVisible();
 });
 
 test("Copy to IDE runs the exact sample challenge and draft without hidden fixtures", async ({page,context}) => {
