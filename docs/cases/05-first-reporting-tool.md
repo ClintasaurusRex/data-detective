@@ -1,8 +1,9 @@
 # Case 5 — Your First Reporting Tool
 
-Slice 1: browser capstone and independent variation; owner approval pending.
-Slice 2's production Node file workflow is deliberately deferred. This contract
-was defined before the checker. Cases 2–4 remain unapproved.
+Feature-complete through Slice 2: browser capstone, independent variation and
+standalone Node workflow. Owner QA/approval is pending. This contract was defined
+before the checker; its business rules are unchanged. Cases 2–4 remain unapproved.
+Final Slice 3 application-wide audit has not started.
 
 ## Investigation and learning
 
@@ -184,7 +185,7 @@ first-reporting-tool-transfer. Its draft, hints, reveal and exact last passing
 code remain separate from first-reporting-tool. Both can be played independently.
 Copy to IDE contains only the active sample, period, current draft and contract;
 no file reader, hidden expected reports or automatic solution. Toolbox retains
-checked browser code only. Production Node downloads await Slice 2 permission.
+each exercise's checked code and standalone downloads, described below.
 
 ## Dataset inventory and explicit accounting
 
@@ -238,3 +239,88 @@ The adapter additionally snapshots inputs for thrown-error paths because the
 shared worker reports mutation only after a successful learner return. A learner
 that changes an invalid period before throwing cannot pass the period checks.
 The sandbox itself, its CSP and its messaging/lifecycle remain unchanged.
+
+
+## Standalone Node reporting workflow (Slice 2)
+
+After all 32 checks pass, both solved pages and the Toolbox offer exactly:
+
+| Download | Contents |
+| --- | --- |
+| weekly-report.mjs | Exact last passing learner code, three-file runner, integrity guards |
+| orders.json | This exercise's displayed raw orders |
+| entries.json | This exercise's displayed raw field-time entries |
+| period.json | This exercise's displayed start/end period |
+| README.md | Beginner setup, commands, concepts, audit verification, errors and safety |
+
+Download all five to a fresh folder with their exact names; keep main and
+variation packages in separate folders. No npm dependencies or repository needed.
+
+```bash
+node weekly-report.mjs orders.json entries.json period.json
+node weekly-report.mjs orders.json entries.json period.json report.json
+node weekly-report.mjs another-orders.json another-entries.json another-period.json weekly-report.json
+```
+
+Use Node 24. The first three arguments are required input paths; the fourth is
+optional output. Missing/extra/empty/unsupported option arguments show usage.
+Without output, stdout is only formatted JSON. Console/global console and
+operational/error messages use stderr. Saving prints the full report path.
+Failure exits nonzero; no successful JSON report is emitted. Require exit 0.
+
+File envelopes require valid JSON arrays of exactly the raw fields above, raw
+strings and unique positive safe-integer lines within each source. Source order
+is preserved, even when lines are nonnumeric in order. Overlapping line numbers
+across files and repeated business IDs are valid. Empty arrays are valid. Period
+must have exactly start/end string fields. Wrong structure stops before learner
+code loads. Optional leading UTF-8 BOM is treated as file metadata.
+
+Blank business fields, malformed hours/dates and unknown statuses do not invalidate
+the file. They reach the checked function unchanged. Invalid period string VALUES
+also reach it: the runner verifies Error("Invalid reporting period"), checks input
+preservation even on this thrown path and refuses incorrect returns/other errors.
+It never conceals a bad implementation by throwing the required error in its place.
+
+Result validation checks every nested field/type, period, ordered original/audit,
+cleaned value and ordered reason, complete conflicts, first-copy links, references,
+disposition precedence, included/excluded occurrence, count vector, group ordering,
+exact hundredths, distinct jobs and full accounting. Evidence is recomputed from
+arbitrary raw files using independent calendar/decimal checks and whole-ID metadata;
+groups/totals reconcile verified included audit items. This necessary verification
+never supplies a replacement report or modifies learner output. Both pre/post-JSON
+validation and input snapshots reject misleading serialization or net input changes.
+Externally supplied reportable sums beyond safe integer hundredths are refused.
+
+The runner protects ALL THREE input paths and their symlink/hard-link aliases via
+resolved paths and open-file identity. Output symlinks and nonregular destinations
+are refused. It stages complete validated JSON beside the destination, syncs and
+closes it, rechecks destination identity and renames. Existing output is preserved
+on input/code/report/preparation/write failures before rename. Handled errors clean
+staging; forced interruption can leave .data-detective- folders. Successful report
+replacement changes metadata/private permissions and does not update other hard
+links to an earlier report. External concurrent path changes, shell redirection,
+power-loss durability and platform/network filesystem semantics remain limits.
+
+Only trusted code should run: Node has normal filesystem/network/process access,
+whole-file memory use, no browser sandbox, no timeout or memory cap. Direct writes
+from learner code are outside these file/console protections. The downloaded guide
+teaches paths/JSON.parse, structural versus business validation, cleaning, IDs and
+visits, conflicts/human review, inclusive periods, exact hundredths, overlapping job
+counts, source reconciliation, rejected/excluded investigation and another week.
+
+Main first-reporting-tool and variation first-reporting-tool-transfer retain
+independent saved code/data/periods. Drafts, failed/stopped checks, edits during
+checking, refresh and navigation cannot substitute unchecked code. Run alone and
+hardcoded sample reports cannot unlock downloads. Both entries are distinguished
+by investigation title. Browser download failures offer complete selectable file
+text and retry; controls/help are keyboard accessible.
+
+Actual downloads execute outside the repository as genuine Node processes.
+Complete browser-worker parity covers all 28 valid scenarios with BOTH the lesson
+and independently structured algorithms for BOTH exercises: 112 full-report
+comparisons per tested engine. Chromium, focused WebKit and targeted native
+Firefox all pass. Each also verifies the four invalid-period scenarios separately
+(16 algorithm/exercise refusals per engine), nonzero exit, empty stdout and
+unchanged existing output; these are not counted as valid-report parity.
+See ../ENGINEERING-REVIEW.md for final counts, limitations and regression evidence.
+Owner approval remains pending; Slice 3 requires separate authorization.

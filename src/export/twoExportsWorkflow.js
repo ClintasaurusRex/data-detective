@@ -1,4 +1,5 @@
 import contractSource from "./twoExportsContract.js?raw";
+import fileSource from "./nodeFileIO.js?raw";
 import runnerSource from "./twoExportsRunner.js?raw";
 import instructions from "./twoExportsREADME.md?raw";
 import { buildSampleJson } from "./nodeScript.js";
@@ -35,6 +36,7 @@ ${code}\n// ---- End of your checked code ----
   ;return typeof reconcile === "function" ? reconcile : undefined;
 }
 
+${fileSource.replace(/^export /gm, "")}
 ${runnerSource}
 `;
 }

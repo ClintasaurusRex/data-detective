@@ -9,7 +9,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
 | Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js`, `src/checking/evaluateDoubledTotals.js`, `src/checking/evaluateTwoExports.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records; Case 3 checks occurrence classification, duplicate links, complete conflicts, order and totals against explicit fixture expectations; Case 4 checks both sources, pairs, missing records, difference fields, whole ambiguity groups and summary |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
-| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/doubledTotalsWorkflow.js`, `src/export/doubledTotalsContract.js`, `src/export/twoExportsWorkflow.js`, `src/export/twoExportsContract.js`, `src/export/twoExportsRunner.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, Case 2 CSV workflow, Case 3 JSON audit workflow and its guards, Case 4 two-source reconciliation and guards, and the "Copy to IDE" `challenge.js` |
+| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/doubledTotalsWorkflow.js`, `src/export/doubledTotalsContract.js`, `src/export/twoExportsWorkflow.js`, `src/export/twoExportsContract.js`, `src/export/twoExportsRunner.js`, `src/export/firstReportingToolWorkflow.js`, `src/export/firstReportingToolContract.js`, `src/export/firstReportingToolRunner.js`, `src/export/nodeFileIO.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, Case 2 CSV workflow, Case 3 JSON audit workflow and its guards, Case 4 two-source reconciliation and guards, Case 5 weekly reporting and guards, shared staged file I/O, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
 
 ## Running learner code
@@ -50,7 +50,7 @@ App page (strict CSP, no eval)
 
 ### Known limitations
 
-- **Browser coverage varies.** Current verification passed the full 129-test Chromium suite, 39 focused Case 4 WebKit 26.6 tests (including downloaded Node parity), and all four missions' 57 dataset checks in system Firefox 159.0.1 via native BiDi. Firefox also passed targeted persistence, timeout, Stop, recovery, download availability and isolation probes; its Playwright-specific build is unavailable. These are not full native Safari/iOS or Firefox certifications. Historical full-suite WebKit clipboard/diagnostic/constructor harness limits remain documented in [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). If a browser cannot create a worker, the learner sees “Runner unavailable”; code never falls back to the app thread.
+- **Browser coverage varies.** Slice 2 verification passes the full 156-test Chromium suite, 34 focused WebKit tests (Case 5 and Case 4 workflows), and 128 targeted system Firefox scenario executions with actual-download Node parity. The four algorithm/exercise combinations each compare all 28 valid reports and separately refuse four invalid periods. Firefox uses native BiDi because its Playwright build is unavailable. These are not full native Safari/iOS or Firefox certifications. Historical full-suite WebKit clipboard/diagnostic/constructor harness limits remain documented in [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). If a browser cannot create a worker, the learner sees “Runner unavailable”; code never falls back to the app thread.
 - **No memory limit.** Browsers don't offer one for workers. Code that allocates memory very quickly could exhaust the worker, or possibly the tab, before the 2-second timeout. This wasn't tested.
 - **CSP is set with `<meta>` tags**, so `frame-ancestors` and reporting can't be set. A host that supports response headers could add them. The development server (`npm run dev`) omits the app page CSP because Vite's hot reload needs inline scripts; the sandbox CSP applies in development too.
 - **The iframe posts results to the app with target origin `"*"`**, because an opaque origin can't name its parent's origin. Messages only contain run results. The app checks the sender's window and origin.
@@ -74,7 +74,7 @@ Failed debounced writes display an alert explaining that the latest changes are 
 
 Case 1’s identifiers and save shape are preserved. Case 2 adds `cases["messy-export"].prediction` as `{ accepted, rejected }` or `{ skipped: true }`, and an exercise with the same stable ID. Its optional `checked: { code, passed }` retains the last completed check across refreshes. Draft, previous draft, hints, reference reveal and the exact passing code reuse the existing exercise fields. Detailed run output/check feedback is visit-local; after refresh a saved check summary invites checking again for full feedback.
 
-A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Cases 1–4's Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
+A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Cases 1–5's Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
 
 ## Export
 
@@ -287,7 +287,7 @@ Current counts and engine-specific limits are in ENGINEERING-REVIEW.md; the olde
 browser evidence above is historical, not a full current cross-engine claim.
 
 
-## Case 5: weekly reporting capstone (Slice 1)
+## Case 5: weekly reporting capstone (Slices 1–2)
 
 `firstReportingTool.fixtures.js` holds 32 recursively frozen scenarios with
 explicit cleaned values, per-occurrence dispositions, reasons, links, summary
@@ -322,5 +322,59 @@ original/cleaned audit items; malformed results remain available in raw JSON.
 Lists are capped at 200 rendered items with complete returned JSON retained.
 
 Copy to IDE adds only the active sample, period, draft and direct function call.
-The Toolbox keeps browser code without downloads. Slice 2's production Node file
-workflow is not implemented. Earlier mission file generators remain unchanged.
+The Toolbox exports each exercise's own checked code through the workflow below.
+Earlier mission contracts, checker, runner/security and progress schema remain unchanged.
+
+### Case 5 standalone three-input workflow
+
+buildReportingWorkflow(exercise, solved) returns weekly-report.mjs, orders.json,
+entries.json, period.json and README.md. Only solved.code is inserted verbatim,
+in a separate strict function body. The module directly calls buildWeeklyReport
+with the three parsed values; it needs only Node 24 built-ins, no browser adapter,
+repository, dependency installation, hidden fixtures or automatic reference code.
+The same ReportingToolboxEntry renders on solved pages and in the Toolbox, with
+keyboard buttons, status text and a focused/selectable manual-save fallback if
+browser download preparation fails. Main/variation names and data stay distinct;
+no storage or saved-code eligibility redesign was needed.
+
+firstReportingToolContract.js separates envelope guards from result guards.
+Inputs require exact raw fields/types and source-scoped unique positive safe
+lines; source order need not be numeric. Business-data defects remain unchanged
+for learner validation. Period shape/types are checked before loading code, but
+invalid calendar values still call the learner function. The runner verifies the
+required Error and refuses successful returns or other throws, including input
+mutation before an expected error. No report can be saved for an invalid period.
+
+Result guards first verify the eight-field shape and every audit original in
+input order against independent snapshots. They recompute raw cleaning/reasons
+using UTC calendar round-trips and BigInt decimal arithmetic. This is necessary
+to verify evidence on arbitrary files; it does not clean the inputs before the
+learner call. Indexes of verified cleaned audit items establish whole-ID equality,
+first provenance and conflict membership, so each claimed disposition/link is
+checked in contract precedence. Count vectors reconcile those verified occurrences.
+Included audit evidence supplies independent group memberships, exact BigInt sums,
+distinct-job sets and UTF-16 key ordering. Totals beyond safe integer hundredths
+are refused. The guards never assemble a replacement report. Validation runs
+before/after serialization; snapshots detect changed input values/order.
+
+nodeFileIO.js extracts Case 4's established reader/diagnostics/staged writer so
+Cases 4/5 use one maintained infrastructure source. The read callback selects the
+mission's structural guards. Raw bundling removes export keywords, leaving each
+single downloaded module self-contained. Case 4's contract/commands stay unchanged.
+Resolved paths and open-file dev/ino identity protect every input; all output
+symlinks are refused. Valid JSON is exclusively staged in a private sibling folder,
+synced/closed, destination-checked again and renamed. Preparation failures leave
+old reports untouched. Forced termination may leave staging files. Parent-directory
+sync, power-loss durability, external concurrent path changes, shell redirection
+and Windows/network filesystem behavior are not guaranteed. Trusted code has normal
+Node permissions, no timeout/memory cap and whole-file reads. The guide explains
+all these limits and how to inspect exclusions and reconcile both sources.
+
+Real-process units and production browser tests use the actual generator/artifacts.
+All 28 complete reports and four errors run for both algorithms and both exercises.
+Browser tests compare full opaque-worker replies to downloaded Node results and
+preserve every input byte; errors also preserve existing reports. Chromium/WebKit
+cover downloads, stale/failed/cancelled-check retention, refresh, navigation,
+independence, keyboard, fallback and 1920/1366/375 px layouts. Native Firefox adds
+real downloads/Node parity, refresh, timeout/Stop/recovery and two Toolbox tools.
+Exact results and focused-review limits are in ENGINEERING-REVIEW.md.

@@ -40,7 +40,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
 | 3 | The Doubled Totals | Feature-complete, including standalone Node JSON tool; owner QA queued for November 14–15, 2026; approval pending |
 | 4 | The Two Exports | Feature-complete, including standalone two-file Node reconciliation; owner QA/approval pending November 14–15 if practical |
-| 5 | Your First Reporting Tool | Slice 1 browser capstone and independent variation implemented; owner QA/approval pending; Slice 2 Node workflow deferred |
+| 5 | Your First Reporting Tool | Feature-complete through Slice 2: browser capstone, independent variation and standalone Node workflow; owner QA/approval pending; Slice 3 final audit remains |
 
 ### Milestone 1: The Missing Jobs (done)
 
@@ -83,7 +83,7 @@ line identifies an occurrence rather than business equality.
   Beginner instructions cover trusted code, Node 24, conflict investigation and
   independent reconciliation. Complete browser/Node parity covers all 17 datasets.
 - Copy to IDE remains the current-draft sample exercise. Owner review is queued
-  for November 14–15, 2026, with approval pending. Milestone 5 Slice 1 is now implemented; its Node workflow awaits Slice 2.
+  for November 14–15, 2026, with approval pending. Milestone 5 now includes the complete Slice 2 Node workflow.
 
 See [cases/03-doubled-totals.md](cases/03-doubled-totals.md) for the precise contract.
 
@@ -121,7 +121,7 @@ union ordering and a summary that can be independently audited.
 See [cases/04-two-exports.md](cases/04-two-exports.md) for the full contract,
 dataset inventory and independent checking strategy.
 
-### Milestone 5: Your First Reporting Tool (Slice 1 implemented)
+### Milestone 5: Your First Reporting Tool (feature-complete; owner QA pending)
 
 Combine cleaning, validation, deduplication, matching, filtering and grouping into a reusable report.
 
@@ -130,8 +130,18 @@ The independently playable browser mission and future-week variation share the
 IDs, strict actual calendar dates, inclusive periods, safe integer hundredths,
 whole-group conflicts and original-preserving occurrence audits. A behavioural
 checker verifies 32 immutable handwritten scenarios. Each exercise saves its own
-draft, hints, reveal attribution and exact last passing browser code. No Node
-file workflow is implemented in Slice 1. Owner QA/approval remains pending.
+draft, hints, reveal attribution and exact last passing code. Each independently
+exports five dependency-free files: weekly-report.mjs, orders.json, entries.json,
+period.json and README.md. The Node 24 runner reads actual local JSON files,
+executes that checked function directly, validates its evidence and prints/saves
+a complete report. Structural file errors are separate from learner business
+validation; invalid periods must be refused by the learner's implementation.
+Staged output replacement protects all three inputs and earlier reports, with
+filesystem/trusted-code limits documented. Actual downloaded Node reports match
+all 28 valid production-worker scenarios with both correct algorithms for both
+exercises; four period-error cases are verified separately. Owner QA/approval
+remains pending. Slice 3 final application-wide verification needs separate
+authorization; no redesign or additional mission has begun.
 
 
 - Define the date format, reporting period, boundary inclusion and rounding rules explicitly.

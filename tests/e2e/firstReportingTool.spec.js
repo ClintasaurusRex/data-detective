@@ -33,7 +33,7 @@ for(const [name,code] of [['Map',solution],['independent searches',independentRe
     else expect(JSON.parse(r.outputJson)).toEqual(fixture.expected);
   });
   await expect.poll(async()=>(await saved(page))?.exercises[ID].solved?.code).toBe(code);
-  await expect(page.getByRole('button',{name:/Download/})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:/Download/})).toHaveCount(5);
 });
 test('investigation, prediction, starter, actual groups and inspectable audit evidence',async({page})=>{
   await open(page,false);const bench=workbench(page,ID);
@@ -85,7 +85,7 @@ test('main and independent variation keep drafts, hints, reveal and checked code
   const state=await saved(page);expect(state.exercises[ID].solved.code).toBe(solution);expect(state.exercises[VID].solved.code).toBe(solution);expect(state.exercises[ID].solutionRevealed).toBe(false);expect(state.exercises[VID].solved.solutionRevealed).toBe(true);
   await page.getByRole('link',{name:/Toolbox/}).click();
   await expect(page.getByTestId(`toolbox-${ID}`)).toBeVisible();await expect(page.getByTestId(`toolbox-${VID}`)).toBeVisible();
-  await expect(page.getByRole('button',{name:/Download/})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:/Download/})).toHaveCount(10);
 });
 test('errors, malformed actual output, both-source and period mutation recover',async({page,browserName})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));await open(page);

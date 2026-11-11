@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 11 November 2026 (Milestone 5 Slice 1 browser capstone implemented; owner QA pending).
+Last updated: 11 November 2026 (Milestone 5 feature-complete through Slice 2; owner QA pending).
 
 ## Milestones
 
@@ -10,9 +10,109 @@ Last updated: 11 November 2026 (Milestone 5 Slice 1 browser capstone implemented
 | 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
 | 3 | The Doubled Totals | **Feature-complete**, including the standalone Node JSON tool. Ready for owner QA, queued for November 14–15, 2026 if practical; approval pending. |
 | 4 | The Two Exports | **Feature-complete**, including standalone two-file Node reconciliation; owner QA/approval pending, November 14–15 if practical. |
-| 5 | Your First Reporting Tool | Slice 1 browser capstone and independent variation implemented; owner QA/approval pending. Slice 2 production Node workflow deferred. |
+| 5 | Your First Reporting Tool | Feature-complete through Slice 2, including both investigations and the standalone Node workflow; owner QA/approval pending. Slice 3 final audit awaits authorization. |
 
-## Milestone 5 Slice 1 (11 November 2026)
+## Milestone 5 Slice 2 (11 November 2026)
+
+Started clean on feature/milestone-5-reporting-tool at 6dc9d3c55073bde42c20d5ec545c9a5c41b1e76b,
+tracking origin/feature/milestone-5-reporting-tool. Baseline passed lint, 904 unit
+tests, production build and 145 Chromium tests. The initial restricted subprocess
+run failed; the permitted full baseline passed. No failure is counted as a pass.
+
+Both first-reporting-tool and first-reporting-tool-transfer now export exactly
+weekly-report.mjs, orders.json, entries.json, period.json and README.md. Each
+uses its own exact last passing code and displayed inputs/period. No dependencies,
+repository or npm install are needed. Node 24 commands:
+
+```bash
+node weekly-report.mjs orders.json entries.json period.json
+node weekly-report.mjs orders.json entries.json period.json report.json
+node weekly-report.mjs another-orders.json another-entries.json another-period.json weekly-report.json
+```
+
+Implemented structural file guards without cleaning/rejecting business data,
+direct scoped learner execution, invalid-period refusal verification, full audit
+and report-integrity checks, source snapshots/serialization checks, stderr console
+separation and staged output replacement protecting all three inputs and aliases.
+Extracted Case 4's existing file reader/writer into nodeFileIO.js for reuse;
+Case 4's business contract and commands remain unchanged. No shared sandbox,
+progress schema, lesson contract, fixtures or dependencies changed.
+
+The solved panels and Toolbox replace the future-work placeholder, distinguish
+both investigations, provide five keyboard downloads, terminal/audit instructions,
+accessible status and a focused manual-save fallback for download preparation
+errors. The downloaded beginner README teaches each file, JSON, periods,
+cleaning/validation, entry versus job IDs, whole conflicts, integer hundredths,
+source accounting, group job counts, another week, stdout/stderr and trusted code.
+
+### Slice 2 verification
+
+Node v24.18.0 / npm 11.16.0; .nvmrc's exact v24.22.1 patch was not installed.
+Final commands: DATA_DETECTIVE_TEST_PORT=4291 npm run check, git diff --check,
+git status -sb. Full evidence is in [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md).
+
+| Check | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| ESLint / production build | pass (existing chunk-size advisory) | 0 | 0 |
+| Vitest, 17 files | 1213 | 0 | 0 |
+| Full production Chromium suite | 156 | 0 | 0 |
+| Focused WebKit: Case 5 and Case 4 workflows | 34 | 0 | 0 |
+| Targeted Firefox 159.0.1 native BiDi scenarios | 128 | 0 | 0 |
+
+The 309 new units run genuine generated tools in independent folders: all 32
+scenarios for both algorithms and both exercises, plus wrong file/report shapes,
+raw business defects, decimal/calendar boundaries, provenance, mutation, console
+and helper collisions, exceptions/serialization, three-source overwrite aliases,
+actual permissions, file-size-limit mid-write failure and process interruption.
+
+Actual browser downloads match complete production-worker reports on all 28 valid
+scenarios for both algorithms and BOTH exercises, separately in Chromium, WebKit
+and native Firefox: 112 valid comparisons per engine, 336 total. Four invalid
+period scenarios per combination are separate refusals (16 per engine, 48 total),
+with nonzero exit, empty stdout and unchanged existing output; no error is counted
+as valid-report parity. All source-file bytes are preserved. Firefox also verifies
+refresh, timeout/Stop/recovery and two independent Toolbox entries; it is targeted
+native BiDi coverage, not the unavailable Playwright Firefox suite.
+
+Chromium retains all 145 baseline tests and adds 11 workflow tests. The full suite
+covers earlier downloads/parity and overwrite/global-console regressions,
+Run/Check/Stop/timeouts, navigation/history/refresh, switching during checks,
+storage warnings/backup/recovery, sandbox isolation, mutation and Copy to IDE.
+New coverage verifies actual filenames/contents, separate checked-code persistence,
+stale drafts, failed/cancelled checks, edits during checks, download failure/retry,
+keyboard/help/status and 1920/1366/375 px overflow. Production phone/laptop/desktop
+Toolbox screenshots were reviewed. WebKit excludes its unsupported clipboard-success
+test explicitly at selection time; it runs fallback-copy and new downloads, with
+no CSP weakening. Full native-device, screen-reader and comprehensive contrast
+checks remain owner work.
+
+Focused review found no new confirmed Critical/High existing-app regression.
+New incorrect-report/mutation and file-failure paths refuse output as intended.
+Test setup corrections kept report-original corruptions separate from input
+mutation; the Firefox probe's refresh expectation was corrected for the final
+independent algorithm. No product assertions or security policies were weakened.
+Known Medium concurrent-tab snapshot overwrite remains outside this slice; use
+one active editing tab. Low bundle-size and engine/harness limitations remain.
+Trusted Node code, whole-file memory, external concurrent filesystem changes,
+shell redirection, power loss and untested Windows/network filesystems remain
+explicit limits. Forced termination may leave staging files.
+
+### Owner review — Case 5 through Slice 2
+
+- [ ] Review both investigations, learning pace, hints and explained solution.
+- [ ] Independently trace every original, exclusion/conflict and daily/site total.
+- [ ] Download each five-file package to its own folder and run print/save/new-week commands.
+- [ ] Try malformed files, invalid periods, input aliases and earlier-report preservation.
+- [ ] Confirm separate checked tools after newer drafts, failed/stopped checks and refresh.
+- [ ] Review owner devices, keyboard and assistive technology as available.
+- [ ] Review this Slice 2 report, then authorize final Slice 3 separately.
+
+Case 1 remains owner-approved. Cases 2–4 remain feature-complete but unapproved;
+retain their November 14–15, 2026 QA backlog below. Case 5 is feature-complete and
+ready for owner QA; approval is pending. No Slice 3 audit, commit, push, PR action,
+merge or deployment occurred. The full 21-file change inventory is in the review.
+
+## Milestone 5 Slice 1 (11 November 2026; historical checkpoint)
 
 Started clean on `feature/milestone-5-reporting-tool` at `d2b29cc`, without an
 upstream configured. Baseline actually passed lint, 802 unit tests, production
@@ -52,7 +152,7 @@ owner QA plans and pending approval. Slice 1 still needs owner review.
   cross-boundary conflicts, blank versus zero and source follow-up decisions.
 - [ ] Review keyboard, phone/laptop layouts, audit disclosures and assistive
   technology as available; verify separate saved drafts and checked tools.
-- [ ] Authorize Slice 2 separately before production Node workflow implementation.
+- [x] Slice 2 was separately authorized by the owner and is implemented above; approval of the milestone remains pending.
 
 No commits, pushes, PR changes, merges or deployments were performed.
 
@@ -644,7 +744,7 @@ and had not been checked at the original Milestone 1 checkpoint.
 - There was no automated screen-reader or contrast audit (for example, axe). Labels, roles, live regions and focus order were reviewed by hand and through role-based test selectors.
 - `npm audit` reports 6 moderate advisories in ESLint's `minimatch` dependency (development only, not shipped, no fix available yet).
 
-## Owner review checkpoint
+## Owner review checkpoint (historical Milestone 4)
 
 Milestones 2–4 are feature-complete with their standalone Node workflows; all
 three await owner QA and final approval, planned November 14–15, 2026 (Case 4 if

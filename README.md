@@ -2,11 +2,11 @@
 
 A friendly learning app for writing useful workplace data scripts in JavaScript.
 
-You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Cases 1, 3 and 4 provide standalone Node JSON tools; Case 2 provides a complete Node CSV reporting tool.
+You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Cases 1, 3, 4 and 5 provide standalone Node JSON tools; Case 2 provides a complete Node CSV reporting tool.
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, is feature-complete with an independently playable browser mission and standalone two-file Node reconciliation tool; owner QA remains pending, queued for November 14–15 if practical. Milestone 5 Slice 1 is playable in the browser, including an independent variation; its production Node workflow awaits Slice 2. Owner QA/approval remains pending; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, is feature-complete with an independently playable browser mission and standalone two-file Node reconciliation tool; owner QA remains pending, queued for November 14–15 if practical. Milestone 5 is feature-complete through Slice 2, including the browser capstone, independent variation and standalone three-input Node workflow. Owner QA/approval remains pending; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -117,10 +117,51 @@ The **Independent variation** offers a different future-week handover with less
 scaffolding and separately saved drafts, hints, reveals and passing code.
 
 Copy to IDE runs the active sample and period with the current draft. The
-Toolbox retains each exercise's last passing browser code. Production Node file
-reading/downloads are deferred to Slice 2. See [the full contract](docs/cases/05-first-reporting-tool.md)
+Toolbox exports each exercise's exact last passing code as a complete standalone
+Node tool. Main and variation packages have their own displayed data and period. See [the full contract](docs/cases/05-first-reporting-tool.md)
 and [current verification](docs/ENGINEERING-REVIEW.md). Cases 2–4 still await
 owner QA November 14–15, 2026; no approval is inferred from this implementation.
+
+## Use your Case 5 weekly reporting tool
+
+Pass all 32 checks in either investigation, then download **all five files** into
+one new folder: `weekly-report.mjs`, `orders.json`, `entries.json`, `period.json`,
+`README.md`. Keep main and variation packages in separate folders. With Node 24:
+
+```bash
+node weekly-report.mjs orders.json entries.json period.json
+node weekly-report.mjs orders.json entries.json period.json report.json
+node weekly-report.mjs another-orders.json another-entries.json another-period.json weekly-report.json
+```
+
+No dependencies or npm install are required. The three mandatory paths supply raw
+orders, raw field-time entries and the inclusive reporting period. The optional
+fourth saves formatted JSON; otherwise stdout contains JSON only. Console output,
+errors and the saved report's full location use stderr. Require exit status 0.
+
+File guards check exact fields/types and unique positive safe-integer source
+lines without changing source order. Blank business values, unknown statuses,
+malformed hours and invalid entry dates remain the learner's validation work.
+Invalid period values invoke the learner's function and require
+`Error("Invalid reporting period")`; no partial report is valid. Audit evidence,
+cleaning/reasons, whole-ID conflicts, links, disposition precedence, groups,
+integer hundredths, distinct jobs, counts and mutation are checked against the
+actual input, before/after serialization, without supplying a replacement report.
+
+All three inputs and their symlink/hard-link aliases are protected. Output
+symlinks are refused. Staging, sync and rename preserve old reports on preparation
+failures. External concurrent changes, shell redirection and power-loss durability
+remain limits. Node executes trusted code with normal filesystem permissions,
+whole-file memory use and no sandbox timeout. Read the downloaded beginner guide
+for exact structures, another week's files, audit investigation and reconciliation.
+
+Both independent exercises export only their own last passing code, even after
+new drafts, failed/stopped checks, refresh and navigation. Actual downloads match
+complete production browser-worker reports for both correct algorithms on all
+28 valid scenarios in Chromium, WebKit and targeted system Firefox. Four invalid
+period scenarios per algorithm/exercise are verified separately as failures.
+See [ENGINEERING-REVIEW.md](docs/ENGINEERING-REVIEW.md) for exact counts and limits.
+Case 5 is ready for owner QA; approval is pending. Final Slice 3 is not started.
 
 ## Use your Case 4 reconciliation tool
 

@@ -1,3 +1,198 @@
+# Milestone 5 Slice 2 implementation and focused engineering review
+
+Reviewed 11 November 2026. Case 5 is feature-complete through Slice 2, including
+both independent exercises and their complete standalone Node workflow. Owner
+QA/approval is pending. Case 1 remains owner-approved; Cases 2–4 remain
+feature-complete but unapproved, with November 14–15, 2026 owner QA retained.
+Final Slice 3 application-wide audit has not begun. Earlier reviews below are
+historical checkpoints, including their then-current authorization limits.
+
+## Scope, repository and baseline
+
+Started clean at 6dc9d3c55073bde42c20d5ec545c9a5c41b1e76b on
+feature/milestone-5-reporting-tool, tracking the same origin branch. Inspected
+README/docs and the full Case 5 contract, both exercises/progress records,
+fixtures, independent algorithms/checker/adapter, previous Node generators and
+tests, Toolbox/file utilities, sandbox, storage and engineering backlog. Baseline
+passed lint, 904 unit tests, production build and 145 Chromium tests. The initial
+restricted subprocess run failed 355 existing tests; permitted execution passed.
+This execution boundary is not represented as a product defect or a passing run.
+
+No lesson business rules, fixture expectations, shared browser runner, sandbox
+CSP, progress schema, stable exercise IDs, dependencies or lockfile changed.
+No commits, pushes, merges, deployments or pull-request actions occurred.
+
+## Implementation and review
+
+Both first-reporting-tool and first-reporting-tool-transfer export exactly:
+weekly-report.mjs, orders.json, entries.json, period.json, README.md. The samples
+and period are their own displayed values; only the exact saved solved.code is
+embedded. The script invokes buildWeeklyReport(rawOrders, rawEntries, period)
+directly in a strict scope, independent of helper-name collisions and the browser
+adapter. Both lexical/global console routes use stderr. There are no npm/runtime
+external dependencies, hidden fixture datasets or automatic reference solution.
+A fresh folder with Node 24 is sufficient:
+
+```bash
+node weekly-report.mjs orders.json entries.json period.json
+node weekly-report.mjs orders.json entries.json period.json report.json
+node weekly-report.mjs another-orders.json another-entries.json another-period.json weekly-report.json
+```
+
+Structural guards check valid JSON, exact source fields/types, unique positive
+safe-integer source lines and exact period start/end string fields. Order is
+preserved without requiring increasing lines; provenance is source-scoped. Empty
+arrays and repeated business IDs are valid. Blank/malformed business values are
+passed unchanged to the learner. Invalid period values also invoke the learner:
+the required Error is checked, never substituted for a wrong return or throw.
+Snapshots catch net input mutation, including before an expected period error.
+
+Report guards validate every nested field/type and original audit item in source
+order, recomputing cleaning/reason facts with UTC calendar round-trips and BigInt
+hundredths. This independent recomputation is necessary for arbitrary local data,
+not a preprocessing step that takes over the learner's validation. Metadata over
+verified cleaned audit items checks whole-ID conflicts, complete occurrence
+membership, first-copy links and matching/date disposition precedence. Verified
+included audit evidence supplies group memberships, exact sums and distinct-job
+sets. Count vectors, all totals, order references, period consistency and UTF-16
+group ordering reconcile completely. Unsafe reportable sums are refused. No
+validator assembles a replacement report, repairs output or uses fixture answers.
+Checks before/after serialization reject misleading toJSON results; mutation is
+also checked after preparation. Incorrect output produces only a diagnostic and
+nonzero status, with no successful report.
+
+nodeFileIO.js extracts the existing Case 4 reader/diagnostics/staged writer for
+both workflows. Read validation is a callback; otherwise the protection pattern
+is retained. Resolved paths and open-file dev/ino protect ALL three Case 5 inputs,
+including symlink/hard-link aliases. Output symlinks/nonregular destinations are
+refused. A private sibling folder holds complete JSON, exclusively written,
+synced/closed, destination-checked again and renamed. Existing output survives
+preparation failures; handled errors remove staging. Real permission, file-size
+limit mid-write failure and SIGTERM during preparation tests preserve old reports
+and original inputs. Case 4's complete process tests and downloaded parity pass.
+
+Toolbox uses existing styling and download conventions. Both exercise titles are
+clear, with own checked source, five labelled keyboard buttons, operating/audit
+instructions and download status. Preparation errors offer focused, fully selected
+manual-save text and retry. Main and variation remain independent through drafts,
+failed/cancelled checks, edits during checking, refresh and navigation. Run alone
+and sample-hardcoding never qualify downloads. Copy to IDE remains the current
+draft/sample challenge. The beginner guide explains files/paths/JSON, period
+rules, cleaning versus validation, entry IDs versus jobs, conflicts for human
+review, integer units, overlapping job counts, rejected/excluded investigation,
+count reconciliation, stdout/stderr, new weeks, errors and trusted Node code.
+
+Focused source/test/documentation review found no confirmed Critical/High
+existing-app regression or missing contract invariant. All incorrect-evidence
+and file-safety probes refuse output. No unrelated infrastructure redesign was
+needed. Slice 2 replaces the prior future-work placeholders consistently. Test
+corrections fixed aliased corruption fixtures (now separate from mutation) and a
+Firefox refresh expectation left pointing at the earlier algorithm; no failing
+product behavior was hidden by changing an assertion or security policy.
+
+## Executed verification
+
+Node v24.18.0, npm 11.16.0; .nvmrc's exact v24.22.1 was unavailable and untested.
+Final commands after implementation and documentation:
+DATA_DETECTIVE_TEST_PORT=4291 npm run check; git diff --check; git status -sb.
+
+| Check | Passed | Failed | Skipped |
+| --- | ---: | ---: | ---: |
+| ESLint | pass | 0 | 0 |
+| Vitest, 17 files | 1213 | 0 | 0 |
+| Production build | pass, chunk-size advisory | 0 | 0 |
+| Full Chromium production suite | 156 | 0 | 0 |
+| Focused WebKit: Case 5 plus Case 4 workflow regressions | 34 | 0 | 0 |
+| Firefox 159.0.1 native BiDi scenario executions | 128 | 0 | 0 |
+
+1213 units = 904 baseline + 309 new real-process workflow tests. 156 Chromium
+checks = 145 baseline + 11 new workflow tests. WebKit explicitly selects 15
+existing Case 5 tests, all 11 new workflow tests and eight Case 4 workflow tests;
+the unsupported clipboard-success test is excluded by selection, not reported
+passed or silently skipped. No CSP weakening. Full-suite historical WebKit
+clipboard/diagnostic/constructor limits remain below.
+
+Genuine downloaded files run as real Node processes outside the repository.
+For EACH engine (Chromium, WebKit, native Firefox):
+
+| Exercise / algorithm | Complete valid-report comparisons | Invalid-period refusals |
+| --- | ---: | ---: |
+| Main / lesson Map | 28 | 4 |
+| Main / independent searches | 28 | 4 |
+| Variation / lesson Map | 28 | 4 |
+| Variation / independent searches | 28 | 4 |
+| Per-engine total | 112 | 16 |
+
+That is 336 complete valid comparisons and 48 separate error scenarios across
+three engines. Comparisons include every original, audit item, cleaned value,
+ordered reason, conflict/duplicate/link decision, date/matching exclusion,
+summary group/order, count and fixed decimal value. They compare to actual opaque
+production-worker replies and independent handwritten expectations, not just totals
+or a simulated worker. Every input file remains byte-for-byte unchanged. Invalid
+periods return nonzero, no stdout report and leave an existing report untouched;
+they are not valid-report parity. Native Firefox uses actual browser downloads
+saved to an isolated folder and also checks refresh, two Toolbox entries,
+timeout, Stop and valid-run recovery, with zero page errors. Its Playwright build
+is not installed, so this is targeted BiDi coverage, not its full suite.
+
+New adversarial tests cover malformed envelopes/missing/extra fields, wrong types,
+duplicate source lines versus legitimate IDs, blank/malformed business values,
+explicit zero, decimal precision/range, Gregorian/century dates, empty sources,
+other weeks, sample hardcoding, helper/console collisions, mutation, thrown values,
+promises, serialization, missing/fabricated/reordered audit evidence, cleaning and
+reason errors, wrong duplicate/order links, conflict precedence/counting, incorrect
+groups/totals/distinct jobs, three-input direct/resolved/symlink/hard-link overwrite
+attempts, symlinked inputs, dangling output links, actual permissions, interrupted
+preparation and mid-write filesystem failure. Existing output survives failures.
+
+The full Chromium suite retains prior navigation/history/refresh, per-exercise
+progress, storage failure/backup/recovery, Workbench Run/Check/Stop, timeout,
+cancellation, mid-check mission switching, sandbox isolation, mutation, Copy to
+IDE, checked-code preservation, Cases 1–4 actual downloads/parity and earlier
+input-overwrite/global-console fixes. New keyboard/fallback/help/status and layout
+checks pass at 1920, 1366 and 375 px without page-level overflow or unintended
+console errors. Production Toolbox screenshots at these widths were reviewed.
+Focused browser logs, screenshots and Firefox probe/results remain temporary
+review artifacts in /tmp; repeatable Chromium/WebKit tests are in the repository.
+
+## Risks, remaining work and owner checkpoint
+
+- Critical/High: none newly confirmed in this focused review.
+- Medium, existing B-01: concurrent tabs can overwrite whole progress snapshots;
+  use one active editing tab. Persistence redesign stays outside Slice 2.
+- Low: the production main bundle remains above Vite's 500 kB advisory threshold
+  (541.49 kB before gzip). No advisory suppression or unrelated chunking work.
+- Low: existing browser-specific source diagnostics and full-suite harness limits
+  remain. Full screen-reader, native-device and comprehensive contrast review
+  are unperformed; automated keyboard/layout checks do not grant owner approval.
+- Explicit operating limits: trusted code has normal filesystem/network/process
+  permissions, no sandbox timeout/memory cap and whole-file reads. Direct learner
+  writes, shell redirection, external concurrent filesystem modification and
+  power loss are outside runner protection. Parent directories are not synced.
+  Abrupt interruption may leave staging directories. Output replacement changes
+  permissions/metadata; Windows/network filesystem semantics were not tested.
+
+Final Slice 3 remains separate: authorize the application-wide final audit,
+reconcile all milestone evidence/backlog, perform owner/device/accessibility QA
+and decide any broader remediation in its own scope. This session stops after
+Slice 2. Case 5 is feature-complete and ready for owner QA; it is not owner-approved.
+Cases 2–4 retain their November 14–15, 2026 QA schedule and pending approvals.
+
+## Changed files (21)
+
+- Application: src/App.jsx; src/components/ReportingView.jsx, ToolboxEntry.jsx,
+  ReportingToolboxEntry.jsx.
+- Export: src/export/firstReportingToolWorkflow.js, firstReportingToolContract.js,
+  firstReportingToolRunner.js, firstReportingToolREADME.md, nodeFileIO.js,
+  twoExportsRunner.js, twoExportsWorkflow.js.
+- Tests/config: tests/unit/firstReportingToolWorkflow.test.js;
+  tests/e2e/firstReportingToolWorkflow.spec.js, firstReportingTool.spec.js;
+  eslint.config.js.
+- Documentation: README.md; docs/PRODUCT.md, ARCHITECTURE.md, STATUS.md,
+  ENGINEERING-REVIEW.md; docs/cases/05-first-reporting-tool.md.
+
+---
+
 # Milestone 5 Slice 1 implementation and engineering review
 
 Reviewed 11 November 2026. Case 5's browser capstone and independent variation
