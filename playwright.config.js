@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = 4173;
+const port = Number(process.env.DATA_DETECTIVE_TEST_PORT || 4173);
 
 // Browser checks run against the production build, so the real Content
 // Security Policies are in force.
@@ -20,7 +20,7 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npx vite preview --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}/`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

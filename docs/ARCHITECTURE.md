@@ -7,7 +7,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | Missions | `src/missions/` | Case text, rules, datasets with expected IDs, hints, solutions |
 | Runner | `src/runner/` | Runs learner code in isolation and returns a plain result |
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
-| Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js`, `src/checking/evaluateDoubledTotals.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records; Case 3 checks occurrence classification, duplicate links, complete conflicts, order and totals against explicit fixture expectations |
+| Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js`, `src/checking/evaluateDoubledTotals.js`, `src/checking/evaluateTwoExports.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records; Case 3 checks occurrence classification, duplicate links, complete conflicts, order and totals against explicit fixture expectations; Case 4 checks both sources, pairs, missing records, difference fields, whole ambiguity groups and summary |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
 | Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/doubledTotalsWorkflow.js`, `src/export/doubledTotalsContract.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, Case 2 CSV workflow, Case 3 JSON audit workflow and its guards, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
@@ -74,7 +74,7 @@ Failed debounced writes display an alert explaining that the latest changes are 
 
 Case 1’s identifiers and save shape are preserved. Case 2 adds `cases["messy-export"].prediction` as `{ accepted, rejected }` or `{ skipped: true }`, and an exercise with the same stable ID. Its optional `checked: { code, passed }` retains the last completed check across refreshes. Draft, previous draft, hints, reference reveal and the exact passing code reuse the existing exercise fields. Detailed run output/check feedback is visit-local; after refresh a saved check summary invites checking again for full feedback.
 
-A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. All three cases' Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
+A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Cases 1–3's Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
 
 ## Export
 
@@ -109,7 +109,7 @@ Tests write the actual generated artifacts into isolated temporary directories o
 
 ## Mission navigation and UI (Slice 3)
 
-Hash URLs `#/case/missing-jobs`, `#/case/messy-export`, `#/case/doubled-totals` and `#/toolbox` work on static hosts without rewrite rules or a routing dependency. The old `#/case` and empty hash still open Case 1. Unknown/planned case URLs fall back to Case 1; planned sidebar entries remain text. A location change focuses `main`; the skip link focuses content without changing the mission hash.
+Hash URLs `#/case/missing-jobs`, `#/case/messy-export`, `#/case/doubled-totals`, `#/case/two-exports` and `#/toolbox` work on static hosts without rewrite rules or a routing dependency. The old `#/case` and empty hash still open Case 1. Unknown/planned case URLs fall back to Case 1; planned sidebar entries remain text. A location change focuses `main`; the skip link focuses content without changing the mission hash.
 
 `MessyExportView` handles CSV investigation, dual-count prediction, the reporting contract and malformed-file examples. `CaseView` keeps the Case 1 investigation and variation. Both use the same `Workbench` for editing, Run, Check, Stop, hints, reference solution and Copy to IDE. Mission views are keyed by stable ID; leaving one cancels active work and invalidates pending completions so late results cannot save a solve. Each valid check runs in a fresh worker using the unchanged sandbox.
 
@@ -185,3 +185,52 @@ algorithms across all 17 datasets. Browser tests download the genuine files and
 compare every complete report with actual production worker replies, alongside
 keyboard, stale-code, refresh and gating coverage. No sandbox permissions,
 checker expectations, dependency versions or later milestones changed.
+
+
+## Case 4: reconciliation of two exports
+
+`twoExports.fixtures.js` defines 20 recursively frozen two-source datasets.
+Handwritten expectations identify original source lines, pair tuples, ordered
+field-name lists, ambiguity source lines and summary counts. The checker
+`evaluateTwoExports.js` resolves originals from these expectations rather than
+running a reference solver. It verifies exact fields and types, source-specific
+provenance, pair identity, roles, complete groups, ordering, every occurrence
+once, summary and input mutation. Feedback is capped at 20 problems per dataset
+and identifies a source/job/category without listing a complete hidden answer.
+Unit tests audit every expectation with an independent per-key search algorithm;
+production browser tests compare complete worker reports on all 20 datasets
+with those expectations, using two correct algorithms.
+
+`twoExports.adapter.js` bridges the learner's `reconcile(orders, fieldReports)`
+to the existing array-only `transform(rows)` runner. The runner transports
+`[orders, fieldReports]`, with deep mutation detection of both sources, fresh
+workers, the same JSON limits, cancellation and timeouts. No sandbox file, CSP,
+message policy or security permission changes. Shared Run and checker use the
+same adapter. Its prefix shares the first learner source line to preserve error
+line numbers, and its nested scope protects learner helper names such as
+transform. Saved checks/solves retain the original learner code.
+
+`TwoExportsView` provides the source investigation, integer agreement prediction,
+contract, joins field guide and shared Workbench. `SourceExports` uses existing
+RecordTable with optional display headings, two columns where space permits and
+bounded scrolling. `TwoExportsOutput` displays only actual returned originals,
+pairs, field names, ambiguity and summary, retaining malformed output in raw JSON.
+Output rendering does not validate or fabricate a corrected answer.
+
+Stable case/exercise ID `two-exports` uses existing version-1 exercise fields and
+integer `{ value }` / `{ skipped: true }` prediction validation. No storage format
+change or migration. Unmount cancellation and operation IDs continue to reject
+late completions. Only every-dataset success replaces solved.code. The additive
+`keepCheckedCode` mission flag makes the Toolbox retain checked browser code
+without claiming or generating a file-processing tool. Cases 1–3 retain their
+existing download eligibility and artifact generators.
+
+Copy to IDE uses a reconciliation flag to emit both displayed sample arrays,
+the current draft and a direct reconcile preview. No file reader, hidden dataset
+or automatic reference solution is bundled. The exported challenge runs as real
+Node JavaScript in browser tests. A separately authorized Node-file workflow is
+still outstanding; Milestone 5 is unstarted. No new dependencies were added.
+
+The Playwright configuration now takes `DATA_DETECTIVE_TEST_PORT` (default
+4173) and refuses server reuse. Baseline testing found an unrelated application
+on the default port; isolated-port execution prevents false product failures.

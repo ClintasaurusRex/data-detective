@@ -935,3 +935,17 @@ button.small-button {
 .report-group li, .case .problems li {
   overflow-wrap: anywhere;
 }
+
+/* Compare the two exports together where space permits; each table owns overflow. */
+.source-exports {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.source-exports > section { min-width: 0; }
+.source-exports .records th, .source-exports .records td { padding-inline: 0.4rem; }
+.source-exports .table-wrap { max-height: 25rem; overflow: auto; }
+.source-exports thead { position: sticky; top: 0; background: var(--surface); }
+@media (max-width: 850px) {
+  .source-exports { grid-template-columns: minmax(0, 1fr); }
+}

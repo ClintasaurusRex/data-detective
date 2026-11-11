@@ -6,7 +6,7 @@ You play a data detective at a fictional water utility, Riverbend Water Services
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Cases 4–5 remain planned and unstarted; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, now has an independently playable browser reconciliation mission awaiting owner QA. Its standalone Node file-processing workflow is a future slice. Milestone 5 remains unstarted; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -41,10 +41,12 @@ The app is static. After `npm run build`, the `dist/` folder can be served from 
 | Command | What it does |
 | --- | --- |
 | `npm run lint` | ESLint |
-| `npm test` | Unit tests (Vitest): all three mission contracts/checkers, saved progress, exported tools run in real Node processes, the sandbox CSP and runner messaging, and CSV parsing |
+| `npm test` | Unit tests (Vitest): all four mission contracts/checkers, saved progress, exported tools run in real Node processes, the sandbox CSP and runner messaging, and CSV parsing |
 | `npm run build` | Production build into `dist/` |
 | `npm run test:e2e` | Browser tests (Playwright, Chromium) against the production build: the learner journey, keyboard use, a phone-sized screen, runner errors and recovery, and the isolation boundaries |
 | `npm run check` | All of the above, in that order |
+
+The browser suite starts its own production preview and refuses to reuse an unknown server. If port 4173 is occupied, use `DATA_DETECTIVE_TEST_PORT=4287 npm run check` (or another free port).
 
 The browser tests expect Playwright's Chromium. In this repository `@playwright/test` is pinned to 1.63.0 to match the browser installed in the cloud environment; elsewhere, run `npx playwright install chromium` once.
 
@@ -65,9 +67,9 @@ tests/e2e/        Playwright
 docs/             product scope, architecture, case notes, status
 ```
 
-Each layer is separate, so later cases add mission content, datasets and the appropriate checker/output presentation without changing the sandbox runner. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how learner code is run and isolated, and its known limits.
+Each layer is separate, so cases add mission content, datasets and the appropriate checker/output presentation without changing the sandbox runner. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how learner code is run and isolated, and its known limits.
 
-## Adding a case (later milestones)
+## Adding a case
 
 1. Add a mission file in `src/missions/` with its request, rules, rows, datasets with explicit expected IDs, hints and explained solution. Copy the shape of `missingJobs.js`.
 2. Add it to `src/missions/index.js`, mark it `playable: true`, and connect its investigation view and output/checker type.
@@ -77,6 +79,27 @@ Each layer is separate, so later cases add mission content, datasets and the app
 Case 2 introduces CSV. The contract, parser and datasets (Slice 1), `{ accepted, rejected }` checker (Slice 2), playable browser investigation (Slice 3), and standalone Node CSV workflow (Slice 4) are implemented. Use the sidebar to switch cases; hash URLs preserve location through Back, Forward and refresh. Each mission saves its own progress without resetting Case 1. Broken CSV examples stop the whole file before validation. See [docs/cases/02-messy-export.md](docs/cases/02-messy-export.md) and [docs/STATUS.md](docs/STATUS.md).
 
 Case 3 is independently playable at `#/case/doubled-totals`; no Case 2 completion is needed. Use the exact string job ID as a key, compare business fields, and separate safe originals, linked exact duplicates and whole conflict groups. Only safely retained records contribute to the reliable subtotal. The lesson teaches Map, Set, grouping, equality, provenance and verification through 17 checking datasets. Prediction, hints, explained solution, editor controls and saved progress follow the earlier cases. Copy to IDE provides the current draft as a sample-data challenge; the Toolbox exports the last passing code with a real JSON-file runner. See [the Case 3 contract](docs/cases/03-doubled-totals.md).
+
+## Investigate Case 4: The Two Exports
+
+Open `#/case/two-exports` directly, or choose Case 4 in the sidebar. Sam needs a
+reconciliation of scheduling and field operations for the same week. Inspect the
+two source tables, predict agreeing pairs or skip, and write
+`reconcile(orders, fieldReports)`. Both arrays are already parsed and validated.
+Match exact string job IDs, compare site/status/planned versus actual hours,
+preserve both originals, and report every occurrence once. Repeated IDs in
+either source make the whole key ambiguous, with no arbitrary winner.
+
+Return `{ agreed, onlyOrders, onlyFieldReports, differences, ambiguous, summary }`.
+Run displays your actual report. Check solution verifies 20 diverse datasets,
+including missing counterparts, reordered records, exact text IDs, duplicate
+keys, empty exports and a future week. Hints and the explained solution teach
+Map lookups, value comparisons, joins and independent reconciliation checks.
+Saved progress and the Toolbox retain the last passing code after draft changes,
+failed or cancelled checks and refresh. Copy to IDE runs your current draft on
+the two displayed sample arrays as `node challenge.js`; it contains no hidden
+fixtures or automatic reference solution. **Case 4 has no Node-file downloads**
+in this slice. See [the exact Case 4 contract](docs/cases/04-two-exports.md).
 
 ## Use your Case 2 CSV tool
 

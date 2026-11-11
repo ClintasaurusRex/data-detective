@@ -84,16 +84,16 @@ export function buildChallengeFile(challenge, code) {
 
 // ===== SAMPLE DATA: the rows shown in the app (don't paste this back) =====
 // Strings are exact, including spaces, tabs (\\t) and line breaks (\\n).
-const caseSampleRows = ${JSON.stringify(rows, null, 2)};
+${challenge.reconciliation ? `const caseSampleOrders = ${JSON.stringify(challenge.orders, null, 2)};\nconst caseSampleFieldReports = ${JSON.stringify(challenge.fieldReports, null, 2)};` : `const caseSampleRows = ${JSON.stringify(rows, null, 2)};`}
 
 ${SOLUTION_START}
-// Your transform function goes here, plus any helper functions it uses.
+// Your ${challenge.reconciliation ? "reconcile" : "transform"} function goes here, plus any helper functions it uses.
 
 ${draft}${SOLUTION_END}
 
 // ===== PREVIEW: runs your function on the sample data (don't paste this back) =====
-console.log("transform(caseSampleRows) returned:");
-console.log(JSON.stringify(transform(caseSampleRows), null, 2));
+console.log("${challenge.reconciliation ? "reconcile(caseSampleOrders, caseSampleFieldReports)" : "transform(caseSampleRows)"} returned:");
+console.log(JSON.stringify(${challenge.reconciliation ? "reconcile(caseSampleOrders, caseSampleFieldReports)" : "transform(caseSampleRows)"}, null, 2));
 `;
 }
 

@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 10 November 2026 (Milestone 3 Node workflow and engineering review complete; owner QA pending).
+Last updated: 11 November 2026 (Milestone 4 browser mission complete; owner QA pending).
 
 ## Milestones
 
@@ -9,8 +9,132 @@ Last updated: 10 November 2026 (Milestone 3 Node workflow and engineering review
 | 1 | The Missing Jobs | **Complete and owner-approved** |
 | 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
 | 3 | The Doubled Totals | **Feature-complete**, including the standalone Node JSON tool. Ready for owner QA, queued for November 14–15, 2026 if practical; approval pending. |
-| 4 | The Two Exports | Planned, unstarted |
+| 4 | The Two Exports | **Browser implementation complete; ready for owner QA, approval pending.** Standalone Node workflow is a separate future slice. |
 | 5 | Your First Reporting Tool | Planned, unstarted |
+
+## Milestone 4 browser implementation (11 November 2026)
+
+- Started clean on `feature/milestone-4-two-exports` at `f7ad801`, with no
+  configured upstream. Read README, docs, all existing mission contracts,
+  engineering review/backlog and the shared editor, registry, storage, exports,
+  runner and checker architecture before implementation.
+- Baseline verified: lint, **500 unit tests**, production build, **90 Chromium
+  tests**. Restricted child processes initially failed 165 existing tests;
+  permitted execution passed. The original browser harness reused Minty Notes
+  on port 4173. An isolated preview passed; the harness now accepts
+  `DATA_DETECTIVE_TEST_PORT` and refuses unknown-server reuse.
+- Defined [the Case 4 contract](cases/04-two-exports.md) before its checker.
+  `reconcile(orders, fieldReports)` receives already-parsed validated originals
+  `{ line, id, site, status, hours }`. Exact string IDs match independently of
+  array positions. Unique pairs agree or report exact site/status/hours
+  differences; one-sided originals stay visible. A repeated key on either side
+  preserves every occurrence from both sources in one ambiguous group, including
+  one-sided repeats. No arbitrary matching or silent cleaning.
+- Output is exactly `{ agreed, onlyOrders, onlyFieldReports, differences,
+  ambiguous, summary }`; deterministic scheduling-first union order, exact field
+  lists, source-scoped provenance and exactly-once accounting are enforced.
+  Summary distinguishes occurrence counts from ambiguity-group counts.
+- **20 frozen datasets** have explicit handwritten line/pair/field/group
+  expectations and an independently implemented search-based review. Tests cover
+  leading zeros, capitalization, arbitrary string keys, identical copies,
+  one-/many-sided ambiguity, full empty inputs, remote counterparts, all fields,
+  source order and substantially different future jobs. No hidden fixtures enter
+  Copy to IDE or any learner download.
+- The dedicated checker validates exact shapes/types, pairs, missingness,
+  differences, ambiguity, unchanged originals, source lines, order, full coverage,
+  summary and mutation. It accepts Map and nested searches. Tests reject 15
+  incorrect strategies, hardcoded answers, malformed data and reports, wrong
+  ordering, extra/missing fields, source swaps, lost/fabricated/doubled originals,
+  input mutation and invalid summaries. Feedback names source/job/category and
+  is capped rather than dumping complete hidden expected answers.
+- Independently playable `#/case/two-exports` includes Sam's request, paired
+  source tables, exact IDs/lines, prediction or skip, joins/Map field guide,
+  progressive hints, confirmed explained solution, actual report categories,
+  Run/Check/Stop, console, keyboard and existing editor controls.
+- Reused runner/security policies unchanged via a scoped adapter. Review caught
+  and fixed potential collisions with learner helpers named transform; tests
+  verify isolation and preserved source lines. No sandbox permissions, storage
+  version, earlier mission contracts or dependencies changed.
+- Progress retains exact checked code through newer drafts, incorrect runs,
+  failed/cancelled checks, navigation and refresh. Four-case mid-check navigation
+  cannot save stale solves. Earlier saves and Toolbox downloads remain intact.
+  Case 4 Toolbox retains browser code with an honest future-work note; there is
+  no Node file-processing download. Copy to IDE's actual current-draft challenge
+  runs both displayed arrays in a real Node process.
+- Review corrected duplicate accessible region names and guarded custom table
+  headings against inherited-property names in malformed learner originals. Source tables have clear
+  headings, captions, scoped headers, sticky headings and bounded scrolling;
+  controls remain in view at 1920, 1366 and 375 px, with no page-level overflow.
+  Keyboard, reduced motion, focus, table semantics and console checks are covered.
+  Focused production evidence screenshots were visually inspected at desktop,
+  laptop and mobile sizes; full-page screenshots are captured in Chromium. WebKit screenshot
+  capture itself injects a stylesheet blocked by CSP, reproduced independently.
+  Its tests keep layout/console assertions and omit that capture step; product
+  security policy was not relaxed.
+
+### Final verification
+
+Node **v24.18.0**, npm **11.16.0** (the .nvmrc patch 24.22.1 is not installed).
+`DATA_DETECTIVE_TEST_PORT=4290 npm run check`, `git diff --check` and
+`git status -sb` are the final verification commands. The port override isolates
+this suite from another project's preview. Results below record the final completed verification.
+
+| Check | Result |
+| --- | --- |
+| ESLint | Pass, no warnings |
+| Vitest | **611 passed**, 14 files |
+| Production build | Pass |
+| Chromium | **121 passed**, including 31 Case 4 tests and all 90 baseline tests |
+| WebKit 26.6 | **31 passed**, complete focused Case 4 suite; no full-suite WebKit claim |
+| Firefox 159.0.1 via native BiDi | **57 datasets passed** (7 + 13 + 17 + 20), Case 4 refresh retained passing code, four Toolbox entries, timeout/Stop/recovery and zero isolation-probe network requests; targeted checks, not the full Playwright suite |
+
+The first integrated run passed 610 unit tests and 113/119 Chromium tests. Five
+new tests read before the debounced save completed and one used a duplicated
+region label; these were corrected, without weakening save/coverage assertions.
+Review added the helper-scope regression: the next full run passed **611 / 120**.
+The final full run includes screenshot-harness, heading-safety and table-spacing
+changes.
+The initial WebKit run passed 27/30; only screenshot-induced CSP console messages
+failed its three responsive tests. Native clipboard permissions, engine-specific
+source positions and the URL-worker constructor limitations from the previous
+engineering review remain separate historical harness/browser issues.
+
+No regression was found in Cases 1–3, including the Case 2 six-file and Case 3
+three-file workflows and browser/Node report parity. Existing backup-failure,
+quota/read errors, late save warnings, recovery and sandbox isolation tests pass.
+Known limits remain: concurrent tabs can overwrite whole snapshots; workers have
+no memory cap; full screen-reader/native-device/contrast audits and owner QA are
+not performed. No dependency audit was added; no dependencies changed. WebKit
+and Firefox coverage here is not certification of native Safari/iOS or the full
+Firefox Playwright suite.
+
+### Changed files
+
+- Missions/runner adapter: `src/missions/index.js`, `twoExports.js`,
+  `twoExports.fixtures.js`, `twoExports.adapter.js` (all under `src/missions`).
+- Checker: `src/checking/evaluateTwoExports.js`.
+- UI: `src/App.jsx`, `src/styles.css`, `src/components/TwoExportsView.jsx`,
+  `TwoExportsOutput.jsx`, `Workbench.jsx`, `ToolboxEntry.jsx`, `common.jsx`.
+- Copy to IDE: `src/export/challengeFile.js`.
+- Tests/config: `playwright.config.js`, `tests/support/twoExports.js`,
+  `tests/unit/twoExports.test.js`, `tests/unit/doubledTotals.test.js`,
+  `tests/e2e/twoExports.spec.js`, `tests/e2e/progress.spec.js`,
+  `tests/e2e/journey.spec.js`, `tests/e2e/messyExport.spec.js`.
+- Documentation: `README.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`,
+  `docs/STATUS.md`, `docs/cases/04-two-exports.md`.
+
+### Remaining owner work
+
+- Milestone 2: feature-complete, QA/final approval pending for November 14–15.
+- Milestone 3: feature-complete, QA/final approval pending in that review period.
+- Milestone 4: browser implementation ready for owner QA after development;
+  review lesson pacing, source-table reading and scrolling, prediction/hints,
+  exact keys, joins, ambiguity, audit accounting, keyboard/device usability and
+  saved passing code. Automated results do not imply approval.
+- Milestone 4 standalone Node-file workflow: separately authorized future slice.
+- Milestone 5: not started.
+
+No commit, push, pull request, merge or deployment. Stop at this implementation.
 
 ## Milestone 3 completion and engineering review (10 November 2026)
 

@@ -39,7 +39,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | 1 | The Missing Jobs | **Done; owner-approved** (see [STATUS.md](STATUS.md)) |
 | 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
 | 3 | The Doubled Totals | Feature-complete, including standalone Node JSON tool; owner QA queued for November 14–15, 2026; approval pending |
-| 4 | The Two Exports | Planned |
+| 4 | The Two Exports | Browser implementation complete; owner QA and approval pending; Node workflow is a future slice |
 | 5 | Your First Reporting Tool | Planned |
 
 ### Milestone 1: The Missing Jobs (done)
@@ -83,16 +83,36 @@ line identifies an occurrence rather than business equality.
   Beginner instructions cover trusted code, Node 24, conflict investigation and
   independent reconciliation. Complete browser/Node parity covers all 17 datasets.
 - Copy to IDE remains the current-draft sample exercise. Owner review is queued
-  for November 14–15, 2026, with approval pending. No Milestone 4 or 5 work.
+  for November 14–15, 2026, with approval pending. Milestone 5 remains unstarted.
 
 See [cases/03-doubled-totals.md](cases/03-doubled-totals.md) for the precise contract.
 
-### Milestone 4: The Two Exports (backlog)
+### Milestone 4: The Two Exports (browser complete; owner QA pending)
 
-Teach matching two datasets by a string key.
+Sam reconciles scheduling and field operations for one week. The learner writes
+`reconcile(orders, fieldReports)` over two already-parsed, validated arrays,
+matching exact string IDs without changing either original source. Unique pairs
+agree or list meaningful site/status/hours differences; one-sided originals stay
+visible. Any repeated key in either source preserves the entire two-source group
+as ambiguous, including identical copies and empty counterparts. Every input
+occurrence is accounted for exactly once, with deterministic scheduling-first
+union ordering and a summary that can be independently audited.
 
-- Explain unmatched records, duplicate lookup keys and one-to-many matches with small examples.
-- The mission states the expected relationship before the learner codes it.
+- Independently playable with two clearly titled source tables and provenance.
+- 20 immutable datasets, handwritten expectations and a behavioural checker;
+  both Map lookup and nested-search implementations pass.
+- Practical inner, left and full outer joins; one-to-many ambiguity; primitive
+  value equality, exact keys, source provenance and planned/actual differences.
+- Prediction or skip, progressive hints, confirmed explained solution, actual
+  output, editor controls, saved drafts/checks and preserved last passing code.
+- Copy to IDE runs the sample arrays and current draft with Node. The Toolbox
+  retains checked browser code. A complete standalone Node file-processing tool
+  remains a separately authorized future slice, with no Case 4 file downloads.
+- Browser implementation awaits owner QA after development. Existing Milestone
+  2/3 hands-on QA remains planned for November 14–15, 2026; no approval inferred.
+
+See [cases/04-two-exports.md](cases/04-two-exports.md) for the full contract,
+dataset inventory and independent checking strategy.
 
 ### Milestone 5: Your First Reporting Tool (backlog)
 

@@ -27,7 +27,7 @@ function cellText(value) {
 
 // A table of records. Strings are shown in quotes, with tabs and line breaks
 // written as \t and \n, so whitespace is visible.
-export function RecordTable({ rows, caption, highlightIds }) {
+export function RecordTable({ rows, caption, highlightIds, headings }) {
   const columns = [];
   for (const row of rows) {
     if (row && typeof row === "object" && !Array.isArray(row)) {
@@ -44,7 +44,7 @@ export function RecordTable({ rows, caption, highlightIds }) {
             <th scope="col">#</th>
             {columns.map((c) => (
               <th scope="col" key={c}>
-                {c}
+                {headings && Object.hasOwn(headings, c) ? headings[c] : c}
               </th>
             ))}
           </tr>

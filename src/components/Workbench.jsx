@@ -4,6 +4,9 @@ import { runMessyExportChecks } from "../checking/evaluateMessyExport.js";
 import { MessyExportOutput } from "./MessyExportOutput.jsx";
 import { DoubledTotalsOutput } from "./DoubledTotalsOutput.jsx";
 import { runDoubledTotalsChecks } from "../checking/evaluateDoubledTotals.js";
+import { runTwoExportsChecks } from "../checking/evaluateTwoExports.js";
+import { reconciliationCode } from "../missions/twoExports.adapter.js";
+import { TwoExportsOutput, SourceExports } from "./TwoExportsOutput.jsx";
 import { DEFAULT_TIMEOUT_MS } from "../runner/sandboxRunner.js";
 import { CodeBlock, RecordTable, RichText } from "./common.jsx";
 import { CopyToIde } from "./CopyToIde.jsx";
@@ -21,7 +24,8 @@ function countText(n) {
 export function Workbench({ exercise, state, update, runner, beforeRun, describeRun, challenge }) {
   const isMessy = exercise.outputKind === "accepted-rejected";
   const isDoubled = exercise.outputKind === "deduplication";
-  const isStructured = isMessy || isDoubled;
+  const isTwo = exercise.outputKind === "reconciliation";
+  const isStructured = isMessy || isDoubled || isTwo;
   const editorId = useId();
   const helpId = useId();
   const wrapId = useId();
@@ -47,13 +51,14 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
     const code = draft;
     setBusy({ kind: "run" });
     setAnnouncement("Running your code…");
-    const result = await runner.run(code, exercise.rows);
+    const result = await runner.run(isTwo ? reconciliationCode(code) : code, exercise.rows);
     if (op !== opRef.current) return; // a newer run or check has started
     setBusy(null);
     setRun({ code, result });
     setCompleted((c) => ({ ...c, runs: c.runs + 1 }));
     const problem = describeRunProblem(result, { timeoutSeconds: TIMEOUT_SECONDS });
     if (problem) setAnnouncement(`Run finished with a problem. ${problem.message}`);
+    else if (isTwo) setAnnouncement("Run finished. Inspect agreements, missing records, differences, ambiguity and summary below.");
     else if (isMessy) setAnnouncement("Run finished. Inspect accepted and rejected records below.");
     else if (isDoubled) setAnnouncement("Run finished. Inspect kept records, duplicates, conflicts and the total below.");
     else if (result.resultType === "array") setAnnouncement(`Run finished. Output: ${countText(result.output.length)}.`);
@@ -66,7 +71,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
     const code = draft;
     setBusy({ kind: "check", done: 0, total: exercise.checks.length });
     setAnnouncement("Checking your code against every dataset…");
-    const checkCode = isDoubled ? runDoubledTotalsChecks : isMessy ? runMessyExportChecks : runChecks;
+    const checkCode = isTwo ? runTwoExportsChecks : isDoubled ? runDoubledTotalsChecks : isMessy ? runMessyExportChecks : runChecks;
     const outcome = await checkCode((c, rows) => runner.run(c, rows), exercise, code, {
       timeoutSeconds: TIMEOUT_SECONDS,
       onProgress: (done, total) => {
@@ -140,10 +145,10 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
       <div className={`workbench-grid${expanded ? " expanded" : ""}`} data-testid={`workbench-grid-${exercise.id}`} data-expanded={expanded}>
         <div className="editor-column">
           <label className="editor-label" htmlFor={editorId}>
-            Your <code>transform</code> function
+            Your <code>{isTwo ? "reconcile" : "transform"}</code> function
           </label>
           <p id={helpId} className="help">
-            <code>transform</code> receives <code>rows</code>, an array (list) of job records, and returns {isDoubled ? <code>{"{ kept, duplicates, conflicts, totalHours }"}</code> : isMessy ? <code>{"{ accepted, rejected }"}</code> : "a new array"}.
+            {isTwo ? <> <code>reconcile(orders, fieldReports)</code> receives both source arrays and returns the six-field reconciliation report. </> : <><code>transform</code> receives <code>rows</code>, an array (list) of job records, and returns {isDoubled ? <code>{"{ kept, duplicates, conflicts, totalHours }"}</code> : isMessy ? <code>{"{ accepted, rejected }"}</code> : "a new array"}.</>}
             Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd> on a Mac) to run.
           </p>
           <div className="editor-toolbar">
@@ -210,7 +215,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
             {busy?.kind === "check" && `Checking… ${busy.done} of ${busy.total} datasets done`}
             {!busy && announcement}
           </p>
-          <OutputPanel run={run} stale={runIsStale} describeRun={describeRun} isMessy={isMessy} isDoubled={isDoubled} rawTotal={isDoubled ? exercise.rows.reduce((sum, row) => sum + row.hours, 0) : undefined} />
+          <OutputPanel run={run} stale={runIsStale} describeRun={describeRun} isMessy={isMessy} isDoubled={isDoubled} isTwo={isTwo} rawTotal={isDoubled ? exercise.rows.reduce((sum, row) => sum + row.hours, 0) : undefined} />
           {!check && state.checked && <p className="note" role="status">Last saved check: {state.checked.passed ? "all datasets passed" : "some datasets failed"}.{state.checked.code !== draft && " The draft has changed; check again."} Run Check solution for full feedback.</p>}
           {check && <CheckPanel check={check} stale={checkIsStale} checks={exercise.checks} />}
         </div>
@@ -221,7 +226,7 @@ export function Workbench({ exercise, state, update, runner, beforeRun, describe
   );
 }
 
-function OutputPanel({ run, stale, describeRun, isMessy, isDoubled, rawTotal }) {
+function OutputPanel({ run, stale, describeRun, isMessy, isDoubled, isTwo, rawTotal }) {
   if (!run) {
     return (
       <section className="panel output-panel" aria-label="Output">
@@ -232,8 +237,8 @@ function OutputPanel({ run, stale, describeRun, isMessy, isDoubled, rawTotal }) 
   }
   const { result } = run;
   const problem = describeRunProblem(result, { timeoutSeconds: TIMEOUT_SECONDS });
-  const typeProblem = !problem && !isMessy && !isDoubled ? describeResultType(result.resultType) : null;
-  const isRecords = !isMessy && !isDoubled && !problem && !typeProblem && Array.isArray(result.output);
+  const typeProblem = !problem && !isTwo && !isMessy && !isDoubled ? describeResultType(result.resultType) : null;
+  const isRecords = !isTwo && !isMessy && !isDoubled && !problem && !typeProblem && Array.isArray(result.output);
   const extra = isRecords && describeRun ? describeRun(result) : null;
 
   return (
@@ -252,6 +257,7 @@ function OutputPanel({ run, stale, describeRun, isMessy, isDoubled, rawTotal }) 
           <RichText text={typeProblem} />
         </p>
       )}
+      {isTwo && !problem && <TwoExportsOutput result={result} describeRun={describeRun} />}
       {isMessy && !problem && <MessyExportOutput result={result} describeRun={describeRun} />}
       {isDoubled && !problem && <DoubledTotalsOutput result={result} describeRun={describeRun} rawTotal={rawTotal} />}
       {isRecords && extra && <p className="feedback info">{extra}</p>}
@@ -362,6 +368,7 @@ function CheckPanel({ check, stale, checks }) {
 
 function DatasetDetails({ check }) {
   if (!check) return null;
+  if (check.orders) return <details className="dataset-details"><summary>Inspect this dataset</summary><p className="small">{check.description}</p><SourceExports orders={check.orders} fieldReports={check.fieldReports} prefix={check.name} /><p className="small">Trace keys and compare fields using the contract; hidden expected reports are not included in Copy to IDE.</p></details>;
   return (
     <details className="dataset-details">
       <summary>Inspect this dataset</summary>

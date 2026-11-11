@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { twoExportsCase } from "../../src/missions/twoExports.js";
 import { doubledTotalsCase } from "../../src/missions/doubledTotals.js";
 import { messyExportCase } from "../../src/missions/messyExport.js";
 import { SOLUTION, check, run, setCode, workbench } from "./helpers.js";
@@ -85,16 +86,17 @@ test("pagehide flushes the latest draft without waiting for the debounce", async
   expect((await saved(page)).exercises["missing-jobs"].draft).toBe(draft);
 });
 
-test("switching through all three missions cancels pending checks and cannot create stale solves", async ({ page }) => {
+test("switching through all four missions cancels pending checks and cannot create stale solves", async ({ page }) => {
   const missions = [
     ["missing-jobs", SOLUTION, "The Messy Export"],
     ["messy-export", messyExportCase.exercises[0].solution.code, "The Doubled Totals"],
-    ["doubled-totals", doubledTotalsCase.exercises[0].solution.code, "The Missing Jobs"],
+    ["doubled-totals", doubledTotalsCase.exercises[0].solution.code, "The Two Exports"],
+    ["two-exports", twoExportsCase.exercises[0].solution.code, "The Missing Jobs"],
   ];
   await page.goto("./");
   for (const [id, solution, next] of missions) {
     await page.getByRole("button", { name: "Skip for now" }).click();
-    const slow = solution.replace("function transform(rows) {", "function transform(rows) { const until = Date.now() + 300; while(Date.now() < until) {}");
+    const slow = solution.replace("{", "{ const until = Date.now() + 300; while(Date.now() < until) {}");
     await setCode(page, slow, id);
     await workbench(page, id).getByRole("button", { name: "Check solution" }).click();
     await page.getByRole("complementary").getByRole("link", { name: new RegExp(next) }).click();
