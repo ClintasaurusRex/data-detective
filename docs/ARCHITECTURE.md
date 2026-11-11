@@ -9,7 +9,7 @@ Data Detective is a static React app (Vite, plain JavaScript). The parts are kep
 | CSV | `src/csv/parseCsv.js` | Reads CSV text into string records with line numbers, using Papa Parse. Syntax only, no case rules (Milestone 2) |
 | Checking | `src/checking/evaluate.js`, `src/checking/evaluateMessyExport.js`, `src/checking/evaluateDoubledTotals.js`, `src/checking/evaluateTwoExports.js` | Case 1 compares ID lists; Case 2 compares accepted/rejected records; Case 3 checks occurrence classification, duplicate links, complete conflicts, order and totals against explicit fixture expectations; Case 4 checks both sources, pairs, missing records, difference fields, whole ambiguity groups and summary |
 | Storage | `src/storage/progress.js` | Saves and validates drafts and progress in `localStorage` |
-| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/doubledTotalsWorkflow.js`, `src/export/doubledTotalsContract.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, Case 2 CSV workflow, Case 3 JSON audit workflow and its guards, and the "Copy to IDE" `challenge.js` |
+| Export | `src/export/nodeScript.js`, `src/export/csvWorkflow.js`, `src/export/doubledTotalsWorkflow.js`, `src/export/doubledTotalsContract.js`, `src/export/twoExportsWorkflow.js`, `src/export/twoExportsContract.js`, `src/export/twoExportsRunner.js`, `src/export/challengeFile.js` | Builds Case 1 JSON scripts, Case 2 CSV workflow, Case 3 JSON audit workflow and its guards, Case 4 two-source reconciliation and guards, and the "Copy to IDE" `challenge.js` |
 | UI | `src/components/`, `src/App.jsx` | React components |
 
 ## Running learner code
@@ -50,7 +50,7 @@ App page (strict CSP, no eval)
 
 ### Known limitations
 
-- **Browser coverage varies.** The full supported suite runs in Chromium (Playwright 1.63, build 1243). WebKit 26.6 passed 83/90 tests in the November 10 review; four clipboard-permission tests cannot run in its driver, two error-line expectations differ, and a URL worker fails asynchronously instead of throwing at construction. A separate controlled probe received zero network requests. System Firefox 159.0.1 passed all three missions' 37 checking datasets and targeted persistence, timeout, Stop, recovery and isolation probes through native BiDi; its Playwright-specific build is unavailable. This is not a full Firefox or native Safari/iOS certification. See [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). If a browser cannot create a worker, the learner sees "Runner unavailable"; code never falls back to the app thread.
+- **Browser coverage varies.** Current verification passed the full 129-test Chromium suite, 39 focused Case 4 WebKit 26.6 tests (including downloaded Node parity), and all four missions' 57 dataset checks in system Firefox 159.0.1 via native BiDi. Firefox also passed targeted persistence, timeout, Stop, recovery, download availability and isolation probes; its Playwright-specific build is unavailable. These are not full native Safari/iOS or Firefox certifications. Historical full-suite WebKit clipboard/diagnostic/constructor harness limits remain documented in [ENGINEERING-REVIEW.md](ENGINEERING-REVIEW.md). If a browser cannot create a worker, the learner sees “Runner unavailable”; code never falls back to the app thread.
 - **No memory limit.** Browsers don't offer one for workers. Code that allocates memory very quickly could exhaust the worker, or possibly the tab, before the 2-second timeout. This wasn't tested.
 - **CSP is set with `<meta>` tags**, so `frame-ancestors` and reporting can't be set. A host that supports response headers could add them. The development server (`npm run dev`) omits the app page CSP because Vite's hot reload needs inline scripts; the sandbox CSP applies in development too.
 - **The iframe posts results to the app with target origin `"*"`**, because an opaque origin can't name its parent's origin. Messages only contain run results. The app checks the sender's window and origin.
@@ -74,7 +74,7 @@ Failed debounced writes display an alert explaining that the latest changes are 
 
 Case 1’s identifiers and save shape are preserved. Case 2 adds `cases["messy-export"].prediction` as `{ accepted, rejected }` or `{ skipped: true }`, and an exercise with the same stable ID. Its optional `checked: { code, passed }` retains the last completed check across refreshes. Draft, previous draft, hints, reference reveal and the exact passing code reuse the existing exercise fields. Detailed run output/check feedback is visit-local; after refresh a saved check summary invites checking again for full feedback.
 
-A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Cases 1–3's Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
+A solve stores the exact code that passed. When the draft differs from it, the app says the code needs checking again. Cases 1–4's Toolbox exports use `solved.code`, never the editor draft or the latest failed check. Cases 2 and 3 use the same saved fields and storage version; no migration is needed.
 
 ## Export
 
@@ -221,16 +221,67 @@ Stable case/exercise ID `two-exports` uses existing version-1 exercise fields an
 integer `{ value }` / `{ skipped: true }` prediction validation. No storage format
 change or migration. Unmount cancellation and operation IDs continue to reject
 late completions. Only every-dataset success replaces solved.code. The additive
-`keepCheckedCode` mission flag makes the Toolbox retain checked browser code
-without claiming or generating a file-processing tool. Cases 1–3 retain their
+`keepCheckedCode` mission flag retains the Case 4 checked code. Its dedicated
+Toolbox entry now builds the standalone workflow below. Cases 1–3 retain their
 existing download eligibility and artifact generators.
 
 Copy to IDE uses a reconciliation flag to emit both displayed sample arrays,
 the current draft and a direct reconcile preview. No file reader, hidden dataset
 or automatic reference solution is bundled. The exported challenge runs as real
-Node JavaScript in browser tests. A separately authorized Node-file workflow is
-still outstanding; Milestone 5 is unstarted. No new dependencies were added.
+Node JavaScript in browser tests. The checked Node-file workflow is now complete;
+Milestone 5 is unstarted. No new dependencies were added.
 
 The Playwright configuration now takes `DATA_DETECTIVE_TEST_PORT` (default
 4173) and refuses server reuse. Baseline testing found an unrelated application
 on the default port; isolated-port execution prevents false product failures.
+
+
+### Case 4 standalone two-file workflow
+
+`buildTwoExportsWorkflow(exercise, solved)` returns exactly four artifacts:
+`reconcile.mjs`, `orders.json`, `field-reports.json`, `README.md`.
+`TwoExportsToolboxEntry` uses the existing Blob download helper and styling on
+both the solved case and Toolbox. Only solved.code is embedded, unchanged and
+isolated in a strict function scope. It calls reconcile directly; the browser's
+transform adapter is not bundled. Global and supplied console routes use stderr.
+
+The generator bundles the maintained input/report guards and Node runner via raw
+imports, plus the displayed sample arrays and beginner guide. There are no hidden
+fixtures, reference implementation, npm dependencies or external runtime imports.
+The exported module imports only Node built-ins. `twoExportsRunner.js` is bundle
+source, not an application entry point; its ESLint globals describe generated
+module dependencies. `twoExportsREADME.md` is also the actual downloaded guide.
+
+Input guards reject wrong fields/types, invalid text/status/hours and unsafe,
+nonpositive or nonincreasing provenance within each source. Duplicate IDs remain
+valid; source lines can overlap across files. Safe numeric quarter units keep
+the small exact-number contract explicit for external input; no totals of hours
+are introduced. Both sources are validated before learner code loads.
+
+Report guards build source-line indexes and key multiplicity/order metadata.
+They check actual returned records, category eligibility, exact pair IDs,
+strict differences in site/status/hours order, whole ambiguity groups, per-source
+ordering, scheduling-first category order, exactly-once coverage and all seven
+counts. They never construct a replacement report. Originals are snapshotted;
+mutation is checked after execution and serialization. The report is validated
+before and after serialization, rejecting misleading toJSON behavior.
+
+Output preparation follows validation. Resolved input/output paths and file
+identity (dev/ino) protect BOTH inputs, including symlinks and hard links. All
+output symlinks are refused, with an explicit diagnostic. Existing regular
+reports must be writable. A private temporary sibling directory holds the full
+report, written with exclusive creation, synced and closed; destination checks
+repeat before rename. Handled failures clean temporary files. An existing report
+is never truncated. An abrupt kill may leave staging files; atomic rename on
+ordinary local filesystems is not a power-loss guarantee, portable race-free path
+locking or secure execution of untrusted code. Output metadata/hard-link identity
+is replaced. Earlier generators retain their documented non-atomic write limits.
+
+Real generated-script tests exercise all 20 datasets with two algorithms and
+adversarial reports, both inputs, file links, permissions, a file-size-limit
+mid-write failure and interrupted learner preparation. Production Playwright
+tests download the actual files and compare all complete reports with real worker
+messages for both algorithms. Keyboard downloads, newer drafts, failed/cancelled
+checks, refresh, stale checking and contained layouts cover 1920/1366/375 px.
+Current counts and engine-specific limits are in ENGINEERING-REVIEW.md; the older
+browser evidence above is historical, not a full current cross-engine claim.

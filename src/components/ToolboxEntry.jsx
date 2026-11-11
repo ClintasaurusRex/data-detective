@@ -2,20 +2,14 @@ import { buildNodeScript, buildSampleJson, downloadText } from "../export/nodeSc
 import { CodeBlock } from "./common.jsx";
 import { formatDate, solvedLabel } from "./format.js";
 import { CsvToolboxEntry } from "./CsvToolboxEntry.jsx";
+import { TwoExportsToolboxEntry } from "./TwoExportsToolboxEntry.jsx";
 import { DoubledTotalsToolboxEntry } from "./DoubledTotalsToolboxEntry.jsx";
 
 // One checked script in the Toolbox, with downloads and instructions.
 export function ToolboxEntry({ exercise, solved, headingLevel = 3 }) {
   if (exercise.outputKind === "accepted-rejected") return <CsvToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
   if (exercise.outputKind === "deduplication") return <DoubledTotalsToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
-  if (exercise.outputKind === "reconciliation") {
-    const Heading = `h${headingLevel}`;
-    return <article className="toolbox-entry" data-testid={`toolbox-${exercise.id}`}>
-      <Heading>Case 4: {exercise.title}</Heading><p className="small muted">{solvedLabel(solved)}</p>
-      <p>Your last passing browser code is kept here. The standalone Node file-processing workflow is a future slice. Copy to IDE on the case page runs the sample exercise with your current draft.</p>
-      <CodeBlock code={solved.code} label={`Checked code for ${exercise.title}`} />
-    </article>;
-  }
+  if (exercise.outputKind === "reconciliation") return <TwoExportsToolboxEntry exercise={exercise} solved={solved} headingLevel={headingLevel} />;
   const Heading = `h${headingLevel}`;
   const fileName = exercise.exportFileName;
 

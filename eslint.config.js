@@ -21,6 +21,11 @@ export default [
     },
   },
   {
+    // Source bundled verbatim into the standalone Node reconciliation module.
+    files: ["src/export/twoExportsRunner.js"],
+    languageOptions: { globals: { ...globals.node, fs: "readonly", constants: "readonly", resolve: "readonly", dirname: "readonly", join: "readonly", validateTwoExportsInput: "readonly", validateTwoExportsReport: "readonly", loadCheckedCode: "readonly" } },
+  },
+  {
     // Classic scripts inlined into sandbox.html.
     files: ["src/runner/sandbox/*.js"],
     languageOptions: { sourceType: "script", globals: { ...globals.browser, ...globals.worker } },

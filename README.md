@@ -2,11 +2,11 @@
 
 A friendly learning app for writing useful workplace data scripts in JavaScript.
 
-You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Cases 1 and 3 provide standalone Node JSON tools; Case 2 provides a complete Node CSV reporting tool.
+You play a data detective at a fictional water utility, Riverbend Water Services. Each case starts with a request from a colleague and a small dataset. You inspect the data, predict the answer, fix a real JavaScript function, run it, check it against more data, and retain the code that passed. Cases 1, 3 and 4 provide standalone Node JSON tools; Case 2 provides a complete Node CSV reporting tool.
 
 The app fills the browser window, with the case list as a compact sidebar on desktop. The editor can be expanded to full width, with optional word wrap. **Copy to IDE** copies the exercise as a runnable `challenge.js`, so learners can work in VS Code, VSCodium or another IDE and paste their solution back. For Case 2 this is explicitly a parsed-record exercise, using the displayed records; it does not read CSV files.
 
-Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, now has an independently playable browser reconciliation mission awaiting owner QA. Its standalone Node file-processing workflow is a future slice. Milestone 5 remains unstarted; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
+Milestone 1 (Case 1, **The Missing Jobs**) is complete and owner-approved. Milestone 2, **The Messy Export**, is feature-complete; its owner QA and final approval remain pending, deferred to November 14–15, 2026. Milestone 3, **The Doubled Totals**, is feature-complete with a browser mission and standalone JSON-file reporting tool: investigate copied and conflicting jobs, retain safe originals, produce an audit trail and verify a reliable hours subtotal. Its owner QA is also queued for November 14–15; approval remains pending. Milestone 4, **The Two Exports**, is feature-complete with an independently playable browser mission and standalone two-file Node reconciliation tool; owner QA remains pending, queued for November 14–15 if practical. Milestone 5 remains unstarted; see [docs/PRODUCT.md](docs/PRODUCT.md) and [docs/STATUS.md](docs/STATUS.md).
 
 ![Case 1 on a wide screen](docs/screenshots/1920-wide.png)
 
@@ -98,8 +98,46 @@ Map lookups, value comparisons, joins and independent reconciliation checks.
 Saved progress and the Toolbox retain the last passing code after draft changes,
 failed or cancelled checks and refresh. Copy to IDE runs your current draft on
 the two displayed sample arrays as `node challenge.js`; it contains no hidden
-fixtures or automatic reference solution. **Case 4 has no Node-file downloads**
-in this slice. See [the exact Case 4 contract](docs/cases/04-two-exports.md).
+fixtures or automatic reference solution. The Toolbox downloads the last passing
+solution as a standalone two-file Node tool described below. See [the exact Case 4 contract](docs/cases/04-two-exports.md).
+
+## Use your Case 4 reconciliation tool
+
+Pass all 20 checks, then download **all four files** into a new folder:
+`reconcile.mjs`, `orders.json`, `field-reports.json`, `README.md`.
+With [Node 24 installed](https://nodejs.org/en/download), open a terminal there:
+
+```bash
+node reconcile.mjs orders.json field-reports.json
+node reconcile.mjs orders.json field-reports.json report.json
+node reconcile.mjs another-orders.json another-fields.json weekly-report.json
+```
+
+No npm install or dependency is needed. The first two arguments supply scheduling
+and field operations; the optional third saves formatted JSON. Without it, stdout
+contains JSON alone. Console messages and errors use stderr. The script runs the
+exact last passing `reconcile(orders, fieldReports)`, preserving it after later
+drafts, failed/cancelled checks, refresh and navigation. Copy to IDE uses the draft.
+
+Both sources must be arrays of valid `{ line, id, site, status, hours }` records.
+Guards reject invalid data before loading learner code, then verify complete
+original content, source roles, classification, pairs, differences, ambiguity,
+ordering, coverage, summary and mutation before and after serialization. They do
+not supply or repair a report. Exact IDs and source-scoped provenance stay intact;
+repeated job IDs remain valid ambiguous evidence. Both empty arrays are valid.
+
+Both input files are protected through resolved paths and filesystem identity,
+including symlinks and hard links. Output symlinks are refused. A complete report
+is staged beside the destination, synced and renamed, preserving old output on
+preparation failures instead of truncating it. Shell redirection onto an input,
+concurrent external path changes and power-loss durability are outside this
+protection. Only run trusted code: Node has normal filesystem permissions, no
+sandbox timeout or memory cap, and reads whole files. Start small; require exit 0.
+Read the downloaded README for practical setup, report investigation and errors.
+
+Actual downloaded files match complete production browser-worker reports on all
+20 datasets with two independent correct algorithms in Chromium and WebKit.
+See [the engineering review](docs/ENGINEERING-REVIEW.md) for exact counts and limits.
 
 ## Use your Case 2 CSV tool
 

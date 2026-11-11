@@ -39,7 +39,7 @@ The fun comes from investigation, immediate visible results, collecting useful t
 | 1 | The Missing Jobs | **Done; owner-approved** (see [STATUS.md](STATUS.md)) |
 | 2 | The Messy Export | Feature-complete; owner QA deferred to November 14–15, 2026; approval pending |
 | 3 | The Doubled Totals | Feature-complete, including standalone Node JSON tool; owner QA queued for November 14–15, 2026; approval pending |
-| 4 | The Two Exports | Browser implementation complete; owner QA and approval pending; Node workflow is a future slice |
+| 4 | The Two Exports | Feature-complete, including standalone two-file Node reconciliation; owner QA/approval pending November 14–15 if practical |
 | 5 | Your First Reporting Tool | Planned |
 
 ### Milestone 1: The Missing Jobs (done)
@@ -87,7 +87,7 @@ line identifies an occurrence rather than business equality.
 
 See [cases/03-doubled-totals.md](cases/03-doubled-totals.md) for the precise contract.
 
-### Milestone 4: The Two Exports (browser complete; owner QA pending)
+### Milestone 4: The Two Exports (feature-complete; owner QA pending)
 
 Sam reconciles scheduling and field operations for one week. The learner writes
 `reconcile(orders, fieldReports)` over two already-parsed, validated arrays,
@@ -106,9 +106,16 @@ union ordering and a summary that can be independently audited.
 - Prediction or skip, progressive hints, confirmed explained solution, actual
   output, editor controls, saved drafts/checks and preserved last passing code.
 - Copy to IDE runs the sample arrays and current draft with Node. The Toolbox
-  retains checked browser code. A complete standalone Node file-processing tool
-  remains a separately authorized future slice, with no Case 4 file downloads.
-- Browser implementation awaits owner QA after development. Existing Milestone
+  exports exact last passing code as `reconcile.mjs`, `orders.json`,
+  `field-reports.json`, `README.md`, with no dependencies or npm install.
+- The standalone Node 24 tool reads two JSON files, validates both sources before
+  executing learner code, validates every report invariant, and prints JSON or
+  atomically saves it to a third path. Both inputs and their links are protected.
+  Console/diagnostics use stderr. The guide teaches exact matching, source-scoped
+  provenance, ambiguity, full accounting, report investigation and trusted Node
+  permissions/resource limits. Complete browser/Node parity covers all 20
+  datasets with both correct algorithms in Chromium and focused WebKit.
+- Feature completion awaits owner QA, queued November 14–15 if practical. Existing Milestone
   2/3 hands-on QA remains planned for November 14–15, 2026; no approval inferred.
 
 See [cases/04-two-exports.md](cases/04-two-exports.md) for the full contract,

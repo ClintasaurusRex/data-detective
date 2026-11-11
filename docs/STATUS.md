@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 11 November 2026 (Milestone 4 browser mission complete; owner QA pending).
+Last updated: 11 November 2026 (Milestone 4 standalone workflow complete; owner QA pending).
 
 ## Milestones
 
@@ -9,10 +9,72 @@ Last updated: 11 November 2026 (Milestone 4 browser mission complete; owner QA p
 | 1 | The Missing Jobs | **Complete and owner-approved** |
 | 2 | The Messy Export | **Feature-complete; owner QA and final approval pending.** QA deferred to November 14–15, 2026. Checkpointed before Milestone 3. |
 | 3 | The Doubled Totals | **Feature-complete**, including the standalone Node JSON tool. Ready for owner QA, queued for November 14–15, 2026 if practical; approval pending. |
-| 4 | The Two Exports | **Browser implementation complete; ready for owner QA, approval pending.** Standalone Node workflow is a separate future slice. |
+| 4 | The Two Exports | **Feature-complete**, including standalone two-file Node reconciliation; owner QA/approval pending, November 14–15 if practical. |
 | 5 | Your First Reporting Tool | Planned, unstarted |
 
-## Milestone 4 browser implementation (11 November 2026)
+## Milestone 4 standalone workflow and review (11 November 2026)
+
+Started clean at `a653eed` on `feature/milestone-4-two-exports`, tracking the same
+origin branch. Baseline passed 611 unit tests and 121 Chromium tests, lint/build.
+Implemented four dependency-free downloads using the last successfully checked
+solution: `reconcile.mjs`, `orders.json`, `field-reports.json`, `README.md`.
+
+```bash
+node reconcile.mjs orders.json field-reports.json
+node reconcile.mjs orders.json field-reports.json report.json
+node reconcile.mjs another-orders.json another-fields.json weekly-report.json
+```
+
+The direct two-array learner call is isolated from runner helper names. Both
+sources validate before code loads. Exact record/data/provenance guards accept
+duplicate job IDs and empty sources without cleaning. Report guards verify all
+classification, original content/source roles, difference fields, whole ambiguous
+groups, ordering, coverage, summary and mutation, before/after serialization.
+No reference solver replaces learner results. Stdout is JSON; console/errors use
+stderr. Both inputs and file-link aliases are protected. Sibling staging, sync
+and rename preserve earlier output on preparation/write failures. Trust/resource,
+filesystem/concurrency and power-loss limits are explicitly documented.
+
+191 new genuine-process unit tests cover normal/error/safety behavior. Actual
+browser downloads run as Node processes with complete browser-worker report
+parity on all 20 datasets for each of two correct algorithms, in Chromium and
+WebKit. New browser coverage checks four filenames/contents, checked-code retention
+through edits/failures/cancellation/refresh, stale checks, keyboard/help/labels and
+1920/1366/375 px overflow. Final application-code verification passed lint/build, **802 unit tests** in 15
+files, **129 Chromium tests**, **39 focused WebKit tests** and **57 targeted
+Firefox dataset checks**. Each has **0 failed / 0 skipped**. Firefox is native
+BiDi rather than the full Playwright suite; timeout/Stop/recovery, refresh,
+Toolbox availability and zero isolation-probe requests were verified. Expanded
+production Toolbox screenshots were visually inspected at all three widths.
+Final post-documentation verification repeats `DATA_DETECTIVE_TEST_PORT=4287 npm
+run check`, `git diff --check`, `git status -sb`. Full evidence and the 18-file
+change inventory are in ENGINEERING-REVIEW.md.
+
+Cross-mission regression checks retain Case 1 overwrite/global-console and backup
+fixes, prior exports/parity, navigation/history/refresh, storage warnings/recovery,
+Run/Check/Stop/timeouts, cancellation, sandbox isolation and Copy to IDE. No new
+confirmed Critical/High existing-app defect or broad refactor. Existing Medium
+concurrent-tab overwrite and Low engine/harness limitations remain documented.
+No mission contracts, fixtures, stable IDs/storage schema, sandbox/CSP or
+dependencies changed. No commit, push, PR action, merge or deployment.
+
+### Owner QA — Cases 2–4, November 14–15, 2026
+
+Cases 2 and 3 remain feature-complete but unapproved. Include Case 4 if practical;
+its standalone workflow is now feature-complete, with owner QA still pending.
+
+- [ ] Review Case 4 lesson pacing, paired source tables, prediction, hints, joins and explanation.
+- [ ] Trace exact IDs/source lines, every difference and whole ambiguous group; independently account for 7 orders and 6 field records.
+- [ ] Test owner laptop/phone, keyboard/focus/help and assistive technology as available.
+- [ ] Download four files into a fresh folder and run Node 24 print/save/new-pair commands without npm install.
+- [ ] Investigate invalid data, both input overwrite aliases, old-report preservation and nonzero failures.
+- [ ] Confirm checked-code persistence through draft edits, failed/cancelled checks, navigation and refresh.
+- [ ] Complete the existing Case 2/3 checklists below before final approval.
+
+Milestone 1 remains owner-approved. Milestone 5 remains unstarted. Stop after this
+completion/review; owner and ChatGPT authorize the next task separately.
+
+## Milestone 4 browser implementation (11 November 2026; historical checkpoint)
 
 - Started clean on `feature/milestone-4-two-exports` at `f7ad801`, with no
   configured upstream. Read README, docs, all existing mission contracts,
@@ -540,9 +602,7 @@ and had not been checked at the original Milestone 1 checkpoint.
 
 ## Owner review checkpoint
 
-Milestone 3's browser mission and standalone Node JSON-file workflow are
-feature-complete and ready for owner QA, queued for November 14–15, 2026 if
-practical. Milestone 2's owner QA and final approval remain pending for that
-weekend. Neither milestone becomes owner-approved through automated results.
-
-Stop after this completion and review task. Do not begin Milestones 4 or 5.
+Milestones 2–4 are feature-complete with their standalone Node workflows; all
+three await owner QA and final approval, planned November 14–15, 2026 (Case 4 if
+practical). Milestone 1 remains owner-approved. Automated checks are separate from
+owner approval. Milestone 5 is not started; stop after this task.

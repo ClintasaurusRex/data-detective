@@ -1,7 +1,7 @@
 # Case 4: The Two Exports
 
-Status: browser implementation complete; ready for owner QA, approval pending.
-The standalone Node file-processing workflow is a separate future slice.
+Status: feature-complete, including standalone Node reconciliation; owner QA and
+approval pending, queued November 14–15, 2026 if practical.
 This contract was written before the checker.
 
 ## The request and learning scope
@@ -159,8 +159,7 @@ edits, errors, failed checks, cancellation and refresh preserve the passing code
 Copy to IDE produces the current draft, both displayed arrays and a direct
 `reconcile` preview, runnable as `node challenge.js`. No hidden fixtures or
 automatic reference solution are included. The Toolbox retains checked browser
-code with an explicit note that file processing remains a future slice. There
-are no Case 4 Node-file downloads. Case 5 is unstarted.
+code and offers the four-file Node reconciliation package below. Case 5 is unstarted.
 
 ## Explicit expected source-line decisions
 
@@ -191,3 +190,60 @@ These are transcribed from the handwritten expectations, not the reference solut
 | Exact text and special keys | 5 ↔ 11; 9 ↔ 2 | none | none | 2 ↔ 6: site; 3 ↔ 4: site | none |
 
 For the case file, summary is `{ orders: 7, fieldReports: 6, agreed: 2, onlyOrders: 1, onlyFieldReports: 1, differences: 2, ambiguous: 1 }`. Accounting: scheduling 2 + 2 + 1 + 2 = 7; field 2 + 2 + 1 + 1 = 6. Ask the source teams about 0072, 0077, planned/actual differences for 0073 and 0074, and the repeated scheduling key 0075.
+
+
+## Standalone Node reconciliation
+
+Pass Check solution on all 20 datasets, then download all four files to one folder:
+
+| File | Purpose |
+| --- | --- |
+| `reconcile.mjs` | Exact last passing reconcile code, file runner and integrity guards |
+| `orders.json` | Displayed fictional scheduling records |
+| `field-reports.json` | Displayed fictional field-operation records |
+| `README.md` | Node 24 setup, commands, concepts, investigation, safety and errors |
+
+```bash
+node reconcile.mjs orders.json field-reports.json
+node reconcile.mjs orders.json field-reports.json report.json
+node reconcile.mjs another-orders.json another-fields.json weekly-report.json
+```
+
+No npm install, repository or dependencies are required. The two mandatory paths
+supply already-valid JSON arrays. Optional third path saves a report; otherwise
+stdout contains formatted JSON alone. Console and operational/error messages use
+stderr. Invalid arguments, reads/data, execution/results or writes exit nonzero.
+The checked solution is loaded after both inputs validate, in a separate strict
+scope, and called directly with both arrays. No browser adapter is required.
+
+Input validation enforces the exact record fields/types and existing contract,
+without cleaning. Source lines are increasing positive safe integers, unique
+within each file, independently of the other source. Quarter-hour units must
+fit JavaScript's safe integer range. IDs remain exact strings; duplicate job
+IDs, including exact copies, are accepted as evidence. Both empty arrays are
+valid. Optional initial UTF-8 BOM is file metadata, not a change to record text.
+
+Report validation checks originals, source roles, exact matching keys, category
+eligibility, duplicate-key precedence, all differing fields/order, whole groups,
+category/group order, full source coverage, seven counts and input preservation.
+It works from arbitrary valid inputs rather than hidden expectations. Checks run
+before and after serialization. Invalid results are rejected, never repaired or
+replaced with a reference solver. Later draft changes, failed/cancelled checks,
+navigation and refresh preserve the earlier passing export.
+
+Both inputs are protected by resolved paths and dev/ino identity, including
+symlink/hard-link aliases. Output symlinks are rejected. Existing output remains
+untouched until a fully prepared sibling report is synced, closed and renamed.
+Handled preparation/write errors preserve old output and clean staging files;
+forced termination may leave a temporary directory. No guarantee covers shell
+redirection onto inputs, malicious code, concurrent external path manipulation,
+network-filesystem behavior or power-loss durability. Require successful exit.
+Node has normal filesystem permissions, no sandbox timeout/memory cap and reads
+whole files: run trusted code only and start with small exports.
+
+The downloaded guide independently traces the sample's 7 scheduling and 6 field
+occurrences, explains missingness/differences/ambiguity and follow-up with source
+teams, and teaches stdout/stderr, arguments and failures. Full actual-download
+Node/browser-worker parity passes all 20 datasets with both correct algorithms
+in Chromium and focused WebKit. See ENGINEERING-REVIEW.md for final test counts,
+current cross-mission evidence and owner/device QA limitations.

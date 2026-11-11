@@ -30,7 +30,7 @@ for(const [name,code] of [["Map",solution],["nested searches",independentSolutio
     await setCode(page,code,ID);await check(page,ID);
     await expect(page.getByTestId("check-summary")).toHaveText("All 20 checks passed.");
     expect(await page.evaluate(()=>window.__reports)).toEqual(exercise.checks.map(expectedOutput));
-    await expect(page.getByRole("button",{name:/Download/})).toHaveCount(0);
+    await expect(page.getByRole("button",{name:/Download/})).toHaveCount(4);
     await expect.poll(async()=>(await saved(page))?.exercises[ID]?.solved?.code).toBe(code);
   });
 }
@@ -132,7 +132,7 @@ test("passing code survives incorrect runs, failed/cancelled checks, newer draft
   await expect(page.getByTestId(`editor-${ID}`)).toHaveValue(draft);await expect(page.getByTestId("case-status")).toHaveText("Needs checking again");
   expect((await saved(page))?.exercises[ID]?.solved?.code).toBe(independentSolution);
   await page.getByRole("link",{name:"Toolbox (1)"}).click();await expect(page.getByTestId(`toolbox-${ID}`).getByLabel(`Checked code for ${exercise.title}`)).toHaveText(independentSolution);
-  await expect(page.getByRole("button",{name:/Download/})).toHaveCount(0);
+  await expect(page.getByRole("button",{name:/Download/})).toHaveCount(4);
 });
 test("editing during a check retains exact checked code and marks newer draft stale",async({page})=>{
   await open(page);const code=solution.replace('const scheduled =','const until=Date.now()+80;while(Date.now()<until){} const scheduled =');
